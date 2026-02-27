@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use App\Models\ProductCategory;
+use Illuminate\Http\Request;
+
+class ShopController extends Controller
+{
+    public function index(Request $request)
+    {
+        $categories = ProductCategory::whereNull('parent_id')
+            ->with('children')
+            ->orderBy('sort_order')
+            ->get();
+
+        $query = Product::with('category')
+            ->where('is_active', true)
+            ->orderBy('name');
+
+        // Filtre catégorie
+        $currentCategory = null;
+        if ($request->filled('categorie')) {
+            $currentCategory = ProductCategory::where('slug', $request->categorie)->first();
+            if ($currentCategory) {
+                $childIds = $currentCategory->children->pluck('id');
+                $query->where(function ($q) use ($currentCategory, $childIds) {
+                    $q->where('category_id', $currentCategory->id)
+                      ->orWhereIn('category_id', $childIds);
+                });
+            }
+        }
+
+        // Filtre recherche
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('short_description', 'like', "%{$search}%");
+            });
+        }
+
+        $products = $query->paginate(24)->withQueryString();
+
+        // Turbo Frame : retourner seulement la grille si demandé
+        if ($request->headers->get('Turbo-Frame') === 'products-grid') {
+            return view('shop.partials.grid', compact('products', 'categories', 'currentCategory'));
+        }
+
+        return view('shop.index', compact('products', 'categories', 'currentCategory'));
+    }
+
+    public function show(string $slug)
+    {
+        $product = Product::where('slug', $slug)
+            ->where('is_active', true)
+            ->with(['category', 'addons.group'])
+            ->firstOrFail();
+
+        // Produits similaires (même catégorie)
+        $related = Product::where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->where('is_active', true)
+            ->limit(4)
+            ->get();
+
+        return view('shop.show', compact('product', 'related'));
+    }
+}
