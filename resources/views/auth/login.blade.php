@@ -8,7 +8,7 @@
         </div>
     @endif
 
-    <form action="{{ route('login.post') }}" method="POST" class="space-y-4">
+    <form action="{{ route('login.post') }}" method="POST" class="space-y-4" data-turbo="false">
         @csrf
 
         <div>
