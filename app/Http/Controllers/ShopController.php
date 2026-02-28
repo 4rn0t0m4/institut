@@ -55,7 +55,7 @@ class ShopController extends Controller
     {
         $product = Product::where('slug', $slug)
             ->where('is_active', true)
-            ->with(['category', 'addons.group'])
+            ->with(['category', 'addonAssignments.addon.group'])
             ->firstOrFail();
 
         // Produits similaires (même catégorie)

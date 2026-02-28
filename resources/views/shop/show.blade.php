@@ -16,15 +16,24 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
 
         {{-- Galerie --}}
+        @php
+            $galleryImages = $product->galleryImages();
+            $allImages = collect();
+            if ($product->featuredImage) $allImages->push($product->featuredImage);
+            $allImages = $allImages->merge($galleryImages);
+        @endphp
         <div x-data="{ active: 0 }">
-            <div class="aspect-square bg-gray-50 rounded-xl overflow-hidden mb-3">
-                @if($product->featured_image_id && $product->featuredImage)
-                    <img :src="active === 0 ? '{{ $product->featuredImage->url }}' : ''"
-                         src="{{ $product->featuredImage->url }}"
-                         alt="{{ $product->name }}"
-                         class="w-full h-full object-cover">
+            {{-- Image principale --}}
+            <div class="aspect-square rounded-2xl overflow-hidden mb-3" style="background-color: #f0fdf4;">
+                @if($allImages->isNotEmpty())
+                    @foreach($allImages as $i => $img)
+                        <img src="{{ $img->url }}"
+                             alt="{{ $img->alt ?: $product->name }}"
+                             x-show="active === {{ $i }}"
+                             class="w-full h-full object-cover">
+                    @endforeach
                 @else
-                    <div class="w-full h-full flex items-center justify-center text-gray-200">
+                    <div class="w-full h-full flex items-center justify-center" style="color: #b0f1b9;">
                         <svg class="w-24 h-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
                                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -32,6 +41,20 @@
                     </div>
                 @endif
             </div>
+
+            {{-- Miniatures si plusieurs images --}}
+            @if($allImages->count() > 1)
+                <div class="flex gap-2 overflow-x-auto pb-1">
+                    @foreach($allImages as $i => $img)
+                        <button @click="active = {{ $i }}"
+                                class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition"
+                                :class="active === {{ $i }} ? 'border-[#276e44]' : 'border-transparent'">
+                            <img src="{{ $img->url }}" alt=""
+                                 class="w-full h-full object-cover">
+                        </button>
+                    @endforeach
+                </div>
+            @endif
         </div>
 
         {{-- Infos produit --}}
@@ -69,10 +92,10 @@
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
 
                 {{-- Addons --}}
-                @if($product->addons->isNotEmpty())
+                @if($product->addonAssignments->isNotEmpty())
                     <div class="space-y-4">
-                        @foreach($product->addons as $addon)
-                            <x-product-addon :addon="$addon"/>
+                        @foreach($product->addonAssignments as $assignment)
+                            <x-product-addon :addon="$assignment->addon"/>
                         @endforeach
                     </div>
                 @endif

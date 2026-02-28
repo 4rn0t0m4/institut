@@ -87,4 +87,22 @@ class CartService
             return $carry + ($item['price'] + $item['addon_price']) * $item['quantity'];
         }, 0.0);
     }
+
+    /** Items enrichis avec le modèle Product (pour DiscountEngine et checkout) */
+    public function itemsWithProducts(): array
+    {
+        $cart = $this->all();
+        if (empty($cart)) {
+            return [];
+        }
+
+        $productIds = array_unique(array_column($cart, 'product_id'));
+        $products   = Product::whereIn('id', $productIds)->get()->keyBy('id');
+
+        return array_map(function (array $item) use ($products) {
+            $item['product']    = $products->get($item['product_id']);
+            $item['unit_price'] = $item['price'];
+            return $item;
+        }, $cart);
+    }
 }

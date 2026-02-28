@@ -5,7 +5,7 @@
         <div id="sticky-banner"
              x-data="{ show: !localStorage.getItem('banner-dismissed') }"
              x-show="show"
-             class="bg-green-700 text-white text-sm text-center py-2 px-4">
+             class="text-white text-sm text-center py-2 px-4" style="background-color: #276e44;">
             {{ $bannerData['text'] }}
             @if(!empty($bannerData['link']))
                 <a href="{{ $bannerData['link'] }}" class="underline ml-2">

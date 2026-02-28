@@ -19,7 +19,16 @@ class Product extends Model
 
     public function category() { return $this->belongsTo(ProductCategory::class,'category_id'); }
     public function featuredImage() { return $this->belongsTo(Media::class,'featured_image_id'); }
-    public function addons() { return $this->morphMany(ProductAddon::class,'assignable'); }
+    public function addonAssignments() { return $this->morphMany(ProductAddonAssignment::class,'assignable'); }
+
+    public function galleryImages(): \Illuminate\Database\Eloquent\Collection
+    {
+        $ids = $this->gallery_image_ids ?? [];
+        if (empty($ids)) {
+            return new \Illuminate\Database\Eloquent\Collection();
+        }
+        return Media::whereIn('id', $ids)->orderByRaw('FIELD(id,' . implode(',', $ids) . ')')->get();
+    }
 
     public function currentPrice(): float
     {

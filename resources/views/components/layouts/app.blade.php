@@ -15,7 +15,7 @@
     @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-white text-gray-900 font-sans antialiased" x-data>
+<body class="bg-white text-gray-900 antialiased" x-data>
 
     @include('partials.sticky-banner')
     @include('partials.header')
