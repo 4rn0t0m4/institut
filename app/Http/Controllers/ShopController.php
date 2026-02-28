@@ -19,16 +19,22 @@ class ShopController extends Controller
             ->where('is_active', true)
             ->orderBy('name');
 
-        // Filtre catégorie
+        // Filtre catégorie (inclut parent + enfants dans les deux sens)
         $currentCategory = null;
         if ($request->filled('categorie')) {
             $currentCategory = ProductCategory::where('slug', $request->categorie)->first();
             if ($currentCategory) {
-                $childIds = $currentCategory->children->pluck('id');
-                $query->where(function ($q) use ($currentCategory, $childIds) {
-                    $q->where('category_id', $currentCategory->id)
-                      ->orWhereIn('category_id', $childIds);
-                });
+                $categoryIds = collect([$currentCategory->id]);
+
+                // Ajouter les sous-catégories
+                $categoryIds = $categoryIds->merge($currentCategory->children->pluck('id'));
+
+                // Ajouter la catégorie parente si c'est une sous-catégorie
+                if ($currentCategory->parent_id) {
+                    $categoryIds->push($currentCategory->parent_id);
+                }
+
+                $query->whereIn('category_id', $categoryIds);
             }
         }
 
