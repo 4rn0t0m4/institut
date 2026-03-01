@@ -15,7 +15,7 @@ class QuizController extends Controller
     public function show(string $slug)
     {
         $quiz = Quiz::where('slug', $slug)->firstOrFail();
-        $firstQuestion = $quiz->questions()->orderBy('sort_order')->first();
+        $firstQuestion = $quiz->questions()->with('choices')->orderBy('sort_order')->first();
 
         if (!$firstQuestion) {
             abort(404);
@@ -68,12 +68,7 @@ class QuizController extends Controller
         $nextQuestion = $this->resolveNextQuestion($quiz, $question, $choice);
 
         if ($nextQuestion) {
-            // Turbo Stream pour remplacer la frame question
-            $answered = count($answers);
-            $total    = $quiz->questions()->count();
-
-            return response()->view('quiz.partials.question', compact('quiz', 'nextQuestion', 'answered', 'total'))
-                ->header('Content-Type', 'text/html');
+            return redirect()->route('quiz.question', [$quiz->slug, $nextQuestion->id]);
         }
 
         // Fin du quiz : calcule le résultat

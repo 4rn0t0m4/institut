@@ -3,7 +3,7 @@
 <article class="group flex flex-col bg-white border rounded-xl overflow-hidden hover:shadow-md transition-shadow"
          style="border-color: #b0f1b9;">
     {{-- Image --}}
-    <a href="{{ route('shop.show', $product->slug) }}"
+    <a href="{{ route('shop.show', $product->slug) }}" data-turbo-frame="_top"
        class="block aspect-square overflow-hidden" style="background-color: #f0fdf4;">
         @if($product->featured_image_id)
             <img src="{{ $product->featuredImage->url ?? '' }}"
@@ -25,7 +25,7 @@
         @if($product->category)
             <p class="text-xs mb-1" style="color: #60916a;">{{ $product->category->name }}</p>
         @endif
-        <a href="{{ route('shop.show', $product->slug) }}"
+        <a href="{{ route('shop.show', $product->slug) }}" data-turbo-frame="_top"
            class="text-sm font-medium leading-snug flex-1 hover:opacity-70 transition-opacity"
            style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
             {{ $product->name }}

@@ -46,6 +46,7 @@ class DiscountEngine
 
         return [
             'amount' => round(min($totalDiscount, $subtotal), 2),
+            'label'  => implode(', ', array_column($appliedRules, 'name')) ?: null,
             'rules'  => $appliedRules,
         ];
     }

@@ -131,4 +131,6 @@ return [
         ],
     ],
 
+    'admin_address' => env('MAIL_ADMIN_ADDRESS', 'contact@institutcorpsacoeur.fr'),
+
 ];

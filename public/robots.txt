@@ -1,2 +1,9 @@
 User-agent: *
-Disallow:
+Disallow: /admin
+Disallow: /mon-compte
+Disallow: /panier
+Disallow: /commande
+Disallow: /connexion
+Disallow: /inscription
+
+Sitemap: https://institutcorpsacoeur.fr/sitemap.xml

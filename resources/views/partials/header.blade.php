@@ -135,7 +135,7 @@
          class="absolute left-0 right-0 bg-white shadow-lg border-t z-50"
          style="border-color: #b0f1b9;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="grid grid-cols-4 gap-8">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;">
                 @foreach($soinsItems as $item)
                     <div>
                         <a href="{{ $item->url }}"

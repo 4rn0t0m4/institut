@@ -36,3 +36,111 @@ h1, h2, h3, h4 {
 .prose img { border-radius: 0.75rem; }
 .prose a { color: #276e44; }
 .prose a:hover { text-decoration: underline; }
+
+/* ── Page content (soins, services) ── */
+.page-content {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: #374151;
+}
+
+.page-content h3 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #276e44;
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    font-style: italic;
+}
+
+.page-content h3:first-child {
+    margin-top: 0;
+}
+
+.page-content p {
+    margin-bottom: 1.25rem;
+}
+
+.page-content strong {
+    color: #276e44;
+    font-weight: 600;
+}
+
+.page-content a {
+    color: #276e44;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: opacity 0.15s;
+}
+
+.page-content a:hover {
+    opacity: 0.7;
+}
+
+.page-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 1.5rem;
+}
+
+.page-content ul li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.page-content ul li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #b0f1b9;
+}
+
+.page-content hr {
+    border: none;
+    border-top: 2px solid #b0f1b9;
+    margin: 2.5rem auto;
+    width: 4rem;
+}
+
+.page-content img {
+    border-radius: 0.75rem;
+    margin: 1.5rem auto;
+    max-width: 100%;
+    height: auto;
+}
+
+.page-content figure {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.page-content .has-text-align-center {
+    text-align: center;
+}
+
+.page-content .has-text-align-center a {
+    display: inline-block;
+    background-color: #276e44;
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: opacity 0.15s;
+}
+
+.page-content .has-text-align-center a strong,
+.page-content .has-text-align-center a em {
+    color: inherit;
+}
+
+.page-content .has-text-align-center a:hover {
+    opacity: 0.9;
+}

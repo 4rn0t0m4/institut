@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewOrderAdmin;
+use App\Mail\OrderConfirmation;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Stripe;
 use Stripe\Webhook;
@@ -51,6 +56,33 @@ class StripeWebhookController extends Controller
         ]);
 
         Log::info("Commande #{$order->number} payée via Stripe.");
+
+        // Décrémentation du stock
+        $order->load('items');
+        $this->decrementStock($order);
+
+        // Envoi des emails
+        Mail::to($order->billing_email)->send(new OrderConfirmation($order));
+        Mail::to(config('mail.admin_address', config('mail.from.address')))->send(new NewOrderAdmin($order));
+    }
+
+    private function decrementStock(Order $order): void
+    {
+        foreach ($order->items as $item) {
+            $updated = Product::where('id', $item->product_id)
+                ->where('manage_stock', true)
+                ->where('stock_quantity', '>=', $item->quantity)
+                ->update([
+                    'stock_quantity' => DB::raw("stock_quantity - {$item->quantity}"),
+                ]);
+
+            if ($updated) {
+                // Mark out of stock if quantity reaches 0
+                Product::where('id', $item->product_id)
+                    ->where('stock_quantity', '<=', 0)
+                    ->update(['stock_status' => 'outofstock']);
+            }
+        }
     }
 
     private function handlePaymentFailed(object $paymentIntent): void

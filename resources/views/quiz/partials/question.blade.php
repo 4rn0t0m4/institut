@@ -20,7 +20,7 @@
         <p class="text-gray-600 text-sm mb-6">{{ $question->question }}</p>
     @endif
 
-    <form action="{{ route('quiz.answer', [$quiz->slug, $question->id]) }}" method="POST">
+    <form action="{{ route('quiz.answer', [$quiz->slug, $question->id]) }}" method="POST" data-turbo-frame="_top">
         @csrf
 
         <div class="space-y-3 mb-6">

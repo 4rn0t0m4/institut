@@ -13,13 +13,13 @@ class HomeController extends Controller
     {
         $featuredProducts = Product::where('is_featured', true)
             ->where('is_active', true)
-            ->with('category')
+            ->with(['category', 'featuredImage'])
             ->limit(8)
             ->get();
 
         if ($featuredProducts->isEmpty()) {
             $featuredProducts = Product::where('is_active', true)
-                ->with('category')
+                ->with(['category', 'featuredImage'])
                 ->limit(8)
                 ->get();
         }

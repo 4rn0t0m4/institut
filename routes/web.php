@@ -9,8 +9,13 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\BoxtalController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
+
+// Sitemap
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // Accueil
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -43,7 +48,11 @@ Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 // Pages statiques (en dernier pour ne pas capturer les autres routes)
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
-    ->where('slug', '^(?!boutique|panier|commande|connexion|inscription|deconnexion|mon-compte|blog|stripe)[a-z0-9-]+$');
+    ->where('slug', '^(?!boutique|panier|commande|connexion|inscription|deconnexion|mon-compte|blog|stripe|admin|api|mot-de-passe-oublie|reinitialiser-mot-de-passe|sitemap\.xml)[a-z0-9-]+(/[a-z0-9-]+)*$');
+
+// Boxtal API
+Route::get('/api/boxtal/map-token', [BoxtalController::class, 'mapToken'])->name('boxtal.map-token');
+Route::post('/api/boxtal/parcel-points', [BoxtalController::class, 'searchParcelPoints'])->name('boxtal.parcel-points');
 
 // Webhook Stripe (exclure CSRF)
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
@@ -51,9 +60,13 @@ Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
 // Authentification
 Route::middleware('guest')->group(function () {
     Route::get('/connexion', [AuthController::class, 'loginForm'])->name('login');
-    Route::post('/connexion', [AuthController::class, 'login'])->name('login.post');
+    Route::post('/connexion', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:5,1');
     Route::get('/inscription', [AuthController::class, 'registerForm'])->name('register');
-    Route::post('/inscription', [AuthController::class, 'register'])->name('register.post');
+    Route::post('/inscription', [AuthController::class, 'register'])->name('register.post')->middleware('throttle:5,1');
+    Route::get('/mot-de-passe-oublie', [AuthController::class, 'forgotPasswordForm'])->name('password.request');
+    Route::post('/mot-de-passe-oublie', [AuthController::class, 'sendResetLink'])->name('password.email')->middleware('throttle:3,1');
+    Route::get('/reinitialiser-mot-de-passe/{token}', [AuthController::class, 'resetPasswordForm'])->name('password.reset');
+    Route::post('/reinitialiser-mot-de-passe', [AuthController::class, 'resetPassword'])->name('password.update')->middleware('throttle:3,1');
 });
 Route::post('/deconnexion', [AuthController::class, 'logout'])->name('logout');
 

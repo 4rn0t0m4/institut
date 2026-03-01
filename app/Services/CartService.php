@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Models\ProductAddon;
 use Illuminate\Support\Str;
 
 class CartService
@@ -20,13 +21,16 @@ class CartService
     {
         $cart = $this->all();
 
+        // Sanitize addons: replace client-sent label/price with DB values
+        $sanitizedAddons = $this->sanitizeAddons($addons);
+
         // Clé unique par produit + combinaison d'addons
-        $key = $product->id . '-' . md5(serialize($addons));
+        $key = $product->id . '-' . md5(serialize($sanitizedAddons));
 
         if (isset($cart[$key])) {
             $cart[$key]['quantity'] += $quantity;
         } else {
-            $addonPrice = app(AddonPriceCalculator::class)->calculate($addons, $product->currentPrice());
+            $addonPrice = app(AddonPriceCalculator::class)->calculate($sanitizedAddons, $product->currentPrice());
             $cart[$key] = [
                 'key'         => $key,
                 'product_id'  => $product->id,
@@ -35,14 +39,39 @@ class CartService
                 'price'       => $product->currentPrice(),
                 'addon_price' => $addonPrice,
                 'quantity'    => $quantity,
-                'addons'      => $addons,
-                'image'       => null, // rempli via Media si dispo
+                'addons'      => $sanitizedAddons,
+                'image'       => $product->featuredImage?->url,
             ];
         }
 
         session([self::SESSION_KEY => $cart]);
 
         return $key;
+    }
+
+    /** Replace client-sent addon labels/prices with trusted DB values */
+    private function sanitizeAddons(array $addons): array
+    {
+        if (empty($addons)) {
+            return [];
+        }
+
+        $dbAddons = ProductAddon::whereIn('id', array_keys($addons))->get()->keyBy('id');
+        $sanitized = [];
+
+        foreach ($addons as $addonId => $data) {
+            $dbAddon = $dbAddons->get($addonId);
+            if (!$dbAddon) {
+                continue;
+            }
+
+            $sanitized[$addonId] = [
+                'label' => $dbAddon->label,
+                'value' => $data['value'] ?? ($data[0] ?? ''),
+            ];
+        }
+
+        return $sanitized;
     }
 
     /** Met à jour la quantité d'un article */

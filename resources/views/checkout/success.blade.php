@@ -31,8 +31,22 @@
     </div>
 
     <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        @auth
+            <a href="{{ route('account.orders') }}"
+               class="inline-block py-2.5 px-6 rounded font-medium transition text-sm text-white"
+               style="background-color: #276e44;">
+                Voir mes commandes
+            </a>
+        @else
+            <a href="{{ route('register') }}"
+               class="inline-block py-2.5 px-6 rounded font-medium transition text-sm text-white"
+               style="background-color: #276e44;">
+                Créer un compte
+            </a>
+        @endauth
         <a href="{{ route('shop.index') }}"
-           class="inline-block bg-green-700 text-white py-2.5 px-6 rounded font-medium hover:bg-green-800 transition text-sm">
+           class="inline-block py-2.5 px-6 rounded font-medium transition text-sm border hover:opacity-70"
+           style="color: #276e44; border-color: #b0f1b9;">
             Continuer les achats
         </a>
     </div>

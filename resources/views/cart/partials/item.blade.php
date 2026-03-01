@@ -2,13 +2,19 @@
 <div id="cart-item-{{ $item['key'] }}"
      class="flex items-start gap-4 bg-white border border-gray-100 rounded-lg p-4">
 
-    {{-- Image placeholder --}}
-    <div class="w-16 h-16 bg-gray-100 rounded flex-shrink-0 flex items-center justify-center text-gray-300">
-        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14"/>
-        </svg>
-    </div>
+    {{-- Image produit --}}
+    <a href="{{ route('shop.show', $item['slug']) }}" class="w-16 h-16 rounded flex-shrink-0 overflow-hidden bg-gray-100">
+        @if(!empty($item['image']))
+            <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover">
+        @else
+            <div class="w-full h-full flex items-center justify-center text-gray-300">
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14"/>
+                </svg>
+            </div>
+        @endif
+    </a>
 
     {{-- Détails --}}
     <div class="flex-1 min-w-0">

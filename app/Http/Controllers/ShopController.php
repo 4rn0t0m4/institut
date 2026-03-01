@@ -15,7 +15,7 @@ class ShopController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        $query = Product::with('category')
+        $query = Product::with(['category', 'featuredImage'])
             ->where('is_active', true)
             ->orderBy('name');
 
@@ -65,7 +65,8 @@ class ShopController extends Controller
             ->firstOrFail();
 
         // Produits similaires (même catégorie)
-        $related = Product::where('category_id', $product->category_id)
+        $related = Product::with('featuredImage')
+            ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->where('is_active', true)
             ->limit(4)

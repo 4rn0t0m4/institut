@@ -78,8 +78,6 @@
                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600">
     @endswitch
 
-    {{-- Champs cachés pour price/type --}}
-    <input type="hidden" name="addons[{{ $addon->id }}][label]"      value="{{ $addon->label }}">
-    <input type="hidden" name="addons[{{ $addon->id }}][price]"      value="{{ $addon->price }}">
-    <input type="hidden" name="addons[{{ $addon->id }}][price_type]" value="{{ $addon->price_type }}">
+    {{-- Label transmis pour référence (prix calculé côté serveur) --}}
+    <input type="hidden" name="addons[{{ $addon->id }}][label]" value="{{ $addon->label }}">
 </div>

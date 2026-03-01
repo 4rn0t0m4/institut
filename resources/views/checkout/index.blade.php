@@ -18,59 +18,52 @@
               relayPointCode: '{{ old('relay_point_code') }}',
               relayPointName: '{{ old('relay_point_name') }}',
               relayPointAddress: '{{ old('relay_point_address') }}',
-              boxtalMap: null,
-              boxtalMapReady: false,
+              relayPoints: [],
+              relayLoading: false,
+              relaySearched: false,
 
-              initBoxtalMap() {
-                  if (this.boxtalMap) return;
-                  this.$nextTick(() => {
-                      const container = document.getElementById('boxtal-map-container');
-                      if (!container) return;
-                      this.boxtalMap = new BoxtalParcelPointMap.BoxtalParcelPointMap({
-                          domToLoadMap: '#boxtal-map-container',
-                          accessToken: '{{ config('shipping.boxtal.access_token') }}',
-                          config: {
-                              locale: 'fr',
-                              parcelPointNetworks: @js(collect(config('shipping.boxtal.networks'))->map(fn($n) => ['code' => $n, 'markerTemplate' => ['anchor' => 'bottom', 'color' => '#15803d']])),
-                              options: {
-                                  autoSelectNearestParcelPoint: true,
-                                  primaryColor: '#15803d'
-                              }
+              async searchRelayPoints(zipCode, city) {
+                  if (!zipCode || !city) return;
+                  this.relayLoading = true;
+                  this.relaySearched = false;
+                  try {
+                      const res = await fetch('{{ route('boxtal.parcel-points') }}', {
+                          method: 'POST',
+                          headers: {
+                              'Content-Type': 'application/json',
+                              'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
                           },
-                          onMapLoaded: () => {
-                              this.boxtalMapReady = true;
-                              this.searchRelayPoints();
-                          }
+                          body: JSON.stringify({ zipCode: zipCode, city: city, country: 'FR' })
                       });
-                  });
+                      const data = await res.json();
+                      this.relayPoints = data.points || [];
+                  } catch (e) {
+                      this.relayPoints = [];
+                  }
+                  this.relayLoading = false;
+                  this.relaySearched = true;
+                  if (this.relayPoints.length > 0) {
+                      this.$nextTick(() => window.__relayMap.render(this));
+                  }
               },
 
-              searchRelayPoints() {
-                  if (!this.boxtalMap || !this.boxtalMapReady) return;
-                  const postcode = document.querySelector('[name=billing_postcode]')?.value;
-                  const city = document.querySelector('[name=billing_city]')?.value;
-                  if (!postcode || !city) return;
-
-                  this.boxtalMap.searchParcelPoints(
-                      { country: 'FR', zipCode: postcode, city: city },
-                      (point) => {
-                          this.relayPointCode = point.code;
-                          this.relayPointName = point.name;
-                          const loc = point.location;
-                          this.relayPointAddress = [loc.street, loc.zipCode, loc.city].filter(Boolean).join(', ');
-                      }
-                  );
+              selectRelayPoint(point) {
+                  this.relayPointCode = point.code;
+                  this.relayPointName = point.name;
+                  this.relayPointAddress = [point.street, point.zipCode, point.city].filter(Boolean).join(', ');
+                  window.__relayMap.highlight(point);
               },
 
-              destroyBoxtalMap() {
-                  this.boxtalMap = null;
-                  this.boxtalMapReady = false;
+              resetRelay() {
+                  this.relayPoints = [];
                   this.relayPointCode = '';
                   this.relayPointName = '';
                   this.relayPointAddress = '';
+                  this.relaySearched = false;
+                  window.__relayMap.destroy();
               }
           }"
-          x-effect="if (shippingMethod === 'boxtal') { initBoxtalMap() } else { destroyBoxtalMap() }">
+          x-effect="if (shippingMethod !== 'boxtal') { resetRelay() }">
         @csrf
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -249,7 +242,7 @@
                     </div>
                 </section>
 
-                {{-- Carte Boxtal point relais --}}
+                {{-- Points relais Boxtal --}}
                 <section x-show="shippingMethod === 'boxtal'" x-transition>
                     <h2 class="text-base font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">
                         Choisissez votre point relais
@@ -257,38 +250,75 @@
                     @error('relay_point_code')<p class="text-xs text-red-500 mb-3">{{ $message }}</p>@enderror
 
                     <div class="mb-4 flex gap-3">
-                        <input type="text" id="relay-search-postcode" placeholder="Code postal"
-                               :value="document.querySelector('[name=billing_postcode]')?.value"
+                        <input type="text" x-ref="relayZip" placeholder="Code postal"
+                               :value="$el.value || document.querySelector('[name=billing_postcode]')?.value || ''"
                                class="w-32 border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">
-                        <input type="text" id="relay-search-city" placeholder="Ville"
-                               :value="document.querySelector('[name=billing_city]')?.value"
+                        <input type="text" x-ref="relayCity" placeholder="Ville"
+                               :value="$el.value || document.querySelector('[name=billing_city]')?.value || ''"
                                class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">
-                        <button type="button" @click="
-                            const pc = document.getElementById('relay-search-postcode').value;
-                            const ct = document.getElementById('relay-search-city').value;
-                            if (pc && ct && boxtalMap && boxtalMapReady) {
-                                boxtalMap.searchParcelPoints(
-                                    { country: 'FR', zipCode: pc, city: ct },
-                                    (point) => {
-                                        relayPointCode = point.code;
-                                        relayPointName = point.name;
-                                        const loc = point.location;
-                                        relayPointAddress = [loc.street, loc.zipCode, loc.city].filter(Boolean).join(', ');
-                                    }
-                                );
-                            }
-                        " class="bg-green-700 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-800 transition">
-                            Rechercher
+                        <button type="button"
+                                @click="searchRelayPoints($refs.relayZip.value, $refs.relayCity.value)"
+                                :disabled="relayLoading"
+                                class="bg-green-700 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-800 transition disabled:opacity-50">
+                            <span x-show="!relayLoading">Rechercher</span>
+                            <span x-show="relayLoading" class="flex items-center gap-1">
+                                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                                Recherche…
+                            </span>
                         </button>
                     </div>
 
-                    <div id="boxtal-map-container" class="w-full rounded-lg border border-gray-200 overflow-hidden" style="height: 450px;"></div>
+                    {{-- Carte + Liste côte à côte --}}
+                    <div x-show="relayPoints.length > 0" x-transition class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {{-- Liste des points relais --}}
+                        <div class="max-h-96 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100 order-2 sm:order-1">
+                            <template x-for="(point, idx) in relayPoints" :key="point.code">
+                                <label class="flex items-start gap-3 p-3 cursor-pointer transition border-l-4"
+                                       :class="relayPointCode === point.code
+                                           ? (point.network === 'CHRP_NETWORK' ? 'bg-blue-50 border-l-blue-600' : 'bg-green-50 border-l-green-600')
+                                           : 'hover:bg-gray-50 border-l-transparent'"
+                                       :id="'relay-item-' + point.code">
+                                    <input type="radio" name="_relay_select"
+                                           :value="point.code"
+                                           :checked="relayPointCode === point.code"
+                                           @change="selectRelayPoint(point)"
+                                           class="mt-1 text-green-600 focus:ring-green-500">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-xs font-bold shrink-0"
+                                                  :class="point.network === 'CHRP_NETWORK' ? 'bg-blue-600' : 'bg-green-700'"
+                                                  x-text="idx + 1"></span>
+                                            <span class="text-sm font-medium text-gray-900" x-text="point.name"></span>
+                                            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full leading-none"
+                                                  :class="point.network === 'CHRP_NETWORK' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'"
+                                                  x-text="point.networkLabel"></span>
+                                        </div>
+                                        <p class="text-xs text-gray-500 ml-7" x-text="[point.street, point.zipCode + ' ' + point.city].filter(Boolean).join(', ')"></p>
+                                    </div>
+                                </label>
+                            </template>
+                        </div>
 
-                    {{-- Selected relay point info --}}
+                        {{-- Carte MapLibre --}}
+                        <div class="order-1 sm:order-2">
+                            <div id="relay-map" class="w-full rounded-lg border border-gray-200 overflow-hidden" style="height: 384px;"></div>
+                        </div>
+                    </div>
+
+                    {{-- Aucun résultat --}}
+                    <div x-show="relaySearched && relayPoints.length === 0 && !relayLoading" x-transition
+                         class="p-4 text-sm text-gray-500 text-center border border-gray-200 rounded-lg">
+                        Aucun point relais trouvé pour cette recherche. Essayez avec une autre ville ou code postal.
+                    </div>
+
+                    {{-- Point sélectionné --}}
                     <div x-show="relayPointName" x-transition
                          class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                        <p class="text-sm font-semibold text-green-800" x-text="relayPointName"></p>
-                        <p class="text-sm text-green-700" x-text="relayPointAddress"></p>
+                        <p class="text-sm text-green-800">
+                            <span class="font-semibold">Point relais sélectionné :</span>
+                            <span x-text="relayPointName"></span>
+                        </p>
+                        <p class="text-xs text-green-700 mt-1" x-text="relayPointAddress"></p>
                     </div>
 
                     <input type="hidden" name="relay_point_code" :value="relayPointCode">
@@ -365,6 +395,109 @@
     </form>
 </div>
 
-{{-- Boxtal Map JS (loaded only when needed) --}}
-<script src="https://cdn.jsdelivr.net/npm/@boxtal/parcel-point-map@0.0.9/dist/index.global.js"></script>
+<script>
+window.__relayMap = (function() {
+    var map = null;
+    var markers = [];
+
+    function loadMapLibre(cb) {
+        if (window.maplibregl) { cb(); return; }
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
+        document.head.appendChild(link);
+        var script = document.createElement('script');
+        script.src = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
+        script.onload = cb;
+        document.head.appendChild(script);
+    }
+
+    function initMap(alpine) {
+        var container = document.getElementById('relay-map');
+        if (!container) return;
+        if (map) { map.remove(); map = null; }
+        markers = [];
+
+        var points = alpine.relayPoints;
+        var bounds = new maplibregl.LngLatBounds();
+        points.forEach(function(p) {
+            if (p.lat && p.lng) bounds.extend([p.lng, p.lat]);
+        });
+
+        map = new maplibregl.Map({
+            container: container,
+            style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+            bounds: bounds,
+            fitBoundsOptions: { padding: 40, maxZoom: 14 }
+        });
+        map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+        points.forEach(function(point, idx) {
+            if (!point.lat || !point.lng) return;
+
+            var isChrono = point.network === 'CHRP_NETWORK';
+            var el = document.createElement('div');
+            el.className = 'relay-marker' + (isChrono ? ' relay-marker--chrono' : '');
+            el.textContent = idx + 1;
+            el.addEventListener('click', function() {
+                alpine.selectRelayPoint(point);
+                var item = document.getElementById('relay-item-' + point.code);
+                if (item) item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
+
+            var badge = isChrono ? 'Chronopost' : 'Mondial Relay';
+            var popupHtml = '<span class="relay-popup-badge' + (isChrono ? ' relay-popup-badge--chrono' : '') + '">' + badge + '</span>' +
+                '<strong class="relay-popup-name">' +
+                point.name + '</strong><br><span class="relay-popup-addr">' +
+                point.street + '<br>' + point.zipCode + ' ' + point.city + '</span>';
+
+            var marker = new maplibregl.Marker({ element: el })
+                .setLngLat([point.lng, point.lat])
+                .setPopup(new maplibregl.Popup({ offset: 20 }).setHTML(popupHtml))
+                .addTo(map);
+
+            markers.push({ code: point.code, el: el, marker: marker });
+        });
+    }
+
+    return {
+        render: function(alpine) {
+            loadMapLibre(function() { initMap(alpine); });
+        },
+        highlight: function(point) {
+            if (map && point.lat && point.lng) {
+                map.flyTo({ center: [point.lng, point.lat], zoom: 15 });
+            }
+            markers.forEach(function(m) {
+                m.el.style.opacity = m.code === point.code ? '1' : '0.5';
+                m.el.style.transform = m.code === point.code ? 'scale(1.3)' : 'scale(1)';
+            });
+        },
+        destroy: function() {
+            if (map) { map.remove(); map = null; }
+            markers = [];
+        }
+    };
+})();
+</script>
+<style>
+.relay-marker {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #15803d; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,.3);
+    transition: transform .2s, opacity .2s;
+}
+.relay-marker--chrono { background: #2563eb; }
+.relay-popup-badge {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 1px 6px; border-radius: 9px; margin-bottom: 4px;
+    background: #dcfce7; color: #15803d;
+}
+.relay-popup-badge--chrono { background: #dbeafe; color: #2563eb; }
+.relay-popup-name { font-size: 13px; display: block; }
+.relay-popup-addr { font-size: 12px; color: #666; }
+</style>
 </x-layouts.app>

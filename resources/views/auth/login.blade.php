@@ -2,6 +2,12 @@
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
     <h1 class="text-xl font-semibold text-gray-900 mb-6 text-center">Connexion</h1>
 
+    @if(session('status'))
+        <div class="bg-green-50 border border-green-200 text-green-700 text-sm rounded px-4 py-3 mb-5">
+            {{ session('status') }}
+        </div>
+    @endif
+
     @if($errors->any())
         <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded px-4 py-3 mb-5">
             {{ $errors->first() }}
@@ -30,6 +36,9 @@
                 <input type="checkbox" name="remember" class="rounded border-gray-300 text-green-600">
                 Se souvenir de moi
             </label>
+            <a href="{{ route('password.request') }}" class="text-sm hover:underline" style="color: #276e44;">
+                Mot de passe oublié ?
+            </a>
         </div>
 
         <button type="submit"
