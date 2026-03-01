@@ -30,9 +30,14 @@
                     @forelse ($pages as $page)
                         <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0">
                             <td class="px-5 py-4">
-                                <span class="text-sm font-medium text-gray-800 dark:text-white/90">{{ $page->title }}</span>
+                                <span class="text-sm font-medium text-gray-800 dark:text-white/90">
+                                    @if ($page->parent_id)
+                                        <span class="text-gray-400 dark:text-gray-500">└─</span>
+                                    @endif
+                                    <a href="{{ route('admin.pages.edit', $page) }}" class="hover:text-brand-500">{{ $page->title }}</a>
+                                </span>
                                 @if ($page->template)
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">Template: {{ $page->template }}</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400" style="{{ $page->parent_id ? 'padding-left: 1.25rem;' : '' }}">Template: {{ $page->template }}</div>
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-400">
@@ -80,10 +85,5 @@
             </table>
         </div>
 
-        @if ($pages->hasPages())
-            <div class="px-5 py-4 border-t border-gray-200 dark:border-gray-800">
-                {{ $pages->links() }}
-            </div>
-        @endif
     </div>
 @endsection

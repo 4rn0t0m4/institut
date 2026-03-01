@@ -356,6 +356,24 @@
                         @endforeach
                     </ul>
 
+                    {{-- Code promo --}}
+                    <div class="mb-4" x-data="{ couponOpen: {{ old('coupon_code') ? 'true' : 'false' }} }">
+                        <button type="button" @click="couponOpen = !couponOpen"
+                                class="text-sm text-green-700 hover:text-green-800 font-medium flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
+                            </svg>
+                            Code promo
+                        </button>
+                        <div x-show="couponOpen" x-transition class="mt-2 flex gap-2">
+                            <input type="text" name="coupon_code"
+                                   value="{{ old('coupon_code') }}"
+                                   placeholder="Entrez votre code"
+                                   class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:ring-green-500 focus:border-green-500 uppercase">
+                        </div>
+                        @error('coupon_code')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
+                    </div>
+
                     <div class="border-t border-gray-200 pt-4 space-y-2 text-sm">
                         <div class="flex justify-between text-gray-600">
                             <span>Sous-total</span>
@@ -364,7 +382,7 @@
 
                         @if($discount['amount'] > 0)
                             <div class="flex justify-between text-green-700">
-                                <span>Remise</span>
+                                <span>Remise{{ $discount['label'] ? ' ('.$discount['label'].')' : '' }}</span>
                                 <span>−{{ number_format($discount['amount'], 2, ',', ' ') }} €</span>
                             </div>
                         @endif

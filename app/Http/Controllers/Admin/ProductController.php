@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Brand;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use Illuminate\Http\Request;
@@ -12,7 +13,8 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with('category')->latest();
+        $query = Product::with('category')
+            ->withSum(['orderItems as total_sold' => fn ($q) => $q->whereHas('order', fn ($o) => $o->whereIn('status', ['processing', 'completed']))], 'quantity');
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
@@ -22,16 +24,33 @@ class ProductController extends Controller
             $query->where('category_id', $request->category);
         }
 
-        $products = $query->paginate(20)->withQueryString();
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->status === 'active');
+        }
 
-        return view('admin.products.index', compact('products'));
+        if ($request->filled('brand')) {
+            $query->where('brand_id', $request->brand);
+        }
+
+        // Tri
+        $sortable = ['name', 'stock_quantity', 'is_active', 'created_at'];
+        $sort = in_array($request->sort, $sortable) ? $request->sort : 'created_at';
+        $dir = $request->dir === 'asc' ? 'asc' : 'desc';
+        $query->orderBy($sort, $dir);
+
+        $products = $query->paginate(20)->withQueryString();
+        $categories = ProductCategory::orderBy('name')->get();
+        $brands = Brand::orderBy('name')->get();
+
+        return view('admin.products.index', compact('products', 'categories', 'brands'));
     }
 
     public function create()
     {
         $categories = ProductCategory::orderBy('name')->get();
+        $brands = Brand::orderBy('name')->get();
 
-        return view('admin.products.create', compact('categories'));
+        return view('admin.products.create', compact('categories', 'brands'));
     }
 
     public function store(Request $request)
@@ -46,6 +65,7 @@ class ProductController extends Controller
             'sku' => 'nullable|string|max:100',
             'stock_quantity' => 'nullable|integer|min:0',
             'category_id' => 'nullable|exists:product_categories,id',
+            'brand_id' => 'nullable|exists:brands,id',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
         ]);
@@ -65,8 +85,9 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = ProductCategory::orderBy('name')->get();
+        $brands = Brand::orderBy('name')->get();
 
-        return view('admin.products.edit', compact('product', 'categories'));
+        return view('admin.products.edit', compact('product', 'categories', 'brands'));
     }
 
     public function update(Request $request, Product $product)
@@ -81,6 +102,7 @@ class ProductController extends Controller
             'sku' => 'nullable|string|max:100',
             'stock_quantity' => 'nullable|integer|min:0',
             'category_id' => 'nullable|exists:product_categories,id',
+            'brand_id' => 'nullable|exists:brands,id',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
         ]);

@@ -1,19 +1,78 @@
 <x-layouts.app :title="$product->name" :meta-description="$product->short_description">
+
+{{-- Schema.org Product + BreadcrumbList --}}
+@php
+$productJsonLd = json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'Product',
+    'name' => $product->name,
+    'description' => strip_tags($product->short_description ?? $product->description ?? ''),
+    'image' => $product->featuredImage?->url ? [url($product->featuredImage->url)] : [],
+    'sku' => (string) $product->id,
+    'brand' => [
+        '@type' => 'Brand',
+        'name' => $product->brand?->name ?? 'Institut Corps à Coeur',
+    ],
+    'offers' => [
+        '@type' => 'Offer',
+        'url' => url()->current(),
+        'priceCurrency' => 'EUR',
+        'price' => number_format($product->currentPrice(), 2, '.', ''),
+        'availability' => $product->stock_status === 'outofstock'
+            ? 'https://schema.org/OutOfStock'
+            : 'https://schema.org/InStock',
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+$breadcrumbJsonLd = json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => array_values(array_filter([
+        [
+            '@type' => 'ListItem',
+            'position' => 1,
+            'name' => 'Boutique',
+            'item' => route('shop.index'),
+        ],
+        $product->category ? [
+            '@type' => 'ListItem',
+            'position' => 2,
+            'name' => $product->category->name,
+            'item' => route('shop.index', ['categorie' => $product->category->slug]),
+        ] : null,
+        [
+            '@type' => 'ListItem',
+            'position' => $product->category ? 3 : 2,
+            'name' => $product->name,
+        ],
+    ])),
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+@endphp
+<script type="application/ld+json">{!! $productJsonLd !!}</script>
+<script type="application/ld+json">{!! $breadcrumbJsonLd !!}</script>
+
+@if(!$product->is_active && auth()->user()?->is_admin)
+    <div style="background-color: #f59e0b; color: white; font-size: 14px; font-weight: 600; text-align: center; padding: 10px 0;">
+        Ce produit est masque — visible uniquement par les administrateurs
+        <a href="{{ route('admin.products.edit', $product) }}" style="color: white; text-decoration: underline; margin-left: 8px;">Modifier</a>
+    </div>
+@endif
+
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     {{-- Fil d'ariane --}}
-    <nav class="text-xs text-gray-400 mb-6 flex items-center gap-2">
-        <a href="{{ route('shop.index') }}" class="hover:text-green-700">Boutique</a>
+    <nav class="text-xs mb-8 flex items-center gap-2" style="color: #60916a;">
+        <a href="{{ route('shop.index') }}" class="hover:underline">Boutique</a>
         @if($product->category)
             <span>/</span>
             <a href="{{ route('shop.index', ['categorie' => $product->category->slug]) }}"
-               class="hover:text-green-700">{{ $product->category->name }}</a>
+               class="hover:underline">{{ $product->category->name }}</a>
         @endif
         <span>/</span>
-        <span class="text-gray-600">{{ $product->name }}</span>
+        <span style="color: #276e44;">{{ $product->name }}</span>
     </nav>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
 
         {{-- Galerie --}}
         @php
@@ -24,7 +83,7 @@
         @endphp
         <div x-data="{ active: 0 }">
             {{-- Image principale --}}
-            <div class="aspect-square rounded-2xl overflow-hidden mb-3" style="background-color: #f0fdf4;">
+            <div class="aspect-square rounded-3xl overflow-hidden mb-3" style="background-color: #f0fdf4;">
                 @if($allImages->isNotEmpty())
                     @foreach($allImages as $i => $img)
                         <img src="{{ $img->url }}"
@@ -47,7 +106,7 @@
                 <div class="flex gap-2 overflow-x-auto pb-1">
                     @foreach($allImages as $i => $img)
                         <button @click="active = {{ $i }}"
-                                class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition"
+                                class="flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition"
                                 :class="active === {{ $i }} ? 'border-[#276e44]' : 'border-transparent'">
                             <img src="{{ $img->url }}" alt=""
                                  class="w-full h-full object-cover">
@@ -59,31 +118,41 @@
 
         {{-- Infos produit --}}
         <div x-data="productForm({{ $product->price }}, {{ $product->sale_price ?? 'null' }})">
-            <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">
+            @if($product->brand)
+                <p class="text-xs uppercase tracking-widest mb-1 font-semibold" style="color: #276e44;">
+                    {{ $product->brand->name }}
+                </p>
+            @endif
+            <p class="text-xs uppercase tracking-widest mb-2 font-medium" style="color: #60916a;">
                 {{ $product->category?->name }}
             </p>
-            <h1 class="text-2xl font-semibold text-gray-900 mb-3">{{ $product->name }}</h1>
+            <h1 class="text-3xl md:text-4xl font-semibold leading-tight mb-5" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
+                {{ $product->name }}
+            </h1>
 
             {{-- Prix --}}
-            <div class="flex items-baseline gap-3 mb-4">
-                <span class="text-2xl font-bold text-green-700" x-text="formatPrice(total)"></span>
+            <div class="flex items-baseline gap-3 mb-6">
+                <span class="text-3xl font-bold" style="color: #276e44;" x-text="formatPrice(total)"></span>
                 @if($product->sale_price)
-                    <span class="text-sm text-gray-400 line-through">
+                    <span class="text-base line-through" style="color: #60916a;">
                         {{ number_format($product->price, 2, ',', ' ') }} €
                     </span>
                 @endif
             </div>
 
+            {{-- Séparateur --}}
+            <div style="width: 3rem; height: 2px; background-color: #b0f1b9; margin-bottom: 1.5rem;"></div>
+
             {{-- Description courte --}}
             @if($product->short_description)
-                <div class="text-sm text-gray-600 mb-6 leading-relaxed">
+                <div class="mb-6 leading-relaxed" style="color: #374151; font-size: 0.95rem;">
                     {!! $product->short_description !!}
                 </div>
             @endif
 
             {{-- Stock --}}
             @if($product->stock_status !== 'instock')
-                <p class="text-sm text-red-600 mb-4">Produit épuisé</p>
+                <p class="text-sm font-medium mb-4" style="color: #dc2626;">Produit épuisé</p>
             @endif
 
             {{-- Formulaire ajout panier --}}
@@ -102,44 +171,51 @@
 
                 {{-- Quantité + bouton --}}
                 <div class="flex items-center gap-4 pt-2">
-                    <div class="flex items-center border border-gray-300 rounded overflow-hidden">
+                    <div class="flex items-center rounded-xl overflow-hidden" style="border: 1px solid #b0f1b9;">
                         <button type="button"
                                 @click="qty = Math.max(1, qty - 1)"
-                                class="px-3 py-2 text-gray-600 hover:bg-gray-50">−</button>
+                                class="px-3.5 py-2.5 transition" style="color: #276e44;" onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">−</button>
                         <input type="number" name="quantity" x-model="qty"
                                min="1" max="99"
-                               class="w-12 text-center py-2 border-0 text-sm focus:outline-none">
+                               class="w-12 text-center py-2.5 border-0 text-sm focus:outline-none" style="color: #276e44;">
                         <button type="button"
                                 @click="qty = Math.min(99, qty + 1)"
-                                class="px-3 py-2 text-gray-600 hover:bg-gray-50">+</button>
+                                class="px-3.5 py-2.5 transition" style="color: #276e44;" onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">+</button>
                     </div>
                     <button type="submit"
                             {{ $product->stock_status !== 'instock' ? 'disabled' : '' }}
-                            class="flex-1 bg-green-700 text-white py-2.5 px-6 rounded font-medium hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition">
-                        Ajouter au panier
+                            class="flex-1 text-white py-3 px-6 rounded-xl font-semibold text-sm transition disabled:cursor-not-allowed"
+                            style="background-color: {{ $product->stock_status !== 'instock' ? '#9ca3af' : '#276e44' }};"
+                            {{ $product->stock_status === 'instock' ? 'onmouseover=this.style.opacity=0.9 onmouseout=this.style.opacity=1' : '' }}>
+                        {{ $product->stock_status === 'instock' ? 'Ajouter au panier' : 'Produit épuisé' }}
                     </button>
                 </div>
             </form>
 
-            {{-- Description longue --}}
-            @if($product->description)
-                <details class="mt-8 border-t border-gray-100 pt-6">
-                    <summary class="text-sm font-medium text-gray-700 cursor-pointer select-none">
-                        Description complète
-                    </summary>
-                    <div class="mt-4 text-sm text-gray-600 leading-relaxed prose max-w-none">
-                        {!! $product->description !!}
-                    </div>
-                </details>
-            @endif
         </div>
     </div>
 
+    {{-- Description complète --}}
+    @if($product->description)
+        <div class="mt-16 pt-10" style="border-top: 2px solid #b0f1b9;">
+            <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #60916a;">Tout savoir</p>
+            <h2 class="text-2xl font-semibold mb-6" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
+                Description
+            </h2>
+            <div class="product-description max-w-3xl">
+                {!! $product->description !!}
+            </div>
+        </div>
+    @endif
+
     {{-- Produits similaires --}}
     @if($related->isNotEmpty())
-        <section class="mt-16">
-            <h2 class="text-lg font-semibold text-gray-900 mb-6">Vous aimerez aussi</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <section class="mt-16 pt-10" style="border-top: 2px solid #b0f1b9;">
+            <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #60916a;">Boutique</p>
+            <h2 class="text-2xl font-semibold mb-8" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
+                Vous aimerez aussi
+            </h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-5">
                 @foreach($related as $p)
                     <x-product-card :product="$p"/>
                 @endforeach

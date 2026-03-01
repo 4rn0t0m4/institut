@@ -15,9 +15,12 @@ class ShopController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        $query = Product::with(['category', 'featuredImage'])
-            ->where('is_active', true)
+        $query = Product::with(['category', 'featuredImage', 'brand'])
             ->orderBy('name');
+
+        if (!auth()->user()?->is_admin) {
+            $query->where('is_active', true);
+        }
 
         // Filtre catégorie (inclut parent + enfants dans les deux sens)
         $currentCategory = null;
@@ -59,10 +62,14 @@ class ShopController extends Controller
 
     public function show(string $slug)
     {
-        $product = Product::where('slug', $slug)
-            ->where('is_active', true)
-            ->with(['category', 'addonAssignments.addon.group'])
-            ->firstOrFail();
+        $query = Product::where('slug', $slug)
+            ->with(['category', 'brand', 'addonAssignments.addon.group']);
+
+        if (!auth()->user()?->is_admin) {
+            $query->where('is_active', true);
+        }
+
+        $product = $query->firstOrFail();
 
         // Produits similaires (même catégorie)
         $related = Product::with('featuredImage')

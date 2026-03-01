@@ -28,6 +28,38 @@
     <meta name="twitter:description" content="{{ $pageDesc }}">
     <meta name="twitter:image" content="{{ $pageImage }}">
 
+    {{-- Google Analytics + Google Ads (gtag.js) --}}
+    @php
+        $gaId = \App\Models\Setting::get('google_analytics_id');
+        $adsId = \App\Models\Setting::get('google_ads_id');
+    @endphp
+    @if ($gaId || $adsId)
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId ?: $adsId }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+
+        // Consentement RGPD par défaut (désactivé pour l'UE)
+        gtag('consent', 'default', {
+            analytics_storage: 'denied',
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            region: ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB'],
+            wait_for_update: 500,
+        });
+
+        gtag('js', new Date());
+        gtag('set', 'linker', {'domains': ['institutcorpsacoeur.fr']});
+        @if ($gaId)
+        gtag('config', '{{ $gaId }}');
+        @endif
+        @if ($adsId)
+        gtag('config', '{{ $adsId }}', {'send_page_view': false});
+        @endif
+    </script>
+    @endif
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-white text-gray-900 font-sans antialiased" x-data>

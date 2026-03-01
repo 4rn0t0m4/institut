@@ -15,10 +15,10 @@
                         <label for="status" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Statut *</label>
                         <select id="status" name="status" required
                             class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90">
-                            <option value="pending" {{ old('status', $order->status) === 'pending' ? 'selected' : '' }}>En attente</option>
+                            <option value="pending" {{ old('status', $order->status) === 'pending' ? 'selected' : '' }}>Non réglée</option>
                             <option value="processing" {{ old('status', $order->status) === 'processing' ? 'selected' : '' }}>En cours</option>
-                            <option value="completed" {{ old('status', $order->status) === 'completed' ? 'selected' : '' }}>Terminee</option>
-                            <option value="cancelled" {{ old('status', $order->status) === 'cancelled' ? 'selected' : '' }}>Annulee</option>
+                            <option value="completed" {{ old('status', $order->status) === 'completed' ? 'selected' : '' }}>Terminée</option>
+                            <option value="cancelled" {{ old('status', $order->status) === 'cancelled' ? 'selected' : '' }}>Annulée</option>
                         </select>
                         @error('status') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
                     </div>

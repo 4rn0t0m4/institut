@@ -137,7 +137,7 @@
             {{-- Date --}}
             <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
                 <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Date</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $order->created_at->format('d/m/Y a H:i') }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $order->created_at->format('d/m/Y H:i') }}</p>
             </div>
         </div>
     </div>

@@ -13,7 +13,7 @@ class DiscountEngine
      * @param float $subtotal   Cart subtotal before discount
      * @return array{amount: float, rules: array}
      */
-    public function calculate(array $cartItems, float $subtotal): array
+    public function calculate(array $cartItems, float $subtotal, ?string $couponCode = null): array
     {
         $rules = DiscountRule::active()->orderBy('sort_order')->get();
 
@@ -21,7 +21,7 @@ class DiscountEngine
         $appliedRules = [];
 
         foreach ($rules as $rule) {
-            if (!$this->applies($rule, $cartItems, $subtotal)) {
+            if (!$this->applies($rule, $cartItems, $subtotal, $couponCode)) {
                 continue;
             }
 
@@ -51,8 +51,15 @@ class DiscountEngine
         ];
     }
 
-    private function applies(DiscountRule $rule, array $items, float $subtotal): bool
+    private function applies(DiscountRule $rule, array $items, float $subtotal, ?string $couponCode = null): bool
     {
+        // Coupon code condition: rules with coupon_code require the correct code
+        if ($rule->coupon_code) {
+            if (!$couponCode || strtoupper(trim($couponCode)) !== strtoupper($rule->coupon_code)) {
+                return false;
+            }
+        }
+
         // Cart value condition
         if ($rule->min_cart_value !== null && $subtotal < $rule->min_cart_value) {
             return false;
@@ -95,6 +102,15 @@ class DiscountEngine
         }
 
         return true;
+    }
+
+    /** Vérifie si un code promo existe et est actif */
+    public function validateCoupon(string $code): ?DiscountRule
+    {
+        return DiscountRule::active()
+            ->whereNotNull('coupon_code')
+            ->whereRaw('UPPER(coupon_code) = ?', [strtoupper(trim($code))])
+            ->first();
     }
 
     private function computeDiscount(DiscountRule $rule, array $items, float $subtotal): float

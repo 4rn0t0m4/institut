@@ -22,7 +22,7 @@
         <div class="flex flex-col lg:flex-row gap-8">
 
             {{-- Sidebar catégories --}}
-            <aside class="lg:w-56 flex-shrink-0">
+            <aside class="lg:w-56 flex-shrink-0" style="position: sticky; top: 100px; align-self: flex-start;">
                 <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Catégories</p>
                 <ul class="space-y-1 text-sm">
                     <li>
@@ -56,9 +56,7 @@
 
             {{-- Grille produits --}}
             <div class="flex-1">
-                <turbo-frame id="products-grid">
-                    @include('shop.partials.grid')
-                </turbo-frame>
+                @include('shop.partials.grid')
             </div>
 
         </div>

@@ -11,7 +11,32 @@ class PageController extends Controller
 {
     public function index()
     {
-        $pages = Page::latest()->paginate(20);
+        // Pages parentes triées par sort_order, avec enfants triés par sort_order
+        $parents = Page::whereNull('parent_id')
+            ->with(['children' => fn ($q) => $q->orderBy('sort_order')->orderBy('title')])
+            ->orderBy('sort_order')
+            ->orderBy('title')
+            ->get();
+
+        // Aplatir en liste ordonnée parent → enfants
+        $pages = collect();
+        foreach ($parents as $parent) {
+            $pages->push($parent);
+            foreach ($parent->children as $child) {
+                $pages->push($child);
+            }
+        }
+
+        // Ajouter les pages orphelines (parent_id pointe vers un parent supprimé)
+        $allIds = $pages->pluck('id');
+        $orphans = Page::whereNotNull('parent_id')
+            ->whereNotIn('parent_id', $parents->pluck('id'))
+            ->orderBy('sort_order')
+            ->orderBy('title')
+            ->get();
+        foreach ($orphans as $orphan) {
+            $pages->push($orphan);
+        }
 
         return view('admin.pages.index', compact('pages'));
     }

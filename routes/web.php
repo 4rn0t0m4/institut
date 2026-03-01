@@ -34,7 +34,6 @@ Route::delete('/panier/{key}', [CartController::class, 'remove'])->name('cart.re
 Route::get('/commande', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/commande', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/commande/succes', [CheckoutController::class, 'success'])->name('checkout.success');
-Route::get('/commande/annulation', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
 
 // Quiz
 Route::get('/quiz/{slug}', [QuizController::class, 'show'])->name('quiz.show');

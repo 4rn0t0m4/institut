@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     protected $fillable = [
-        'category_id','name','slug','short_description','description',
+        'category_id','brand_id','name','slug','short_description','description',
         'price','sale_price','sku','stock_quantity','manage_stock','stock_status',
         'weight','dimensions','is_virtual','is_downloadable','is_featured','is_active',
         'meta_title','meta_description','featured_image_id','gallery_image_ids',
@@ -18,8 +18,10 @@ class Product extends Model
     ];
 
     public function category() { return $this->belongsTo(ProductCategory::class,'category_id'); }
+    public function brand() { return $this->belongsTo(Brand::class); }
     public function featuredImage() { return $this->belongsTo(Media::class,'featured_image_id'); }
     public function addonAssignments() { return $this->morphMany(ProductAddonAssignment::class,'assignable'); }
+    public function orderItems() { return $this->hasMany(OrderItem::class); }
 
     public function galleryImages(): \Illuminate\Database\Eloquent\Collection
     {

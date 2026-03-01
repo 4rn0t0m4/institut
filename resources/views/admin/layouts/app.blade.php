@@ -9,6 +9,7 @@
     <title>{{ $title ?? 'Tableau de bord' }} | Admin ICC</title>
 
     @vite(['resources/css/admin.css', 'resources/js/admin.js'])
+    @stack('head-scripts')
 
     <script>
         document.addEventListener('alpine:init', () => {

@@ -11,11 +11,11 @@
     ];
 
     $labels = [
-        'pending' => 'En attente',
+        'pending' => 'Non réglée',
         'processing' => 'En cours',
-        'completed' => 'Terminee',
-        'cancelled' => 'Annulee',
-        'published' => 'Publiee',
+        'completed' => 'Terminée',
+        'cancelled' => 'Annulée',
+        'published' => 'Publiée',
         'draft' => 'Brouillon',
     ];
 @endphp

@@ -1,3 +1,4 @@
+<turbo-frame id="products-grid">
 @if($products->isEmpty())
     <p class="text-gray-500 text-sm py-12 text-center">Aucun produit trouvé.</p>
 @else
@@ -14,3 +15,4 @@
         </div>
     @endif
 @endif
+</turbo-frame>

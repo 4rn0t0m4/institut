@@ -74,6 +74,17 @@ class CartService
         return $sanitized;
     }
 
+    /** Met à jour le prix d'un article (si le prix produit a changé) */
+    public function updatePrice(string $key, float $newPrice): void
+    {
+        $cart = $this->all();
+
+        if (isset($cart[$key])) {
+            $cart[$key]['price'] = $newPrice;
+            session([self::SESSION_KEY => $cart]);
+        }
+    }
+
     /** Met à jour la quantité d'un article */
     public function update(string $key, int $quantity): void
     {

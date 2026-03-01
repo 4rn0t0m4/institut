@@ -8,7 +8,7 @@ use App\Services\CartService;
 use App\Services\DiscountEngine;
 use Illuminate\Http\Request;
 use Stripe\Stripe;
-use Stripe\Checkout\Session as StripeSession;
+use Stripe\PaymentIntent;
 
 class CheckoutController extends Controller
 {
@@ -33,7 +33,7 @@ class CheckoutController extends Controller
         return view('checkout.index', compact('items', 'subtotal', 'discount', 'shippingMethods'));
     }
 
-    /** Crée la commande locale + redirige vers Stripe Checkout */
+    /** Crée la commande locale + affiche le formulaire de paiement Stripe */
     public function store(Request $request)
     {
         $request->validate([
@@ -59,11 +59,60 @@ class CheckoutController extends Controller
             'relay_point_code'   => 'nullable|required_if:shipping_method,boxtal|string|max:100',
             'relay_point_name'   => 'nullable|string|max:255',
             'relay_point_address'=> 'nullable|string|max:500',
+            'coupon_code'        => 'nullable|string|max:50',
         ]);
 
-        $items    = $this->cart->itemsWithProducts();
-        $subtotal = $this->cart->subtotal();
-        $discount = $this->discount->calculate($items, $subtotal);
+        $items = $this->cart->itemsWithProducts();
+
+        if (empty($items)) {
+            return redirect()->route('cart.index');
+        }
+
+        // Vérifier stock et prix actuels avant de créer la commande
+        $cartUpdated = false;
+        $stockErrors = [];
+
+        foreach ($items as $key => $item) {
+            $product = $item['product'];
+            if (!$product || !$product->is_active) {
+                $this->cart->remove($key);
+                $stockErrors[] = "{$item['name']} n'est plus disponible.";
+                continue;
+            }
+
+            // Vérifier le prix
+            if (abs($product->currentPrice() - $item['price']) > 0.01) {
+                $this->cart->updatePrice($key, $product->currentPrice());
+                $cartUpdated = true;
+            }
+
+            // Vérifier le stock
+            if ($product->manage_stock && $product->stock_quantity < $item['quantity']) {
+                if ($product->stock_quantity <= 0) {
+                    $this->cart->remove($key);
+                    $stockErrors[] = "{$item['name']} est en rupture de stock.";
+                } else {
+                    $this->cart->update($key, $product->stock_quantity);
+                    $stockErrors[] = "{$item['name']} : quantité réduite à {$product->stock_quantity} (stock insuffisant).";
+                }
+            }
+        }
+
+        if (!empty($stockErrors)) {
+            return redirect()->route('cart.index')
+                ->with('warnings', $stockErrors);
+        }
+
+        if ($cartUpdated) {
+            return redirect()->route('cart.index')
+                ->with('warnings', ['Les prix de certains produits ont changé. Veuillez vérifier votre panier.']);
+        }
+
+        // Recalculer avec les données fraîches
+        $couponCode = $request->input('coupon_code');
+        $items      = $this->cart->itemsWithProducts();
+        $subtotal   = $this->cart->subtotal();
+        $discount   = $this->discount->calculate($items, $subtotal, $couponCode);
 
         $shippingKey  = $request->shipping_method;
         $shippingCost = config("shipping.methods.{$shippingKey}.price", 0);
@@ -135,90 +184,56 @@ class CheckoutController extends Controller
             }
         }
 
-        $stripeSession = $this->createStripeSession($order, $items, $discount, $shippingCost);
-        $order->update(['stripe_session_id' => $stripeSession->id]);
+        $paymentIntent = $this->createPaymentIntent($order, $total);
+        $order->update(['stripe_payment_intent_id' => $paymentIntent->id]);
 
-        return redirect($stripeSession->url);
+        return view('checkout.payment', [
+            'order'        => $order,
+            'clientSecret' => $paymentIntent->client_secret,
+            'stripeKey'    => config('cashier.key'),
+        ]);
     }
 
     /** Page de succès après paiement Stripe */
     public function success(Request $request)
     {
-        $order = Order::where('stripe_session_id', $request->query('session_id'))->first();
+        $order = Order::where('stripe_payment_intent_id', $request->query('payment_intent'))->first();
 
         if (!$order) {
             return redirect()->route('shop.index');
         }
 
-        if (in_array($order->status, ['processing', 'completed'])) {
+        // Vérifier côté Stripe que le paiement a bien abouti
+        // Le webhook fera le traitement complet (statut, stock, emails)
+        $paymentConfirmed = in_array($order->status, ['processing', 'completed']);
+
+        if (!$paymentConfirmed && $order->status === 'pending') {
+            Stripe::setApiKey(config('cashier.secret'));
+            $intent = PaymentIntent::retrieve($order->stripe_payment_intent_id);
+            $paymentConfirmed = $intent->status === 'succeeded';
+        }
+
+        if ($paymentConfirmed) {
             $this->cart->clear();
         }
 
-        return view('checkout.success', compact('order'));
+        return view('checkout.success', [
+            'order'            => $order,
+            'paymentConfirmed' => $paymentConfirmed,
+        ]);
     }
 
-    /** Page d'annulation */
-    public function cancel(Request $request)
-    {
-        $order = Order::where('stripe_session_id', $request->query('session_id'))->first();
-
-        if ($order?->status === 'pending') {
-            $order->update(['status' => 'cancelled']);
-        }
-
-        return view('checkout.cancel');
-    }
-
-    private function createStripeSession(Order $order, array $items, array $discount, float $shippingCost): StripeSession
+    private function createPaymentIntent(Order $order, float $total): PaymentIntent
     {
         Stripe::setApiKey(config('cashier.secret'));
 
-        $lineItems = [];
-
-        foreach ($items as $item) {
-            $unitAmount = (int) round(($item['price'] + $item['addon_price']) * 100);
-            $lineItems[] = [
-                'price_data' => [
-                    'currency'     => 'eur',
-                    'unit_amount'  => $unitAmount,
-                    'product_data' => ['name' => $item['name']],
-                ],
-                'quantity' => $item['quantity'],
-            ];
-        }
-
-        if ($shippingCost > 0) {
-            $lineItems[] = [
-                'price_data' => [
-                    'currency'     => 'eur',
-                    'unit_amount'  => (int) round($shippingCost * 100),
-                    'product_data' => ['name' => 'Frais de livraison'],
-                ],
-                'quantity' => 1,
-            ];
-        }
-
-        $sessionParams = [
-            'payment_method_types' => ['card'],
-            'line_items'           => $lineItems,
-            'mode'                 => 'payment',
-            'customer_email'       => $order->billing_email,
-            'success_url'          => route('checkout.success') . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url'           => route('checkout.cancel') . '?session_id={CHECKOUT_SESSION_ID}',
-            'metadata'             => ['order_id' => $order->id],
-            'locale'               => 'fr',
-        ];
-
-        if ($discount['amount'] > 0) {
-            $coupon = \Stripe\Coupon::create([
-                'amount_off' => (int) round($discount['amount'] * 100),
-                'currency'   => 'eur',
-                'duration'   => 'once',
-                'name'       => $discount['label'] ?? 'Remise',
-            ]);
-            $sessionParams['discounts'] = [['coupon' => $coupon->id]];
-        }
-
-        return StripeSession::create($sessionParams);
+        return PaymentIntent::create([
+            'amount'                    => (int) round($total * 100),
+            'currency'                  => 'eur',
+            'automatic_payment_methods' => ['enabled' => true],
+            'metadata'                  => ['order_id' => $order->id],
+            'description'               => "Commande #{$order->id}",
+            'receipt_email'             => $order->billing_email,
+        ]);
     }
 }

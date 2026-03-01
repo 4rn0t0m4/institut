@@ -1,4 +1,44 @@
 {{-- Shared form for create/edit --}}
+@push('head-scripts')
+<script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js"></script>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var isDark = document.documentElement.classList.contains('dark');
+
+    // Description courte — barre d'outils minimale
+    tinymce.init({
+        selector: '.tinymce-light',
+        height: 300,
+        menubar: false,
+        plugins: 'lists link',
+        toolbar: 'bold italic | bullist numlist | link | removeformat',
+        content_css: isDark ? 'dark' : 'default',
+        skin: isDark ? 'oxide-dark' : 'oxide',
+        language: 'fr_FR',
+        branding: false,
+        promotion: false,
+        statusbar: false,
+    });
+
+    // Description complète — barre d'outils riche
+    tinymce.init({
+        selector: '.tinymce-full',
+        height: 400,
+        menubar: false,
+        plugins: 'lists link table image code',
+        toolbar: 'bold italic underline | blocks | bullist numlist | table | link image | code | removeformat',
+        content_css: isDark ? 'dark' : 'default',
+        skin: isDark ? 'oxide-dark' : 'oxide',
+        language: 'fr_FR',
+        branding: false,
+        promotion: false,
+    });
+});
+</script>
+@endpush
 <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
     {{-- Main column --}}
     <div class="xl:col-span-2 space-y-6">
@@ -25,16 +65,14 @@
                 {{-- Short description --}}
                 <div>
                     <label for="short_description" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Description courte</label>
-                    <textarea id="short_description" name="short_description" rows="2"
-                        class="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90 dark:placeholder:text-white/30">{{ old('short_description', $product->short_description ?? '') }}</textarea>
+                    <textarea id="short_description" name="short_description" class="tinymce-light">{{ old('short_description', $product->short_description ?? '') }}</textarea>
                     @error('short_description') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
                 </div>
 
                 {{-- Description --}}
                 <div>
                     <label for="description" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                    <textarea id="description" name="description" rows="6"
-                        class="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90 dark:placeholder:text-white/30">{{ old('description', $product->description ?? '') }}</textarea>
+                    <textarea id="description" name="description" class="tinymce-full">{{ old('description', $product->description ?? '') }}</textarea>
                     @error('description') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
                 </div>
             </div>
@@ -46,15 +84,17 @@
 
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
                 <div>
-                    <label for="price" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Prix *</label>
+                    <label for="price" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Prix TTC *</label>
                     <input type="number" id="price" name="price" value="{{ old('price', $product->price ?? '') }}" step="0.01" min="0" required
                         class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90" />
+                    <p class="mt-1 text-xs text-gray-400">TVA 20% incluse</p>
                     @error('price') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label for="sale_price" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Prix promo</label>
+                    <label for="sale_price" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Prix promo TTC</label>
                     <input type="number" id="sale_price" name="sale_price" value="{{ old('sale_price', $product->sale_price ?? '') }}" step="0.01" min="0"
                         class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90" />
+                    <p class="mt-1 text-xs text-gray-400">TVA 20% incluse</p>
                     @error('sale_price') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
                 </div>
                 <div>
@@ -78,7 +118,7 @@
                     <input type="hidden" name="is_active" value="0">
                     <input type="checkbox" name="is_active" value="1" {{ old('is_active', $product->is_active ?? true) ? 'checked' : '' }}
                         class="h-5 w-5 rounded border-gray-300 text-brand-500 focus:ring-brand-500 dark:border-gray-700" />
-                    <span class="text-sm text-gray-700 dark:text-gray-300">Actif</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Visible sur le site</span>
                 </label>
                 <label class="flex items-center gap-3">
                     <input type="hidden" name="is_featured" value="0">
@@ -103,6 +143,22 @@
                 @endforeach
             </select>
             @error('category_id') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+        </div>
+
+        {{-- Brand --}}
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">Marque</h3>
+
+            <select name="brand_id"
+                class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90">
+                <option value="">— Aucune —</option>
+                @foreach ($brands as $brand)
+                    <option value="{{ $brand->id }}" {{ old('brand_id', $product->brand_id ?? '') == $brand->id ? 'selected' : '' }}>
+                        {{ $brand->name }}
+                    </option>
+                @endforeach
+            </select>
+            @error('brand_id') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
         </div>
 
         {{-- Stock --}}

@@ -3,13 +3,21 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductCategoryController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\SettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
 Route::resource('products', ProductController::class)->names('admin.products');
 Route::resource('categories', ProductCategoryController::class)->names('admin.categories');
-Route::resource('orders', OrderController::class)->only(['index', 'show', 'edit', 'update'])->names('admin.orders');
+Route::resource('brands', BrandController::class)->except(['show'])->names('admin.brands');
+Route::resource('orders', OrderController::class)->only(['index', 'show', 'edit', 'update', 'destroy'])->names('admin.orders');
+Route::resource('customers', CustomerController::class)->only(['index', 'show'])->names('admin.customers');
 Route::resource('pages', PageController::class)->names('admin.pages');
+
+Route::get('settings', [SettingController::class, 'index'])->name('admin.settings.index');
+Route::put('settings', [SettingController::class, 'update'])->name('admin.settings.update');

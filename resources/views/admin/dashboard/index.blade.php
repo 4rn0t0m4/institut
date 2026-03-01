@@ -74,6 +74,145 @@
         </div>
     </div>
 
+    {{-- Google Analytics --}}
+    @if ($analyticsConfigured && $analyticsData)
+        {{-- Analytics metric cards --}}
+        @php
+            $today = $analyticsData['visitors_today'];
+            $week = $analyticsData['visitors_7days'];
+            $month = $analyticsData['visitors_30days'];
+            $todayVisitors = $today->sum('activeUsers');
+            $todayPageviews = $today->sum('screenPageViews');
+            $weekVisitors = $week->sum('activeUsers');
+            $weekPageviews = $week->sum('screenPageViews');
+            $monthVisitors = $month->sum('activeUsers');
+            $monthPageviews = $month->sum('screenPageViews');
+        @endphp
+        <div class="mt-6">
+            <h3 class="mb-4 text-lg font-semibold text-gray-800 dark:text-white/90">Statistiques de visite</h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6">
+                {{-- Today --}}
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Aujourd'hui</span>
+                    <div class="mt-2 flex items-baseline gap-3">
+                        <span class="text-2xl font-bold" style="color: #1f2937;">{{ number_format($todayVisitors) }}</span>
+                        <span class="text-sm text-gray-500">visiteurs</span>
+                    </div>
+                    <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ number_format($todayPageviews) }} pages vues</div>
+                </div>
+                {{-- 7 days --}}
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+                    <span class="text-sm text-gray-500 dark:text-gray-400">7 derniers jours</span>
+                    <div class="mt-2 flex items-baseline gap-3">
+                        <span class="text-2xl font-bold" style="color: #1f2937;">{{ number_format($weekVisitors) }}</span>
+                        <span class="text-sm text-gray-500">visiteurs</span>
+                    </div>
+                    <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ number_format($weekPageviews) }} pages vues</div>
+                </div>
+                {{-- 30 days --}}
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+                    <span class="text-sm text-gray-500 dark:text-gray-400">30 derniers jours</span>
+                    <div class="mt-2 flex items-baseline gap-3">
+                        <span class="text-2xl font-bold" style="color: #1f2937;">{{ number_format($monthVisitors) }}</span>
+                        <span class="text-sm text-gray-500">visiteurs</span>
+                    </div>
+                    <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ number_format($monthPageviews) }} pages vues</div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Top pages & Referrers --}}
+        <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-2">
+            {{-- Top pages --}}
+            <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+                <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-800 md:px-6">
+                    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Pages les plus visitées <span class="font-normal text-sm text-gray-400">(30j)</span></h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200 dark:border-gray-800">
+                                <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Page</th>
+                                <th class="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Vues</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($analyticsData['top_pages'] as $page)
+                                <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0">
+                                    <td class="px-5 py-3 text-sm text-gray-700 dark:text-gray-300 truncate max-w-xs">{{ $page['fullPageUrl'] ?? $page['pageTitle'] ?? '-' }}</td>
+                                    <td class="px-5 py-3 text-sm text-right font-medium text-gray-700 dark:text-gray-300">{{ number_format($page['screenPageViews'] ?? 0) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Top referrers --}}
+            <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+                <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-800 md:px-6">
+                    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Sources de trafic <span class="font-normal text-sm text-gray-400">(30j)</span></h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200 dark:border-gray-800">
+                                <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Référent</th>
+                                <th class="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Vues</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($analyticsData['top_referrers'] as $ref)
+                                <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0">
+                                    <td class="px-5 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $ref['pageReferrer'] ?? '-' }}</td>
+                                    <td class="px-5 py-3 text-sm text-right font-medium text-gray-700 dark:text-gray-300">{{ number_format($ref['screenPageViews'] ?? 0) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {{-- Browsers --}}
+        <div class="mt-6">
+            <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 max-w-md">
+                <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Navigateurs <span class="font-normal text-sm text-gray-400">(30j)</span></h3>
+                <div class="space-y-3">
+                    @php
+                        $totalBrowserViews = $analyticsData['top_browsers']->sum('screenPageViews');
+                    @endphp
+                    @foreach ($analyticsData['top_browsers'] as $browser)
+                        @php
+                            $pct = $totalBrowserViews > 0 ? round(($browser['screenPageViews'] / $totalBrowserViews) * 100) : 0;
+                        @endphp
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-700 dark:text-gray-300">{{ $browser['browser'] ?? '-' }}</span>
+                                <span class="text-gray-500">{{ $pct }}%</span>
+                            </div>
+                            <div class="h-2 rounded-full" style="background-color: #e5e7eb;">
+                                <div class="h-2 rounded-full" style="background-color: #276e44; width: {{ $pct }}%;"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @elseif ($analyticsError ?? false)
+        <div class="mt-6 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <h3 class="mb-2 text-lg font-semibold text-gray-800 dark:text-white/90">Statistiques de visite</h3>
+            <p class="text-sm" style="color: #991b1b;">Erreur Google Analytics : {{ $analyticsError }}</p>
+            <a href="{{ route('admin.settings.index') }}" class="mt-2 inline-block text-sm text-brand-500 hover:underline">Vérifier la configuration</a>
+        </div>
+    @elseif (!$analyticsConfigured)
+        <div class="mt-6 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <h3 class="mb-2 text-lg font-semibold text-gray-800 dark:text-white/90">Statistiques de visite</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Google Analytics n'est pas encore configuré.</p>
+            <a href="{{ route('admin.settings.index') }}" class="mt-2 inline-block text-sm text-brand-500 hover:underline">Configurer dans Paramètres</a>
+        </div>
+    @endif
+
     {{-- Recent orders --}}
     <div class="mt-6">
         <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
@@ -89,6 +228,7 @@
                             <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Statut</th>
                             <th class="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Total</th>
                             <th class="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Date</th>
+                            <th class="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -98,7 +238,7 @@
                                     <a href="{{ route('admin.orders.show', $order) }}" class="text-brand-500 hover:underline">#{{ $order->id }}</a>
                                 </td>
                                 <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                                    {{ $order->user?->name ?? 'Invite' }}
+                                    {{ $order->user?->name ?? 'Invité' }}
                                 </td>
                                 <td class="px-5 py-4">
                                     <x-admin.badge :status="$order->status" />
@@ -109,10 +249,25 @@
                                 <td class="px-5 py-4 text-sm text-right text-gray-500 dark:text-gray-400">
                                     {{ $order->created_at->format('d/m/Y') }}
                                 </td>
+                                <td class="px-5 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{{ route('admin.orders.show', $order) }}" class="text-gray-500 hover:text-brand-500 dark:text-gray-400" title="Voir">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                        </a>
+                                        <a href="{{ route('admin.orders.edit', $order) }}" class="text-gray-500 hover:text-brand-500 dark:text-gray-400" title="Modifier">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                                <td colspan="6" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                                     Aucune commande pour le moment.
                                 </td>
                             </tr>

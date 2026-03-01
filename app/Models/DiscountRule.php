@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 class DiscountRule extends Model
 {
     protected $fillable = [
-        'name','is_active','type','discount_type','discount_amount',
+        'name','coupon_code','is_active','type','discount_type','discount_amount',
         'target_categories','target_products',
         'min_cart_value','max_cart_value','min_quantity','max_quantity',
         'starts_at','ends_at','stackable','sort_order',

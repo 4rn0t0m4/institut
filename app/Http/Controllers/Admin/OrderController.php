@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OrderShipped;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -53,8 +55,27 @@ class OrderController extends Controller
             'customer_note' => 'nullable|string|max:1000',
         ]);
 
+        $oldTrackingNumber = $order->tracking_number;
+
         $order->update($validated);
 
-        return redirect()->route('admin.orders.show', $order)->with('success', 'Commande mise a jour.');
+        // Envoyer l'email d'expédition quand un numéro de suivi est ajouté ou modifié
+        if ($validated['tracking_number'] && $validated['tracking_number'] !== $oldTrackingNumber) {
+            Mail::to($order->billing_email)->send(new OrderShipped($order));
+        }
+
+        return redirect()->route('admin.orders.show', $order)->with('success', 'Commande mise à jour.');
+    }
+
+    public function destroy(Order $order)
+    {
+        if ($order->status !== 'pending') {
+            return redirect()->route('admin.orders.show', $order)->with('error', 'Seules les commandes non reglees peuvent etre supprimees.');
+        }
+
+        $order->items()->delete();
+        $order->delete();
+
+        return redirect()->route('admin.orders.index')->with('success', 'Commande supprimee.');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\NewOrderAdmin;
 use App\Mail\OrderConfirmation;
+use App\Mail\PaymentFailed;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -32,7 +33,7 @@ class StripeWebhookController extends Controller
         }
 
         match ($event->type) {
-            'checkout.session.completed' => $this->handleSessionCompleted($event->data->object),
+            'payment_intent.succeeded'      => $this->handlePaymentSucceeded($event->data->object),
             'payment_intent.payment_failed' => $this->handlePaymentFailed($event->data->object),
             default => null,
         };
@@ -40,47 +41,66 @@ class StripeWebhookController extends Controller
         return response('OK', 200);
     }
 
-    private function handleSessionCompleted(object $session): void
+    private function handlePaymentSucceeded(object $paymentIntent): void
     {
-        $order = Order::where('stripe_session_id', $session->id)->first();
+        DB::transaction(function () use ($paymentIntent) {
+            // Verrouiller la commande pour éviter le traitement en double
+            $order = Order::where('stripe_payment_intent_id', $paymentIntent->id)
+                ->lockForUpdate()
+                ->first();
 
-        if (!$order) {
-            Log::error('Stripe webhook: order not found', ['session_id' => $session->id]);
-            return;
+            if (!$order) {
+                Log::error('Stripe webhook: order not found', ['payment_intent_id' => $paymentIntent->id]);
+                return;
+            }
+
+            // Idempotence : déjà traitée (par le webhook ou la page success)
+            if ($order->status !== 'pending') {
+                return;
+            }
+
+            $order->update([
+                'status'  => 'processing',
+                'paid_at' => now(),
+            ]);
+
+            Log::info("Commande #{$order->number} payée via Stripe.");
+
+            // Décrémentation du stock avec verrou
+            $order->load('items');
+            $this->decrementStock($order);
+        });
+
+        // Emails envoyés hors transaction (pas besoin de bloquer)
+        $order = Order::where('stripe_payment_intent_id', $paymentIntent->id)->first();
+        if ($order && $order->status === 'processing') {
+            Mail::to($order->billing_email)->send(new OrderConfirmation($order));
+            Mail::to(config('mail.admin_address', config('mail.from.address')))->send(new NewOrderAdmin($order));
         }
-
-        $order->update([
-            'status'                    => 'processing',
-            'stripe_payment_intent_id'  => $session->payment_intent,
-            'paid_at'                   => now(),
-        ]);
-
-        Log::info("Commande #{$order->number} payée via Stripe.");
-
-        // Décrémentation du stock
-        $order->load('items');
-        $this->decrementStock($order);
-
-        // Envoi des emails
-        Mail::to($order->billing_email)->send(new OrderConfirmation($order));
-        Mail::to(config('mail.admin_address', config('mail.from.address')))->send(new NewOrderAdmin($order));
     }
 
     private function decrementStock(Order $order): void
     {
         foreach ($order->items as $item) {
-            $updated = Product::where('id', $item->product_id)
+            // lockForUpdate implicite via la transaction parente
+            $product = Product::where('id', $item->product_id)
                 ->where('manage_stock', true)
-                ->where('stock_quantity', '>=', $item->quantity)
-                ->update([
-                    'stock_quantity' => DB::raw("stock_quantity - {$item->quantity}"),
-                ]);
+                ->lockForUpdate()
+                ->first();
 
-            if ($updated) {
-                // Mark out of stock if quantity reaches 0
-                Product::where('id', $item->product_id)
-                    ->where('stock_quantity', '<=', 0)
-                    ->update(['stock_status' => 'outofstock']);
+            if (!$product || $product->stock_quantity < $item->quantity) {
+                Log::warning("Stock insuffisant pour produit #{$item->product_id}", [
+                    'order'     => $order->id,
+                    'requested' => $item->quantity,
+                    'available' => $product?->stock_quantity,
+                ]);
+                continue;
+            }
+
+            $product->decrement('stock_quantity', $item->quantity);
+
+            if ($product->fresh()->stock_quantity <= 0) {
+                $product->update(['stock_status' => 'outofstock']);
             }
         }
     }
@@ -89,9 +109,13 @@ class StripeWebhookController extends Controller
     {
         $order = Order::where('stripe_payment_intent_id', $paymentIntent->id)->first();
 
-        if ($order) {
-            $order->update(['status' => 'failed']);
-            Log::warning("Commande #{$order->number} paiement échoué.");
+        if (!$order) {
+            return;
         }
+
+        $order->update(['status' => 'failed']);
+        Log::warning("Commande #{$order->number} paiement échoué.");
+
+        Mail::to($order->billing_email)->send(new PaymentFailed($order));
     }
 }

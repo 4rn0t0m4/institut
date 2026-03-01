@@ -1,7 +1,11 @@
 @props(['product'])
 
-<article class="group flex flex-col bg-white border rounded-xl overflow-hidden hover:shadow-md transition-shadow"
+<article class="group flex flex-col bg-white border rounded-xl overflow-hidden hover:shadow-md transition-shadow {{ !$product->is_active ? 'opacity-60' : '' }}"
          style="border-color: #b0f1b9;">
+    {{-- Admin badge if hidden --}}
+    @if(!$product->is_active && auth()->user()?->is_admin)
+        <div style="background-color: #f59e0b; color: white; font-size: 11px; font-weight: 600; text-align: center; padding: 4px 0;">Masque — visible uniquement par les admins</div>
+    @endif
     {{-- Image --}}
     <a href="{{ route('shop.show', $product->slug) }}" data-turbo-frame="_top"
        class="block aspect-square overflow-hidden" style="background-color: #f0fdf4;">
@@ -22,6 +26,9 @@
 
     {{-- Infos --}}
     <div class="p-3 flex flex-col flex-1">
+        @if($product->brand)
+            <p class="text-xs font-semibold mb-0.5" style="color: #276e44;">{{ $product->brand->name }}</p>
+        @endif
         @if($product->category)
             <p class="text-xs mb-1" style="color: #60916a;">{{ $product->category->name }}</p>
         @endif
@@ -43,8 +50,8 @@
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                 <button type="submit"
-                        class="text-xs px-2.5 py-1 rounded-lg text-white transition hover:opacity-90"
-                        style="background-color: #276e44;"
+                        class="text-xs px-2.5 py-1 rounded-lg text-white transition {{ $product->stock_status !== 'instock' ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90' }}"
+                        style="background-color: {{ $product->stock_status !== 'instock' ? '#9ca3af' : '#276e44' }};"
                         {{ $product->stock_status !== 'instock' ? 'disabled' : '' }}>
                     {{ $product->stock_status === 'instock' ? 'Ajouter' : 'Épuisé' }}
                 </button>

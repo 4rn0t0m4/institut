@@ -22,8 +22,7 @@
                 {{-- Content --}}
                 <div>
                     <label for="content" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Contenu</label>
-                    <textarea id="content" name="content" rows="12"
-                        class="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90 dark:placeholder:text-white/30">{{ old('content', $page->content ?? '') }}</textarea>
+                    <textarea id="content" name="content" class="tinymce-full">{{ old('content', $page->content ?? '') }}</textarea>
                     @error('content') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
                 </div>
             </div>
