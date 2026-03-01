@@ -4,14 +4,12 @@ namespace App\Console\Commands\Migrate;
 
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\OrderItemAddon;
 
 class WpOrders extends WpImportCommand
 {
     protected $signature   = 'migrate:wp-orders';
-    protected $description = 'Importe les commandes WooCommerce depuis WordPress';
+    protected $description = 'Importe les commandes WooCommerce (HPOS) depuis WordPress';
 
-    // Mapping statuts WooCommerce -> Laravel
     private array $statusMap = [
         'wc-pending'    => 'pending',
         'wc-processing' => 'processing',
@@ -20,83 +18,102 @@ class WpOrders extends WpImportCommand
         'wc-cancelled'  => 'cancelled',
         'wc-refunded'   => 'refunded',
         'wc-failed'     => 'failed',
-        'pending'       => 'pending',
-        'processing'    => 'processing',
-        'completed'     => 'completed',
     ];
 
     public function handle(): void
     {
-        $this->info('Import commandes...');
+        $this->info('Import commandes (HPOS)...');
 
         $userMap    = $this->loadMap('wp_user_map.json');
         $productMap = $this->loadMap('wp_product_map.json');
 
-        Order::query()->each(fn($o) => $o->items()->delete() && $o->delete());
+        // Clean existing orders
+        $this->safeTruncate('order_item_addons');
+        $this->safeTruncate('order_items');
         $this->safeTruncate('orders');
 
         $wpOrders = $this->wp()
-            ->table('posts')
-            ->where('post_type', 'shop_order')
-            ->orderBy('ID')
+            ->table('wc_orders')
+            ->where('type', 'shop_order')
+            ->orderBy('id')
             ->get();
 
         $created = 0;
 
-        foreach ($wpOrders as $wpOrder) {
-            $meta = $this->postMeta($wpOrder->ID);
+        foreach ($wpOrders as $wo) {
+            $status = $this->statusMap[$wo->status] ?? 'pending';
 
-            $wpStatus = $wpOrder->post_status;
-            $status   = $this->statusMap[$wpStatus] ?? 'pending';
+            // Addresses
+            $billing  = $this->getAddress($wo->id, 'billing');
+            $shipping = $this->getAddress($wo->id, 'shipping');
+
+            // Operational data (paid_at, shipping totals, discounts)
+            $opData = $this->wp()
+                ->table('wc_order_operational_data')
+                ->where('order_id', $wo->id)
+                ->first();
 
             $paidAt = null;
-            if ($status === 'completed' && !empty($meta['_date_completed'])) {
-                $paidAt = date('Y-m-d H:i:s', (int) $meta['_date_completed']);
+            if ($opData && $opData->date_paid_gmt) {
+                $paidAt = $opData->date_paid_gmt;
             }
 
+            // Map WP user to Laravel user
             $laravelUserId = null;
-            if (!empty($meta['_customer_user'])) {
-                $laravelUserId = $userMap[(int) $meta['_customer_user']] ?? null;
+            if ($wo->customer_id) {
+                $laravelUserId = $userMap[(int) $wo->customer_id] ?? null;
             }
 
-            $order = Order::create([
+            $order = new Order;
+            $order->timestamps = false;
+            $order->fill([
                 'user_id'              => $laravelUserId,
-                'number'               => 'CMD-WP-' . $wpOrder->ID,
+                'number'               => 'CMD-WP-' . $wo->id,
                 'status'               => $status,
-                'subtotal'             => (float) ($meta['_order_subtotal'] ?? 0),
-                'discount_total'       => (float) ($meta['_cart_discount'] ?? 0),
-                'shipping_total'       => (float) ($meta['_order_shipping'] ?? 0),
-                'tax_total'            => (float) ($meta['_order_tax'] ?? 0),
-                'total'                => (float) ($meta['_order_total'] ?? 0),
-                'currency'             => $meta['_order_currency'] ?? 'EUR',
-                'payment_method'       => $meta['_payment_method'] ?? null,
+                'subtotal'             => (float) $wo->total_amount - (float) ($opData->shipping_total_amount ?? 0),
+                'discount_total'       => (float) ($opData->discount_total_amount ?? 0),
+                'shipping_total'       => (float) ($opData->shipping_total_amount ?? 0),
+                'tax_total'            => (float) ($wo->tax_amount ?? 0),
+                'total'                => (float) $wo->total_amount,
+                'currency'             => $wo->currency ?? 'EUR',
+                'payment_method'       => $wo->payment_method,
                 'paid_at'              => $paidAt,
-                'billing_first_name'   => $meta['_billing_first_name'] ?? null,
-                'billing_last_name'    => $meta['_billing_last_name'] ?? null,
-                'billing_email'        => $meta['_billing_email'] ?? null,
-                'billing_phone'        => $meta['_billing_phone'] ?? null,
-                'billing_address_1'    => $meta['_billing_address_1'] ?? null,
-                'billing_address_2'    => $meta['_billing_address_2'] ?? null,
-                'billing_city'         => $meta['_billing_city'] ?? null,
-                'billing_postcode'     => $meta['_billing_postcode'] ?? null,
-                'billing_country'      => $meta['_billing_country'] ?? null,
-                'shipping_first_name'  => $meta['_shipping_first_name'] ?? null,
-                'shipping_last_name'   => $meta['_shipping_last_name'] ?? null,
-                'shipping_address_1'   => $meta['_shipping_address_1'] ?? null,
-                'shipping_address_2'   => $meta['_shipping_address_2'] ?? null,
-                'shipping_city'        => $meta['_shipping_city'] ?? null,
-                'shipping_postcode'    => $meta['_shipping_postcode'] ?? null,
-                'shipping_country'     => $meta['_shipping_country'] ?? null,
-                'shipping_method'      => $meta['_shipping_method'] ?? null,
-                'customer_note'        => $wpOrder->post_excerpt ?: null,
-                'created_at'           => $wpOrder->post_date,
+                'billing_first_name'   => $billing->first_name ?? null,
+                'billing_last_name'    => $billing->last_name ?? null,
+                'billing_email'        => $billing->email ?? $wo->billing_email,
+                'billing_phone'        => $billing->phone ?? null,
+                'billing_address_1'    => $billing->address_1 ?? null,
+                'billing_address_2'    => $billing->address_2 ?? null,
+                'billing_city'         => $billing->city ?? null,
+                'billing_postcode'     => $billing->postcode ?? null,
+                'billing_country'      => $billing->country ?? null,
+                'shipping_first_name'  => $shipping->first_name ?? null,
+                'shipping_last_name'   => $shipping->last_name ?? null,
+                'shipping_address_1'   => $shipping->address_1 ?? null,
+                'shipping_address_2'   => $shipping->address_2 ?? null,
+                'shipping_city'        => $shipping->city ?? null,
+                'shipping_postcode'    => $shipping->postcode ?? null,
+                'shipping_country'     => $shipping->country ?? null,
+                'customer_note'        => $wo->customer_note ?: null,
             ]);
+            $order->created_at = $wo->date_created_gmt;
+            $order->updated_at = $wo->date_updated_gmt;
+            $order->save();
 
-            $this->importOrderItems($wpOrder->ID, $order->id, $productMap);
+            $this->importOrderItems($wo->id, $order->id, $productMap);
             $created++;
         }
 
         $this->printResult('Commandes', $created);
+    }
+
+    private function getAddress(int $orderId, string $type): ?object
+    {
+        return $this->wp()
+            ->table('wc_order_addresses')
+            ->where('order_id', $orderId)
+            ->where('address_type', $type)
+            ->first();
     }
 
     private function importOrderItems(int $wpOrderId, int $laravelOrderId, array $productMap): void
@@ -114,7 +131,7 @@ class WpOrders extends WpImportCommand
                 ->pluck('meta_value', 'meta_key')
                 ->all();
 
-            $wpProductId  = (int) ($itemMeta['_product_id'] ?? 0);
+            $wpProductId   = (int) ($itemMeta['_product_id'] ?? 0);
             $laravelProdId = $productMap[$wpProductId] ?? null;
 
             $qty       = (int)   ($itemMeta['_qty'] ?? 1);

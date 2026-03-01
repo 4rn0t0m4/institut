@@ -26,11 +26,11 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index');
         }
 
-        $subtotal = $this->cart->subtotal();
-        $discount = $this->discount->calculate($items, $subtotal);
-        $total    = max(0, $subtotal - $discount['amount']);
+        $subtotal        = $this->cart->subtotal();
+        $discount        = $this->discount->calculate($items, $subtotal);
+        $shippingMethods = config('shipping.methods');
 
-        return view('checkout.index', compact('items', 'subtotal', 'discount', 'total'));
+        return view('checkout.index', compact('items', 'subtotal', 'discount', 'shippingMethods'));
     }
 
     /** Crée la commande locale + redirige vers Stripe Checkout */
@@ -55,12 +55,29 @@ class CheckoutController extends Controller
             'shipping_postcode'  => 'nullable|string|max:20',
             'shipping_country'   => 'nullable|string|size:2',
             'customer_note'      => 'nullable|string|max:1000',
+            'shipping_method'    => 'required|in:' . implode(',', array_keys(config('shipping.methods'))),
+            'relay_point_code'   => 'nullable|required_if:shipping_method,boxtal|string|max:100',
+            'relay_point_name'   => 'nullable|string|max:255',
+            'relay_point_address'=> 'nullable|string|max:500',
         ]);
 
         $items    = $this->cart->itemsWithProducts();
         $subtotal = $this->cart->subtotal();
         $discount = $this->discount->calculate($items, $subtotal);
-        $total    = max(0, $subtotal - $discount['amount']);
+
+        $shippingKey  = $request->shipping_method;
+        $shippingCost = config("shipping.methods.{$shippingKey}.price", 0);
+        $total        = max(0, $subtotal - $discount['amount'] + $shippingCost);
+
+        // Build customer note with relay point info
+        $customerNote = $request->customer_note ?? '';
+        if ($shippingKey === 'boxtal' && $request->relay_point_name) {
+            $relayInfo = "Point relais : {$request->relay_point_name}";
+            if ($request->relay_point_address) {
+                $relayInfo .= " — {$request->relay_point_address}";
+            }
+            $customerNote = $relayInfo . ($customerNote ? "\n\n" . $customerNote : '');
+        }
 
         $shippingSame = $request->boolean('shipping_same', false);
 
@@ -85,9 +102,11 @@ class CheckoutController extends Controller
             'shipping_country'     => $shippingSame ? $request->billing_country     : $request->shipping_country,
             'subtotal'             => $subtotal,
             'discount_total'       => $discount['amount'],
+            'shipping_total'       => $shippingCost,
+            'shipping_method'      => config("shipping.methods.{$shippingKey}.label"),
             'tax_total'            => 0,
             'total'                => $total,
-            'customer_note'        => $request->customer_note,
+            'customer_note'        => $customerNote ?: null,
             'currency'             => 'EUR',
             'payment_method'       => 'stripe',
         ]);
@@ -116,7 +135,7 @@ class CheckoutController extends Controller
             }
         }
 
-        $stripeSession = $this->createStripeSession($order, $items, $discount);
+        $stripeSession = $this->createStripeSession($order, $items, $discount, $shippingCost);
         $order->update(['stripe_session_id' => $stripeSession->id]);
 
         return redirect($stripeSession->url);
@@ -150,7 +169,7 @@ class CheckoutController extends Controller
         return view('checkout.cancel');
     }
 
-    private function createStripeSession(Order $order, array $items, array $discount): StripeSession
+    private function createStripeSession(Order $order, array $items, array $discount, float $shippingCost): StripeSession
     {
         Stripe::setApiKey(config('cashier.secret'));
 
@@ -168,18 +187,18 @@ class CheckoutController extends Controller
             ];
         }
 
-        if ($discount['amount'] > 0) {
+        if ($shippingCost > 0) {
             $lineItems[] = [
                 'price_data' => [
                     'currency'     => 'eur',
-                    'unit_amount'  => -(int) round($discount['amount'] * 100),
-                    'product_data' => ['name' => 'Remise'],
+                    'unit_amount'  => (int) round($shippingCost * 100),
+                    'product_data' => ['name' => 'Frais de livraison'],
                 ],
                 'quantity' => 1,
             ];
         }
 
-        return StripeSession::create([
+        $sessionParams = [
             'payment_method_types' => ['card'],
             'line_items'           => $lineItems,
             'mode'                 => 'payment',
@@ -188,6 +207,18 @@ class CheckoutController extends Controller
             'cancel_url'           => route('checkout.cancel') . '?session_id={CHECKOUT_SESSION_ID}',
             'metadata'             => ['order_id' => $order->id],
             'locale'               => 'fr',
-        ]);
+        ];
+
+        if ($discount['amount'] > 0) {
+            $coupon = \Stripe\Coupon::create([
+                'amount_off' => (int) round($discount['amount'] * 100),
+                'currency'   => 'eur',
+                'duration'   => 'once',
+                'name'       => $discount['label'] ?? 'Remise',
+            ]);
+            $sessionParams['discounts'] = [['coupon' => $coupon->id]];
+        }
+
+        return StripeSession::create($sessionParams);
     }
 }

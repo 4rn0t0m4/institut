@@ -44,4 +44,9 @@ class User extends Authenticatable
         'password' => 'hashed',
         'is_admin' => 'boolean',
     ];
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }
