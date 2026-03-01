@@ -41,6 +41,37 @@ class ShopController extends Controller
             }
         }
 
+        // Filtre marque
+        $brands = \App\Models\Brand::withCount(['products' => fn ($q) => $q->where('is_active', true)])
+            ->having('products_count', '>', 0)
+            ->orderBy('name')
+            ->get();
+        $currentBrand = null;
+        if ($request->filled('marque')) {
+            $currentBrand = \App\Models\Brand::where('slug', $request->marque)->first();
+            if ($currentBrand) {
+                $query->where('brand_id', $currentBrand->id);
+            }
+        }
+
+        // Filtre tags (types de peau) — supporte tags[] (multi) et tag (simple)
+        $tags = \App\Models\ProductTag::withCount(['products' => fn ($q) => $q->where('is_active', true)])
+            ->having('products_count', '>', 0)
+            ->orderBy('name')
+            ->get();
+        $currentTag = null;
+        $selectedTagSlugs = $request->input('tags', []);
+        if ($request->filled('tag')) {
+            $selectedTagSlugs = [$request->tag];
+        }
+        if (!empty($selectedTagSlugs)) {
+            $selectedTagIds = \App\Models\ProductTag::whereIn('slug', $selectedTagSlugs)->pluck('id');
+            if ($selectedTagIds->isNotEmpty()) {
+                $query->whereHas('tags', fn ($q) => $q->whereIn('product_tag_id', $selectedTagIds));
+            }
+            $currentTag = \App\Models\ProductTag::whereIn('slug', $selectedTagSlugs)->first();
+        }
+
         // Filtre recherche
         if ($request->filled('q')) {
             $search = $request->q;
@@ -57,13 +88,13 @@ class ShopController extends Controller
             return view('shop.partials.grid', compact('products', 'categories', 'currentCategory'));
         }
 
-        return view('shop.index', compact('products', 'categories', 'currentCategory'));
+        return view('shop.index', compact('products', 'categories', 'currentCategory', 'brands', 'currentBrand', 'tags', 'currentTag', 'selectedTagSlugs'));
     }
 
     public function show(string $slug)
     {
         $query = Product::where('slug', $slug)
-            ->with(['category', 'brand', 'addonAssignments.addon.group']);
+            ->with(['category', 'brand', 'tags', 'addonAssignments.addon.group']);
 
         if (!auth()->user()?->is_admin) {
             $query->where('is_active', true);

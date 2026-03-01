@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductCategory;
-use App\Models\Post;
 use App\Models\Quiz;
 
 class HomeController extends Controller
@@ -29,13 +28,8 @@ class HomeController extends Controller
             ->limit(6)
             ->get();
 
-        $latestPosts = Post::published()
-            ->orderByDesc('published_at')
-            ->limit(3)
-            ->get();
-
         $quiz = Quiz::first();
 
-        return view('home', compact('featuredProducts', 'categories', 'latestPosts', 'quiz'));
+        return view('home', compact('featuredProducts', 'categories', 'quiz'));
     }
 }

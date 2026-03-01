@@ -27,7 +27,9 @@
     {{-- Infos --}}
     <div class="p-3 flex flex-col flex-1">
         @if($product->brand)
-            <p class="text-xs font-semibold mb-0.5" style="color: #276e44;">{{ $product->brand->name }}</p>
+            <p class="text-xs font-semibold mb-0.5">
+                <a href="{{ route('shop.index', ['marque' => $product->brand->slug]) }}" style="color: #276e44;" class="hover:underline">{{ $product->brand->name }}</a>
+            </p>
         @endif
         @if($product->category)
             <p class="text-xs mb-1" style="color: #60916a;">{{ $product->category->name }}</p>

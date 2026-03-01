@@ -30,7 +30,60 @@ class CheckoutController extends Controller
         $discount        = $this->discount->calculate($items, $subtotal);
         $shippingMethods = config('shipping.methods');
 
-        return view('checkout.index', compact('items', 'subtotal', 'discount', 'shippingMethods'));
+        // Pré-remplir avec les coordonnées du profil ou la dernière commande
+        $prefill = [];
+        if ($user = auth()->user()) {
+            if ($user->first_name && $user->address_1) {
+                // Coordonnées enregistrées dans le profil
+                $prefill = [
+                    'billing_first_name' => $user->first_name,
+                    'billing_last_name'  => $user->last_name,
+                    'billing_email'      => $user->email,
+                    'billing_phone'      => $user->phone,
+                    'billing_address_1'  => $user->address_1,
+                    'billing_address_2'  => $user->address_2,
+                    'billing_city'       => $user->city,
+                    'billing_postcode'   => $user->postcode,
+                    'billing_country'    => $user->country,
+                ];
+                // Adresse de livraison différente
+                if ($user->shipping_address_1) {
+                    $prefill['shipping_same']       = false;
+                    $prefill['shipping_first_name']  = $user->shipping_first_name;
+                    $prefill['shipping_last_name']   = $user->shipping_last_name;
+                    $prefill['shipping_address_1']   = $user->shipping_address_1;
+                    $prefill['shipping_address_2']   = $user->shipping_address_2;
+                    $prefill['shipping_city']        = $user->shipping_city;
+                    $prefill['shipping_postcode']    = $user->shipping_postcode;
+                    $prefill['shipping_country']     = $user->shipping_country;
+                }
+            } else {
+                // Fallback : dernière commande
+                $lastOrder = $user->orders()->latest()->first();
+                if ($lastOrder) {
+                    $prefill = [
+                        'billing_first_name' => $lastOrder->billing_first_name,
+                        'billing_last_name'  => $lastOrder->billing_last_name,
+                        'billing_email'      => $lastOrder->billing_email,
+                        'billing_phone'      => $lastOrder->billing_phone,
+                        'billing_address_1'  => $lastOrder->billing_address_1,
+                        'billing_address_2'  => $lastOrder->billing_address_2,
+                        'billing_city'       => $lastOrder->billing_city,
+                        'billing_postcode'   => $lastOrder->billing_postcode,
+                        'billing_country'    => $lastOrder->billing_country,
+                    ];
+                } else {
+                    $nameParts = explode(' ', $user->name, 2);
+                    $prefill = [
+                        'billing_first_name' => $nameParts[0] ?? '',
+                        'billing_last_name'  => $nameParts[1] ?? '',
+                        'billing_email'      => $user->email,
+                    ];
+                }
+            }
+        }
+
+        return view('checkout.index', compact('items', 'subtotal', 'discount', 'shippingMethods', 'prefill'));
     }
 
     /** Crée la commande locale + affiche le formulaire de paiement Stripe */
@@ -60,6 +113,9 @@ class CheckoutController extends Controller
             'relay_point_name'   => 'nullable|string|max:255',
             'relay_point_address'=> 'nullable|string|max:500',
             'coupon_code'        => 'nullable|string|max:50',
+            'gift_wrap'          => 'nullable|boolean',
+            'gift_type'          => 'nullable|required_if:gift_wrap,1|in:boite,sac',
+            'gift_message'       => 'nullable|string|max:500',
         ]);
 
         $items = $this->cart->itemsWithProducts();
@@ -116,7 +172,9 @@ class CheckoutController extends Controller
 
         $shippingKey  = $request->shipping_method;
         $shippingCost = config("shipping.methods.{$shippingKey}.price", 0);
-        $total        = max(0, $subtotal - $discount['amount'] + $shippingCost);
+        $giftWrap     = $request->boolean('gift_wrap');
+        $giftCost     = $giftWrap ? 1.00 : 0;
+        $total        = max(0, $subtotal - $discount['amount'] + $shippingCost + $giftCost);
 
         // Build customer note with relay point info
         $customerNote = $request->customer_note ?? '';
@@ -156,6 +214,9 @@ class CheckoutController extends Controller
             'tax_total'            => 0,
             'total'                => $total,
             'customer_note'        => $customerNote ?: null,
+            'gift_wrap'            => $giftWrap,
+            'gift_type'            => $giftWrap ? $request->gift_type : null,
+            'gift_message'         => $giftWrap ? $request->gift_message : null,
             'currency'             => 'EUR',
             'payment_method'       => 'stripe',
         ]);

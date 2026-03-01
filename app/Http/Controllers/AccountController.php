@@ -62,6 +62,49 @@ class AccountController extends Controller
         return back()->with('success', 'Profil mis à jour.');
     }
 
+    public function editAddress()
+    {
+        return view('account.address');
+    }
+
+    public function updateAddress(Request $request)
+    {
+        $data = $request->validate([
+            'first_name'           => 'required|string|max:100',
+            'last_name'            => 'required|string|max:100',
+            'phone'                => 'nullable|string|max:30',
+            'address_1'            => 'required|string|max:255',
+            'address_2'            => 'nullable|string|max:255',
+            'city'                 => 'required|string|max:100',
+            'postcode'             => 'required|string|max:20',
+            'country'              => 'required|string|size:2',
+            'shipping_first_name'  => 'nullable|string|max:100',
+            'shipping_last_name'   => 'nullable|string|max:100',
+            'shipping_address_1'   => 'nullable|string|max:255',
+            'shipping_address_2'   => 'nullable|string|max:255',
+            'shipping_city'        => 'nullable|string|max:100',
+            'shipping_postcode'    => 'nullable|string|max:20',
+            'shipping_country'     => 'nullable|string|size:2',
+        ]);
+
+        // Si pas d'adresse de livraison renseignée, vider les champs
+        if (!$request->filled('shipping_address_1')) {
+            $data = array_merge($data, [
+                'shipping_first_name' => null,
+                'shipping_last_name'  => null,
+                'shipping_address_1'  => null,
+                'shipping_address_2'  => null,
+                'shipping_city'       => null,
+                'shipping_postcode'   => null,
+                'shipping_country'    => null,
+            ]);
+        }
+
+        auth()->user()->update($data);
+
+        return back()->with('success', 'Coordonnées mises à jour.');
+    }
+
     public function updatePassword(Request $request)
     {
         $request->validate([

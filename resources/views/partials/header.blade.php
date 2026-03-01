@@ -13,9 +13,8 @@
         <div class="flex items-center justify-between h-16">
 
             {{-- Logo --}}
-            <a href="{{ route('home') }}" class="font-semibold text-lg tracking-tight shrink-0"
-               style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
-                Institut Corps à Coeur
+            <a href="{{ route('home') }}" class="shrink-0">
+                <img src="{{ asset('images/logo.png') }}" alt="Institut Corps à Coeur" style="height: 48px; width: auto;">
             </a>
 
             {{-- Nav desktop --}}
@@ -54,12 +53,6 @@
                     Quiz Peau
                 </a>
 
-                {{-- BLOG --}}
-                <a href="{{ route('blog.index') }}"
-                   class="hover:opacity-70 transition-opacity pb-0.5 border-b-2 {{ request()->routeIs('blog.*') ? 'border-current' : 'border-transparent' }}"
-                   style="color: #276e44;">
-                    Blog
-                </a>
             </nav>
 
             {{-- Actions --}}
@@ -271,11 +264,6 @@
            class="block py-2.5 text-sm font-semibold border-b"
            style="color: #276e44; border-color: #c9fad9;">
             Quiz Peau
-        </a>
-        <a href="{{ route('blog.index') }}"
-           class="block py-2.5 text-sm font-semibold border-b"
-           style="color: #276e44; border-color: #c9fad9;">
-            Blog
         </a>
 
         {{-- Compte + RDV --}}

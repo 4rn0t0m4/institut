@@ -60,6 +60,65 @@
     </script>
     @endif
 
+    {{-- Schema.org — Organization + LocalBusiness + WebSite --}}
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@graph' => [
+            [
+                '@type' => 'Organization',
+                '@id' => url('/') . '#organization',
+                'name' => 'Institut Corps à Coeur',
+                'url' => url('/'),
+                'logo' => [
+                    '@type' => 'ImageObject',
+                    'url' => asset('images/logo.png'),
+                ],
+            ],
+            [
+                '@type' => ['BeautySalon', 'LocalBusiness'],
+                '@id' => url('/') . '#localbusiness',
+                'name' => 'Institut Corps à Coeur',
+                'url' => url('/'),
+                'image' => asset('images/og-default.jpg'),
+                'logo' => asset('images/logo.png'),
+                'telephone' => '+33231201045',
+                'email' => 'contact@institutcorpsacoeur.fr',
+                'address' => [
+                    '@type' => 'PostalAddress',
+                    'streetAddress' => '22 Rue de la Libération',
+                    'addressLocality' => 'Mézidon Canon',
+                    'postalCode' => '14270',
+                    'addressCountry' => 'FR',
+                ],
+                'geo' => [
+                    '@type' => 'GeoCoordinates',
+                    'latitude' => 49.0714,
+                    'longitude' => -0.0728,
+                ],
+                'openingHoursSpecification' => [
+                    ['@type' => 'OpeningHoursSpecification', 'dayOfWeek' => ['Monday','Tuesday','Wednesday','Thursday','Friday'], 'opens' => '09:00', 'closes' => '18:00'],
+                ],
+                'priceRange' => '€€',
+            ],
+            [
+                '@type' => 'WebSite',
+                '@id' => url('/') . '#website',
+                'name' => 'Institut Corps à Coeur',
+                'url' => url('/'),
+                'publisher' => ['@id' => url('/') . '#organization'],
+                'potentialAction' => [
+                    '@type' => 'SearchAction',
+                    'target' => url('/boutique') . '?search={search_term_string}',
+                    'query-input' => 'required name=search_term_string',
+                ],
+            ],
+        ],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+    </script>
+
+    @stack('json-ld')
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-white text-gray-900 font-sans antialiased" x-data>

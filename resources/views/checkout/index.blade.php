@@ -5,13 +5,16 @@
 
     <form action="{{ route('checkout.store') }}" method="POST"
           x-data="{
-              shippingSame: true,
+              shippingSame: {{ old('shipping_same', $prefill['shipping_same'] ?? true) ? 'true' : 'false' }},
               shippingMethod: '{{ old('shipping_method', 'colissimo') }}',
               shippingPrices: @js(collect($shippingMethods)->mapWithKeys(fn($m, $k) => [$k => $m['price']])),
               subtotal: {{ $subtotal }},
               discountAmount: {{ $discount['amount'] }},
+              giftWrap: {{ old('gift_wrap') ? 'true' : 'false' }},
+              giftType: '{{ old('gift_type', 'boite') }}',
               get shippingCost() { return this.shippingPrices[this.shippingMethod] ?? 0 },
-              get total() { return Math.max(0, this.subtotal - this.discountAmount + this.shippingCost) },
+              get giftCost() { return this.giftWrap ? 1 : 0 },
+              get total() { return Math.max(0, this.subtotal - this.discountAmount + this.shippingCost + this.giftCost) },
               formatPrice(v) { return v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' \u20ac' },
 
               // Boxtal relay point
@@ -61,9 +64,27 @@
                   this.relayPointAddress = '';
                   this.relaySearched = false;
                   window.__relayMap.destroy();
+              },
+
+              autoSearchRelay() {
+                  // Prendre l'adresse de livraison si différente, sinon facturation
+                  let zip, city;
+                  if (!this.shippingSame) {
+                      zip = document.querySelector('[name=shipping_postcode]')?.value;
+                      city = document.querySelector('[name=shipping_city]')?.value;
+                  }
+                  if (!zip || !city) {
+                      zip = document.querySelector('[name=billing_postcode]')?.value;
+                      city = document.querySelector('[name=billing_city]')?.value;
+                  }
+                  if (zip && city) {
+                      this.$refs.relayZip.value = zip;
+                      this.$refs.relayCity.value = city;
+                      this.searchRelayPoints(zip, city);
+                  }
               }
           }"
-          x-effect="if (shippingMethod !== 'boxtal') { resetRelay() }">
+          x-effect="if (shippingMethod === 'boxtal' && !relaySearched && !relayLoading) { $nextTick(() => autoSearchRelay()) } else if (shippingMethod !== 'boxtal') { resetRelay() }">
         @csrf
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -80,7 +101,7 @@
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Prénom *</label>
                             <input type="text" name="billing_first_name"
-                                   value="{{ old('billing_first_name') }}"
+                                   value="{{ old('billing_first_name', $prefill['billing_first_name'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500 @error('billing_first_name') border-red-400 @enderror"
                                    required>
                             @error('billing_first_name')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
@@ -88,7 +109,7 @@
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Nom *</label>
                             <input type="text" name="billing_last_name"
-                                   value="{{ old('billing_last_name') }}"
+                                   value="{{ old('billing_last_name', $prefill['billing_last_name'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500 @error('billing_last_name') border-red-400 @enderror"
                                    required>
                             @error('billing_last_name')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
@@ -96,7 +117,7 @@
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">E-mail *</label>
                             <input type="email" name="billing_email"
-                                   value="{{ old('billing_email', auth()->user()?->email) }}"
+                                   value="{{ old('billing_email', $prefill['billing_email'] ?? auth()->user()?->email) }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500 @error('billing_email') border-red-400 @enderror"
                                    required>
                             @error('billing_email')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
@@ -104,13 +125,13 @@
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Téléphone</label>
                             <input type="tel" name="billing_phone"
-                                   value="{{ old('billing_phone') }}"
+                                   value="{{ old('billing_phone', $prefill['billing_phone'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div class="sm:col-span-2">
                             <label class="block text-sm text-gray-700 mb-1">Adresse *</label>
                             <input type="text" name="billing_address_1"
-                                   value="{{ old('billing_address_1') }}"
+                                   value="{{ old('billing_address_1', $prefill['billing_address_1'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500 @error('billing_address_1') border-red-400 @enderror"
                                    required>
                             @error('billing_address_1')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
@@ -118,13 +139,13 @@
                         <div class="sm:col-span-2">
                             <label class="block text-sm text-gray-700 mb-1">Complément d'adresse</label>
                             <input type="text" name="billing_address_2"
-                                   value="{{ old('billing_address_2') }}"
+                                   value="{{ old('billing_address_2', $prefill['billing_address_2'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Code postal *</label>
                             <input type="text" name="billing_postcode"
-                                   value="{{ old('billing_postcode') }}"
+                                   value="{{ old('billing_postcode', $prefill['billing_postcode'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500 @error('billing_postcode') border-red-400 @enderror"
                                    required>
                             @error('billing_postcode')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
@@ -132,7 +153,7 @@
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Ville *</label>
                             <input type="text" name="billing_city"
-                                   value="{{ old('billing_city') }}"
+                                   value="{{ old('billing_city', $prefill['billing_city'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500 @error('billing_city') border-red-400 @enderror"
                                    required>
                             @error('billing_city')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
@@ -142,10 +163,11 @@
                             <select name="billing_country"
                                     class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500"
                                     required>
-                                <option value="FR" {{ old('billing_country', 'FR') === 'FR' ? 'selected' : '' }}>France</option>
-                                <option value="BE" {{ old('billing_country') === 'BE' ? 'selected' : '' }}>Belgique</option>
-                                <option value="CH" {{ old('billing_country') === 'CH' ? 'selected' : '' }}>Suisse</option>
-                                <option value="LU" {{ old('billing_country') === 'LU' ? 'selected' : '' }}>Luxembourg</option>
+                                @php $billingCountry = old('billing_country', $prefill['billing_country'] ?? 'FR'); @endphp
+                                <option value="FR" {{ $billingCountry === 'FR' ? 'selected' : '' }}>France</option>
+                                <option value="BE" {{ $billingCountry === 'BE' ? 'selected' : '' }}>Belgique</option>
+                                <option value="CH" {{ $billingCountry === 'CH' ? 'selected' : '' }}>Suisse</option>
+                                <option value="LU" {{ $billingCountry === 'LU' ? 'selected' : '' }}>Luxembourg</option>
                             </select>
                         </div>
                     </div>
@@ -168,47 +190,48 @@
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Prénom</label>
                             <input type="text" name="shipping_first_name"
-                                   value="{{ old('shipping_first_name') }}"
+                                   value="{{ old('shipping_first_name', $prefill['shipping_first_name'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Nom</label>
                             <input type="text" name="shipping_last_name"
-                                   value="{{ old('shipping_last_name') }}"
+                                   value="{{ old('shipping_last_name', $prefill['shipping_last_name'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div class="sm:col-span-2">
                             <label class="block text-sm text-gray-700 mb-1">Adresse</label>
                             <input type="text" name="shipping_address_1"
-                                   value="{{ old('shipping_address_1') }}"
+                                   value="{{ old('shipping_address_1', $prefill['shipping_address_1'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div class="sm:col-span-2">
                             <label class="block text-sm text-gray-700 mb-1">Complément</label>
                             <input type="text" name="shipping_address_2"
-                                   value="{{ old('shipping_address_2') }}"
+                                   value="{{ old('shipping_address_2', $prefill['shipping_address_2'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Code postal</label>
                             <input type="text" name="shipping_postcode"
-                                   value="{{ old('shipping_postcode') }}"
+                                   value="{{ old('shipping_postcode', $prefill['shipping_postcode'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Ville</label>
                             <input type="text" name="shipping_city"
-                                   value="{{ old('shipping_city') }}"
+                                   value="{{ old('shipping_city', $prefill['shipping_city'] ?? '') }}"
                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">
                         </div>
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Pays</label>
+                            @php $shippingCountry = old('shipping_country', $prefill['shipping_country'] ?? 'FR'); @endphp
                             <select name="shipping_country"
                                     class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">
-                                <option value="FR" {{ old('shipping_country', 'FR') === 'FR' ? 'selected' : '' }}>France</option>
-                                <option value="BE" {{ old('shipping_country') === 'BE' ? 'selected' : '' }}>Belgique</option>
-                                <option value="CH" {{ old('shipping_country') === 'CH' ? 'selected' : '' }}>Suisse</option>
-                                <option value="LU" {{ old('shipping_country') === 'LU' ? 'selected' : '' }}>Luxembourg</option>
+                                <option value="FR" {{ $shippingCountry === 'FR' ? 'selected' : '' }}>France</option>
+                                <option value="BE" {{ $shippingCountry === 'BE' ? 'selected' : '' }}>Belgique</option>
+                                <option value="CH" {{ $shippingCountry === 'CH' ? 'selected' : '' }}>Suisse</option>
+                                <option value="LU" {{ $shippingCountry === 'LU' ? 'selected' : '' }}>Luxembourg</option>
                             </select>
                         </div>
                     </div>
@@ -273,16 +296,12 @@
                         {{-- Liste des points relais --}}
                         <div class="max-h-96 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100 order-2 sm:order-1">
                             <template x-for="(point, idx) in relayPoints" :key="point.code">
-                                <label class="flex items-start gap-3 p-3 cursor-pointer transition border-l-4"
-                                       :class="relayPointCode === point.code
-                                           ? (point.network === 'CHRP_NETWORK' ? 'bg-blue-50 border-l-blue-600' : 'bg-green-50 border-l-green-600')
-                                           : 'hover:bg-gray-50 border-l-transparent'"
-                                       :id="'relay-item-' + point.code">
-                                    <input type="radio" name="_relay_select"
-                                           :value="point.code"
-                                           :checked="relayPointCode === point.code"
-                                           @change="selectRelayPoint(point)"
-                                           class="mt-1 text-green-600 focus:ring-green-500">
+                                <div class="flex items-start gap-3 p-3 cursor-pointer transition border-l-4"
+                                     @click="selectRelayPoint(point)"
+                                     :class="relayPointCode === point.code
+                                         ? (point.network === 'CHRP_NETWORK' ? 'bg-blue-50 border-l-blue-600' : 'bg-green-50 border-l-green-600')
+                                         : 'hover:bg-gray-50 border-l-transparent'"
+                                     :id="'relay-item-' + point.code">
                                     <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2 flex-wrap">
                                             <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-xs font-bold shrink-0"
@@ -295,7 +314,7 @@
                                         </div>
                                         <p class="text-xs text-gray-500 ml-7" x-text="[point.street, point.zipCode + ' ' + point.city].filter(Boolean).join(', ')"></p>
                                     </div>
-                                </label>
+                                </div>
                             </template>
                         </div>
 
@@ -324,6 +343,57 @@
                     <input type="hidden" name="relay_point_code" :value="relayPointCode">
                     <input type="hidden" name="relay_point_name" :value="relayPointName">
                     <input type="hidden" name="relay_point_address" :value="relayPointAddress">
+                </section>
+
+                {{-- Emballage cadeau --}}
+                <section>
+                    <h2 class="text-base font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">
+                        Boîte ou sac cadeau
+                    </h2>
+
+                    <label class="flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition"
+                           :class="giftWrap ? 'border-green-600 bg-green-50 ring-1 ring-green-600' : 'border-gray-200 hover:border-gray-300'">
+                        <input type="checkbox" name="gift_wrap" value="1"
+                               x-model="giftWrap"
+                               class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                        <div class="flex-1">
+                            <span class="text-sm font-medium text-gray-900">Ajouter une boîte ou un sac cadeau</span>
+                            <span class="text-sm text-gray-500 ml-1">(+ 1,00 €)</span>
+                        </div>
+                        <svg class="w-5 h-5 shrink-0" style="color: #276e44;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
+                        </svg>
+                    </label>
+
+                    <div x-show="giftWrap" x-transition class="mt-4 space-y-4 pl-1">
+                        {{-- Type d'emballage --}}
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-2">Type d'emballage</p>
+                            <div class="flex gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="gift_type" value="boite"
+                                           x-model="giftType"
+                                           class="text-green-600 focus:ring-green-500">
+                                    <span class="text-sm text-gray-700">Boîte cadeau</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="gift_type" value="sac"
+                                           x-model="giftType"
+                                           class="text-green-600 focus:ring-green-500">
+                                    <span class="text-sm text-gray-700">Sac cadeau</span>
+                                </label>
+                            </div>
+                            @error('gift_type')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
+                        </div>
+
+                        {{-- Message personnalisé --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Message personnalisé (optionnel)</label>
+                            <textarea name="gift_message" rows="3" maxlength="500"
+                                      placeholder="Écrivez votre message pour le destinataire…"
+                                      class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">{{ old('gift_message') }}</textarea>
+                        </div>
+                    </div>
                 </section>
 
                 {{-- Note de commande --}}
@@ -390,6 +460,11 @@
                         <div class="flex justify-between text-gray-600">
                             <span>Livraison</span>
                             <span x-text="shippingCost > 0 ? formatPrice(shippingCost) : 'Gratuit'"></span>
+                        </div>
+
+                        <div x-show="giftWrap" x-transition class="flex justify-between text-gray-600">
+                            <span>Boîte / sac cadeau</span>
+                            <span>1,00 €</span>
                         </div>
 
                         <div class="flex justify-between font-semibold text-gray-900 pt-2 border-t border-gray-200 text-base">

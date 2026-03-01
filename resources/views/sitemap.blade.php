@@ -15,13 +15,6 @@
         <priority>0.9</priority>
     </url>
 
-    {{-- Blog --}}
-    <url>
-        <loc>{{ route('blog.index') }}</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-    </url>
-
     {{-- Pages --}}
     @foreach($pages as $page)
     <url>
@@ -39,16 +32,6 @@
         <lastmod>{{ $product->updated_at->toW3cString() }}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
-    </url>
-    @endforeach
-
-    {{-- Articles blog --}}
-    @foreach($posts as $post)
-    <url>
-        <loc>{{ route('blog.show', $post->slug) }}</loc>
-        <lastmod>{{ $post->updated_at->toW3cString() }}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
     </url>
     @endforeach
 </urlset>

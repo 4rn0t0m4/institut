@@ -22,6 +22,7 @@ class Product extends Model
     public function featuredImage() { return $this->belongsTo(Media::class,'featured_image_id'); }
     public function addonAssignments() { return $this->morphMany(ProductAddonAssignment::class,'assignable'); }
     public function orderItems() { return $this->hasMany(OrderItem::class); }
+    public function tags() { return $this->belongsToMany(ProductTag::class); }
 
     public function galleryImages(): \Illuminate\Database\Eloquent\Collection
     {

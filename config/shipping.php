@@ -3,11 +3,11 @@
 return [
     'methods' => [
         'colissimo' => [
-            'label' => 'Colissimo (livraison à domicile)',
+            'label' => 'Livraison à domicile (Colissimo)',
             'price' => 7.90,
         ],
         'boxtal' => [
-            'label' => 'Boxtal (point relais)',
+            'label' => 'Livraison en point relais (Mondial Relay et Chronopost)',
             'price' => 5.00,
         ],
         'pickup' => [

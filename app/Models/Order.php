@@ -13,9 +13,10 @@ class Order extends Model
         'shipping_first_name','shipping_last_name','shipping_address_1','shipping_address_2',
         'shipping_city','shipping_postcode','shipping_country',
         'shipping_method','tracking_number','tracking_carrier','customer_note',
+        'gift_wrap','gift_type','gift_message',
     ];
     protected $casts = [
-        'paid_at'=>'datetime',
+        'paid_at'=>'datetime','gift_wrap'=>'boolean',
         'subtotal'=>'decimal:2','discount_total'=>'decimal:2',
         'shipping_total'=>'decimal:2','tax_total'=>'decimal:2','total'=>'decimal:2',
     ];

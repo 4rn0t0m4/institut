@@ -1,4 +1,4 @@
-<x-layouts.app :title="$product->name" :meta-description="$product->short_description">
+<x-layouts.app :title="$product->meta_title ?: $product->name" :meta-description="$product->meta_description ?: $product->short_description" og-type="product">
 
 {{-- Schema.org Product + BreadcrumbList --}}
 @php
@@ -108,7 +108,7 @@ $breadcrumbJsonLd = json_encode([
                         <button @click="active = {{ $i }}"
                                 class="flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition"
                                 :class="active === {{ $i }} ? 'border-[#276e44]' : 'border-transparent'">
-                            <img src="{{ $img->url }}" alt=""
+                            <img src="{{ $img->url }}" alt="{{ $img->alt ?: $product->name }}"
                                  class="w-full h-full object-cover">
                         </button>
                     @endforeach
@@ -119,8 +119,10 @@ $breadcrumbJsonLd = json_encode([
         {{-- Infos produit --}}
         <div x-data="productForm({{ $product->price }}, {{ $product->sale_price ?? 'null' }})">
             @if($product->brand)
-                <p class="text-xs uppercase tracking-widest mb-1 font-semibold" style="color: #276e44;">
-                    {{ $product->brand->name }}
+                <p class="text-xs uppercase tracking-widest mb-1 font-semibold">
+                    <a href="{{ route('shop.index', ['marque' => $product->brand->slug]) }}" style="color: #276e44;" class="hover:underline">
+                        {{ $product->brand->name }}
+                    </a>
                 </p>
             @endif
             <p class="text-xs uppercase tracking-widest mb-2 font-medium" style="color: #60916a;">
@@ -129,6 +131,18 @@ $breadcrumbJsonLd = json_encode([
             <h1 class="text-3xl md:text-4xl font-semibold leading-tight mb-5" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
                 {{ $product->name }}
             </h1>
+
+            @if($product->tags->isNotEmpty())
+                <div class="flex flex-wrap gap-2 mb-5">
+                    @foreach($product->tags as $tag)
+                        <a href="{{ route('shop.index', ['tag' => $tag->slug]) }}"
+                           class="inline-block text-xs px-3 py-1 rounded-full border transition hover:opacity-80"
+                           style="border-color: #b0f1b9; color: #276e44; background-color: #ecfdf5;">
+                            {{ $tag->name }}
+                        </a>
+                    @endforeach
+                </div>
+            @endif
 
             {{-- Prix --}}
             <div class="flex items-baseline gap-3 mb-6">

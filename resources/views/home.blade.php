@@ -1,4 +1,4 @@
-<x-layouts.app>
+<x-layouts.app title="Institut de beauté et bien-être à Mézidon Canon" meta-description="Institut Corps à Coeur, votre institut de beauté et bien-être près de Caen. Épilations, massages, soins visage, balnéothérapie et cosmétiques naturels. Prenez rendez-vous au 02 31 20 10 45.">
 
 {{-- Hero --}}
 <section class="relative overflow-hidden" style="background-color: #c9fad9;">
@@ -31,12 +31,8 @@
                 </div>
             </div>
             <div class="hidden lg:block">
-                <div class="aspect-square rounded-3xl overflow-hidden" style="background-color: #b0f1b9;">
-                    <div class="w-full h-full flex items-center justify-center" style="color: #276e44; opacity: 0.3;">
-                        <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-                        </svg>
-                    </div>
+                <div class="aspect-square rounded-3xl overflow-hidden">
+                    <img src="{{ asset('images/hero.jpg') }}" alt="Institut Corps à Coeur — Espace bien-être" class="w-full h-full object-cover">
                 </div>
             </div>
         </div>
@@ -117,40 +113,5 @@
 </section>
 @endif
 
-{{-- Articles récents --}}
-@if($latestPosts->isNotEmpty())
-<section class="py-16" style="background-color: #f0fdf4;">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-8">
-            <h2 class="text-2xl font-semibold" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
-                Actualités
-            </h2>
-            <a href="{{ route('blog.index') }}" class="text-sm font-medium hover:underline" style="color: #276e44;">
-                Tout le blog →
-            </a>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            @foreach($latestPosts as $post)
-                <article class="group">
-                    @if($post->featured_image)
-                        <a href="{{ route('blog.show', $post->slug) }}">
-                            <div class="aspect-video rounded-xl overflow-hidden mb-4" style="background-color: #b0f1b9;">
-                                <img src="{{ $post->featured_image }}" alt="{{ $post->title }}"
-                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                            </div>
-                        </a>
-                    @endif
-                    <p class="text-xs mb-1" style="color: #60916a;">
-                        {{ \Illuminate\Support\Carbon::parse($post->published_at)->translatedFormat('d F Y') }}
-                    </p>
-                    <h3 class="font-semibold text-sm leading-snug" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
-                        <a href="{{ route('blog.show', $post->slug) }}" class="hover:underline">{{ $post->title }}</a>
-                    </h3>
-                </article>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
 
 </x-layouts.app>

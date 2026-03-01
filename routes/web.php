@@ -7,7 +7,6 @@ use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\PageController;
-use App\Http\Controllers\BlogController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\BoxtalController;
 use App\Http\Controllers\HomeController;
@@ -41,13 +40,9 @@ Route::get('/quiz/{slug}/question/{question}', [QuizController::class, 'question
 Route::post('/quiz/{slug}/question/{question}', [QuizController::class, 'answer'])->name('quiz.answer');
 Route::get('/quiz/{slug}/resultat/{completion}', [QuizController::class, 'result'])->name('quiz.result');
 
-// Blog
-Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
-Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
-
 // Pages statiques (en dernier pour ne pas capturer les autres routes)
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
-    ->where('slug', '^(?!boutique|panier|commande|connexion|inscription|deconnexion|mon-compte|blog|stripe|admin|api|mot-de-passe-oublie|reinitialiser-mot-de-passe|sitemap\.xml)[a-z0-9-]+(/[a-z0-9-]+)*$');
+    ->where('slug', '^(?!boutique|panier|commande|connexion|inscription|deconnexion|mon-compte|stripe|admin|api|mot-de-passe-oublie|reinitialiser-mot-de-passe|sitemap\.xml)[a-z0-9-]+(/[a-z0-9-]+)*$');
 
 // Boxtal API
 Route::get('/api/boxtal/map-token', [BoxtalController::class, 'mapToken'])->name('boxtal.map-token');
@@ -77,4 +72,6 @@ Route::prefix('mon-compte')->name('account.')->middleware('auth')->group(functio
     Route::get('/profil', [AccountController::class, 'editProfile'])->name('profile');
     Route::patch('/profil', [AccountController::class, 'updateProfile'])->name('profile.update');
     Route::patch('/mot-de-passe', [AccountController::class, 'updatePassword'])->name('password.update');
+    Route::get('/coordonnees', [AccountController::class, 'editAddress'])->name('address');
+    Route::patch('/coordonnees', [AccountController::class, 'updateAddress'])->name('address.update');
 });

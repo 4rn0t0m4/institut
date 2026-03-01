@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Admin\ProductTagController;
 use App\Http\Controllers\Admin\SettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +20,8 @@ Route::resource('brands', BrandController::class)->except(['show'])->names('admi
 Route::resource('orders', OrderController::class)->only(['index', 'show', 'edit', 'update', 'destroy'])->names('admin.orders');
 Route::resource('customers', CustomerController::class)->only(['index', 'show'])->names('admin.customers');
 Route::resource('pages', PageController::class)->names('admin.pages');
+Route::resource('discounts', DiscountController::class)->except(['show'])->names('admin.discounts');
+Route::resource('tags', ProductTagController::class)->except(['show'])->names('admin.tags');
 
 Route::get('settings', [SettingController::class, 'index'])->name('admin.settings.index');
 Route::put('settings', [SettingController::class, 'update'])->name('admin.settings.update');

@@ -126,6 +126,20 @@
                 </div>
             @endif
 
+            {{-- Gift wrap --}}
+            @if ($order->gift_wrap)
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+                    <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Boîte / sac cadeau</h3>
+                    <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        <p><span class="font-medium">Type :</span> {{ $order->gift_type === 'boite' ? 'Boîte cadeau' : 'Sac cadeau' }}</p>
+                        @if ($order->gift_message)
+                            <p><span class="font-medium">Message :</span></p>
+                            <p class="whitespace-pre-line">{{ $order->gift_message }}</p>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             {{-- Customer note --}}
             @if ($order->customer_note)
                 <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">

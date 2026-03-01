@@ -45,7 +45,6 @@
             <div>
                 <p class="font-semibold mb-3">Informations</p>
                 <ul class="space-y-1.5" style="color: #60916a;">
-                    <li><a href="{{ route('blog.index') }}" class="hover:opacity-70 transition-opacity">Blog</a></li>
                     <li><a href="{{ route('page.show', 'mentions-legales') }}" class="hover:opacity-70 transition-opacity">Mentions légales</a></li>
                     <li><a href="{{ route('page.show', 'politique-de-confidentialite') }}" class="hover:opacity-70 transition-opacity">Confidentialité</a></li>
                     <li><a href="{{ route('page.show', 'cgv') }}" class="hover:opacity-70 transition-opacity">CGV</a></li>

@@ -3,7 +3,7 @@
 
     <h1 class="text-2xl font-semibold text-gray-900 mb-8">Mon compte</h1>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         <a href="{{ route('account.orders') }}"
            class="bg-white border border-gray-100 rounded-xl p-5 hover:border-green-200 hover:shadow-sm transition">
             <div class="text-green-700 mb-2">
@@ -26,6 +26,20 @@
             </div>
             <h2 class="font-medium text-gray-900">Mon profil</h2>
             <p class="text-sm text-gray-500 mt-1">Informations personnelles</p>
+        </a>
+
+        <a href="{{ route('account.address') }}"
+           class="bg-white border border-gray-100 rounded-xl p-5 hover:border-green-200 hover:shadow-sm transition">
+            <div class="text-green-700 mb-2">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+            <h2 class="font-medium text-gray-900">Mes coordonnées</h2>
+            <p class="text-sm text-gray-500 mt-1">Adresse de facturation</p>
         </a>
 
         <form action="{{ route('logout') }}" method="POST">
