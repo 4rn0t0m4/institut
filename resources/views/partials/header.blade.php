@@ -84,7 +84,7 @@
             <div class="flex items-center gap-3 shrink-0">
 
                 {{-- RDV (desktop) --}}
-                <a href="https://www.planity.com" target="_blank" rel="noopener"
+                <a href="https://www.planity.com/institut-corps-a-coeur-14270-mezidon-vallee-dauge" target="_blank" rel="noopener"
                    class="hidden lg:inline-block text-xs font-semibold px-4 py-2 rounded-lg text-white transition hover:opacity-90"
                    style="background-color: #276e44;">
                     Prendre RDV
@@ -202,7 +202,7 @@
                     <p class="text-sm font-semibold" style="color: #276e44;">Envie de prendre soin de vous ?</p>
                     <p class="text-xs mt-0.5" style="color: #60916a;">Réservez votre créneau en ligne en quelques clics</p>
                 </div>
-                <a href="https://www.planity.com" target="_blank" rel="noopener"
+                <a href="https://www.planity.com/institut-corps-a-coeur-14270-mezidon-vallee-dauge" target="_blank" rel="noopener"
                    class="text-xs font-semibold px-5 py-2.5 rounded-lg text-white transition hover:opacity-90"
                    style="background-color: #276e44; white-space: nowrap;">
                     Prendre rendez-vous →
@@ -363,7 +363,7 @@
             @else
                 <a href="{{ route('login') }}" class="block py-2.5 text-sm" style="color: #276e44;">Connexion</a>
             @endauth
-            <a href="https://www.planity.com" target="_blank" rel="noopener"
+            <a href="https://www.planity.com/institut-corps-a-coeur-14270-mezidon-vallee-dauge" target="_blank" rel="noopener"
                class="block mt-2 text-center font-semibold py-2.5 rounded-lg text-white"
                style="background-color: #276e44;">
                 Prendre rendez-vous

@@ -13,7 +13,7 @@
                     <p>Samedi : sur rendez-vous</p>
                     <p class="font-medium" style="color: #276e44;">02 31 20 10 45</p>
                 </div>
-                <a href="https://www.planity.com" target="_blank" rel="noopener"
+                <a href="https://www.planity.com/institut-corps-a-coeur-14270-mezidon-vallee-dauge" target="_blank" rel="noopener"
                    class="inline-block mt-4 text-xs font-semibold px-4 py-2 rounded-lg text-white"
                    style="background-color: #276e44;">
                     Prendre rendez-vous

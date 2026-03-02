@@ -23,7 +23,7 @@
                        style="background-color: #276e44;">
                         Découvrir la boutique
                     </a>
-                    <a href="https://www.planity.com" target="_blank" rel="noopener"
+                    <a href="https://www.planity.com/institut-corps-a-coeur-14270-mezidon-vallee-dauge" target="_blank" rel="noopener"
                        class="inline-block font-medium px-8 py-3.5 rounded-xl transition text-sm border"
                        style="border-color: #276e44; color: #276e44; background: white;">
                         Prendre rendez-vous →
