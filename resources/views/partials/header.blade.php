@@ -7,6 +7,31 @@
 
         $soinsItems   = $menu ? $menu->items->filter(fn($i) => !in_array($i->id, [19, 40])) : collect();
         $boutiqueItem = $menu ? $menu->items->firstWhere('id', 19) : null;
+
+        // Séparer soins avec/sans enfants
+        $soinsWithChildren = $soinsItems->filter(fn($i) => $i->children->isNotEmpty());
+        $soinsSolo = $soinsItems->filter(fn($i) => $i->children->isEmpty());
+
+        // Catégories produits pour le méga-menu boutique
+        $boutiqueCategories = \App\Models\ProductCategory::whereNull('parent_id')
+            ->with('children')
+            ->get()
+            ->filter(function($cat) {
+                $ids = $cat->children->pluck('id')->push($cat->id);
+                return \App\Models\Product::whereIn('category_id', $ids)->where('is_active', true)->exists();
+            });
+
+        // Un produit mis en avant pour l'encart boutique
+        $featuredProduct = \App\Models\Product::whereNotNull('featured_image_id')
+            ->where('is_active', true)
+            ->where('is_featured', true)
+            ->with('featuredImage')
+            ->first()
+            ?? \App\Models\Product::whereNotNull('featured_image_id')
+                ->where('is_active', true)
+                ->with('featuredImage')
+                ->inRandomOrder()
+                ->first();
     @endphp
 
     <div class="w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -129,21 +154,93 @@
          style="border-color: #b0f1b9;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;">
-                @foreach($soinsItems as $item)
+
+                {{-- Colonne 1 : Items sans enfants regroupés --}}
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider mb-4" style="color: #276e44; letter-spacing: 0.1em;">Nos prestations</p>
+                    <ul style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        @foreach($soinsSolo as $item)
+                            <li>
+                                <a href="{{ $item->url }}"
+                                   class="text-sm hover:opacity-70 transition-opacity"
+                                   style="color: #60916a; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #b0f1b9; flex-shrink: 0;"></span>
+                                    {{ $item->label }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+
+                {{-- Colonnes 2-4 : Items avec enfants --}}
+                @foreach($soinsWithChildren as $item)
                     <div>
                         <a href="{{ $item->url }}"
-                           class="text-sm font-semibold hover:opacity-70 transition-opacity"
-                           style="color: #276e44;">
+                           class="text-xs font-bold uppercase tracking-wider hover:opacity-70 transition-opacity"
+                           style="color: #276e44; letter-spacing: 0.1em;">
                             {{ $item->label }}
                         </a>
-                        @if($item->children->isNotEmpty())
-                            <ul class="mt-3 space-y-2">
-                                @foreach($item->children->sortBy('sort_order') as $child)
+                        <ul class="mt-4" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            @foreach($item->children->sortBy('sort_order') as $child)
+                                <li>
+                                    <a href="{{ $child->url }}"
+                                       class="text-sm hover:opacity-70 transition-opacity"
+                                       style="color: #60916a;">
+                                        {{ $child->label }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endforeach
+
+            </div>
+
+            {{-- Encart CTA --}}
+            <div class="mt-6" style="background: linear-gradient(135deg, #e8fae8 0%, #f0fdf4 100%); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <p class="text-sm font-semibold" style="color: #276e44;">Envie de prendre soin de vous ?</p>
+                    <p class="text-xs mt-0.5" style="color: #60916a;">Réservez votre créneau en ligne en quelques clics</p>
+                </div>
+                <a href="https://www.planity.com" target="_blank" rel="noopener"
+                   class="text-xs font-semibold px-5 py-2.5 rounded-lg text-white transition hover:opacity-90"
+                   style="background-color: #276e44; white-space: nowrap;">
+                    Prendre rendez-vous →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{-- MÉGA-MENU "Boutique" (pleine largeur) --}}
+    <div x-show="boutiqueOpen" x-cloak
+         @mouseenter="boutiqueOpen=true" @mouseleave="boutiqueOpen=false"
+         x-transition:enter="transition ease-out duration-150"
+         x-transition:enter-start="opacity-0 -translate-y-1"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-100"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 -translate-y-1"
+         class="absolute left-0 right-0 bg-white shadow-lg border-t z-50"
+         style="border-color: #b0f1b9;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div style="display: grid; grid-template-columns: repeat({{ min($boutiqueCategories->count(), 4) }}, 1fr) {{ $featuredProduct ? '280px' : '' }}; gap: 2rem;">
+
+                {{-- Catégories avec sous-catégories --}}
+                @foreach($boutiqueCategories as $cat)
+                    <div>
+                        <a href="{{ route('shop.index', ['categorie' => $cat->slug]) }}"
+                           class="text-xs font-bold uppercase tracking-wider hover:opacity-70 transition-opacity"
+                           style="color: #276e44; letter-spacing: 0.1em;">
+                            {{ $cat->name }}
+                        </a>
+                        @if($cat->children->isNotEmpty())
+                            <ul class="mt-4" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                @foreach($cat->children as $sub)
                                     <li>
-                                        <a href="{{ $child->url }}"
+                                        <a href="{{ route('shop.index', ['categorie' => $sub->slug]) }}"
                                            class="text-sm hover:opacity-70 transition-opacity"
                                            style="color: #60916a;">
-                                            {{ $child->label }}
+                                            {{ $sub->name }}
                                         </a>
                                     </li>
                                 @endforeach
@@ -151,42 +248,30 @@
                         @endif
                     </div>
                 @endforeach
+
+                {{-- Encart produit mis en avant --}}
+                @if($featuredProduct)
+                    <div style="background: linear-gradient(135deg, #e8fae8 0%, #f0fdf4 100%); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column;">
+                        <a href="{{ route('shop.show', $featuredProduct->slug) }}" class="block" style="flex: 1;">
+                            @if($featuredProduct->featuredImage)
+                                <img src="{{ $featuredProduct->featuredImage->url }}"
+                                     alt="{{ $featuredProduct->name }}"
+                                     style="width: 100%; height: 140px; object-fit: cover; border-radius: 8px;">
+                            @endif
+                            <p class="text-xs font-semibold mt-3" style="color: #276e44;">{{ $featuredProduct->name }}</p>
+                            <p class="text-xs mt-1" style="color: #60916a;">{{ number_format($featuredProduct->price, 2, ',', ' ') }} €</p>
+                        </a>
+                        <a href="{{ route('shop.index') }}"
+                           class="text-xs font-semibold mt-3 hover:opacity-70 transition-opacity"
+                           style="color: #276e44; display: inline-flex; align-items: center; gap: 0.25rem;">
+                            Voir toute la boutique →
+                        </a>
+                    </div>
+                @endif
+
             </div>
         </div>
     </div>
-
-    {{-- DROPDOWN "Boutique" (pleine largeur) --}}
-    @if($boutiqueItem && $boutiqueItem->children->isNotEmpty())
-        <div x-show="boutiqueOpen" x-cloak
-             @mouseenter="boutiqueOpen=true" @mouseleave="boutiqueOpen=false"
-             x-transition:enter="transition ease-out duration-150"
-             x-transition:enter-start="opacity-0 -translate-y-1"
-             x-transition:enter-end="opacity-100 translate-y-0"
-             x-transition:leave="transition ease-in duration-100"
-             x-transition:leave-start="opacity-100 translate-y-0"
-             x-transition:leave-end="opacity-0 -translate-y-1"
-             class="absolute left-0 right-0 bg-white shadow-lg border-t z-50"
-             style="border-color: #b0f1b9;">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <div class="flex items-center gap-8">
-                    <a href="{{ route('shop.index') }}"
-                       class="text-sm font-semibold hover:opacity-70 transition-opacity"
-                       style="color: #276e44;">
-                        Tous les produits
-                    </a>
-                    @foreach($boutiqueItem->children->sortBy('sort_order') as $child)
-                        @if($child->url !== '#')
-                            <a href="{{ $child->url }}"
-                               class="text-sm hover:opacity-70 transition-opacity"
-                               style="color: #60916a;">
-                                {{ $child->label }}
-                            </a>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    @endif
 
     {{-- Nav mobile --}}
     <div x-show="mobileOpen" x-cloak
@@ -228,36 +313,39 @@
             </div>
         </div>
 
-        {{-- Boutique (accordéon) --}}
-        @if($boutiqueItem && $boutiqueItem->children->isNotEmpty())
-            <div x-data="{ subOpen: false }">
-                <button @click="subOpen = !subOpen"
-                        class="flex items-center justify-between w-full py-2.5 text-sm font-semibold border-b text-left"
-                        style="color: #276e44; border-color: #c9fad9;">
-                    Boutique
-                    <svg class="w-4 h-4 shrink-0 transition-transform duration-200" :class="subOpen ? 'rotate-180' : ''"
-                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-                <div x-show="subOpen" x-cloak x-transition class="pl-4 space-y-1 pb-1">
-                    <a href="{{ route('shop.index') }}"
+        {{-- Boutique (accordéon avec sous-catégories) --}}
+        <div x-data="{ subOpen: false }">
+            <button @click="subOpen = !subOpen"
+                    class="flex items-center justify-between w-full py-2.5 text-sm font-semibold border-b text-left"
+                    style="color: #276e44; border-color: #c9fad9;">
+                Boutique
+                <svg class="w-4 h-4 shrink-0 transition-transform duration-200" :class="subOpen ? 'rotate-180' : ''"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            <div x-show="subOpen" x-cloak x-transition class="pl-4 pb-2">
+                <a href="{{ route('shop.index') }}"
+                   class="block py-2 text-sm font-medium"
+                   style="color: #276e44;">
+                    Tous les produits
+                </a>
+                @foreach($boutiqueCategories as $cat)
+                    <a href="{{ route('shop.index', ['categorie' => $cat->slug]) }}"
                        class="block py-2 text-sm font-medium"
                        style="color: #276e44;">
-                        Tous les produits
+                        {{ $cat->name }}
                     </a>
-                    @foreach($boutiqueItem->children->sortBy('sort_order') as $child)
-                        @if($child->url !== '#')
-                            <a href="{{ $child->url }}"
-                               class="block py-2 text-sm"
-                               style="color: #60916a;">
-                                {{ $child->label }}
-                            </a>
-                        @endif
+                    @foreach($cat->children as $sub)
+                        <a href="{{ route('shop.index', ['categorie' => $sub->slug]) }}"
+                           class="block py-1.5 pl-4 text-sm"
+                           style="color: #60916a;">
+                            {{ $sub->name }}
+                        </a>
                     @endforeach
-                </div>
+                @endforeach
             </div>
-        @endif
+        </div>
 
         {{-- Liens directs --}}
         <a href="{{ route('quiz.show', 'type-de-peau') }}"

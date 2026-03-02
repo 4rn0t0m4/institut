@@ -83,7 +83,9 @@ class CheckoutController extends Controller
             }
         }
 
-        return view('checkout.index', compact('items', 'subtotal', 'discount', 'shippingMethods', 'prefill'));
+        $freeShippingThreshold = config('shipping.free_shipping_threshold', 0);
+
+        return view('checkout.index', compact('items', 'subtotal', 'discount', 'shippingMethods', 'prefill', 'freeShippingThreshold'));
     }
 
     /** Crée la commande locale + affiche le formulaire de paiement Stripe */
@@ -172,6 +174,12 @@ class CheckoutController extends Controller
 
         $shippingKey  = $request->shipping_method;
         $shippingCost = config("shipping.methods.{$shippingKey}.price", 0);
+
+        // Livraison gratuite en point relais à partir du seuil
+        $threshold = config('shipping.free_shipping_threshold');
+        if ($threshold && config("shipping.methods.{$shippingKey}.free_above_threshold") && $subtotal >= $threshold) {
+            $shippingCost = 0;
+        }
         $giftWrap     = $request->boolean('gift_wrap');
         $giftCost     = $giftWrap ? 1.00 : 0;
         $total        = max(0, $subtotal - $discount['amount'] + $shippingCost + $giftCost);

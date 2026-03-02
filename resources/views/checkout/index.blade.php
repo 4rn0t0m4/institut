@@ -8,11 +8,19 @@
               shippingSame: {{ old('shipping_same', $prefill['shipping_same'] ?? true) ? 'true' : 'false' }},
               shippingMethod: '{{ old('shipping_method', 'colissimo') }}',
               shippingPrices: @js(collect($shippingMethods)->mapWithKeys(fn($m, $k) => [$k => $m['price']])),
+              freeShippingMethods: @js(collect($shippingMethods)->filter(fn($m) => !empty($m['free_above_threshold']))->keys()),
+              freeShippingThreshold: {{ $freeShippingThreshold }},
               subtotal: {{ $subtotal }},
               discountAmount: {{ $discount['amount'] }},
               giftWrap: {{ old('gift_wrap') ? 'true' : 'false' }},
               giftType: '{{ old('gift_type', 'boite') }}',
-              get shippingCost() { return this.shippingPrices[this.shippingMethod] ?? 0 },
+              get shippingCost() {
+                  let price = this.shippingPrices[this.shippingMethod] ?? 0;
+                  if (this.freeShippingThreshold && this.freeShippingMethods.includes(this.shippingMethod) && this.subtotal >= this.freeShippingThreshold) {
+                      price = 0;
+                  }
+                  return price;
+              },
               get giftCost() { return this.giftWrap ? 1 : 0 },
               get total() { return Math.max(0, this.subtotal - this.discountAmount + this.shippingCost + this.giftCost) },
               formatPrice(v) { return v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' \u20ac' },
@@ -258,7 +266,16 @@
                                     <span class="text-sm font-medium text-gray-900">{{ $method['label'] }}</span>
                                 </div>
                                 <span class="text-sm font-semibold text-gray-700">
-                                    {{ $method['price'] > 0 ? number_format($method['price'], 2, ',', ' ') . ' €' : 'Gratuit' }}
+                                    @if(!empty($method['free_above_threshold']))
+                                        <template x-if="subtotal >= freeShippingThreshold">
+                                            <span style="color: #276e44;">Gratuit</span>
+                                        </template>
+                                        <template x-if="subtotal < freeShippingThreshold">
+                                            <span>{{ number_format($method['price'], 2, ',', ' ') }} €</span>
+                                        </template>
+                                    @else
+                                        {{ $method['price'] > 0 ? number_format($method['price'], 2, ',', ' ') . ' €' : 'Gratuit' }}
+                                    @endif
                                 </span>
                             </label>
                         @endforeach

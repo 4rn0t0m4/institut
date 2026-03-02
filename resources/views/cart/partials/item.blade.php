@@ -35,13 +35,14 @@
 
     {{-- Quantité --}}
     <form action="{{ route('cart.update', $item['key']) }}" method="POST"
-          class="flex items-center gap-1" x-data="{ qty: {{ $item['quantity'] }} }">
+          class="flex items-center gap-1" x-data="{ qty: {{ $item['quantity'] }} }" data-turbo="false">
         @csrf @method('PATCH')
-        <button type="button" @click="qty = Math.max(0, qty - 1); $el.closest('form').requestSubmit()"
+        <button type="button" @click="qty = Math.max(0, qty - 1); $nextTick(() => $el.closest('form').submit())"
                 class="w-7 h-7 flex items-center justify-center border border-gray-200 rounded text-gray-600 hover:bg-gray-50 text-sm">−</button>
         <input type="number" name="quantity" x-model="qty" min="0" max="99"
-               class="w-10 text-center text-sm border border-gray-200 rounded py-0.5 focus:outline-none focus:ring-1 focus:ring-green-600">
-        <button type="button" @click="qty = Math.min(99, qty + 1); $el.closest('form').requestSubmit()"
+               class="w-10 text-center text-sm border border-gray-200 rounded py-0.5 focus:outline-none focus:ring-1 focus:ring-green-600"
+               @change="$nextTick(() => $el.closest('form').submit())">
+        <button type="button" @click="qty = Math.min(99, qty + 1); $nextTick(() => $el.closest('form').submit())"
                 class="w-7 h-7 flex items-center justify-center border border-gray-200 rounded text-gray-600 hover:bg-gray-50 text-sm">+</button>
     </form>
 
@@ -50,7 +51,7 @@
         <p class="text-sm font-semibold text-gray-900">
             {{ number_format(($item['price'] + $item['addon_price']) * $item['quantity'], 2, ',', ' ') }} €
         </p>
-        <form action="{{ route('cart.remove', $item['key']) }}" method="POST" class="mt-1">
+        <form action="{{ route('cart.remove', $item['key']) }}" method="POST" class="mt-1" data-turbo="false">
             @csrf @method('DELETE')
             <button type="submit" class="text-xs text-gray-400 hover:text-red-500 transition">
                 Supprimer

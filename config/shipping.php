@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'free_shipping_threshold' => 60.00, // Livraison gratuite en point relais à partir de ce montant
+
     'methods' => [
         'colissimo' => [
             'label' => 'Livraison à domicile (Colissimo)',
@@ -9,6 +11,7 @@ return [
         'boxtal' => [
             'label' => 'Livraison en point relais (Mondial Relay et Chronopost)',
             'price' => 5.00,
+            'free_above_threshold' => true,
         ],
         'pickup' => [
             'label' => 'Retrait à l\'institut',
