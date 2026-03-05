@@ -172,13 +172,12 @@
                 {{-- Colonne 1 : Items sans enfants regroupés --}}
                 <div>
                     <p class="text-xs font-bold uppercase tracking-wider mb-4" style="color: #276e44; letter-spacing: 0.1em;">Nos prestations</p>
-                    <ul style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <ul class="mt-4" style="display: flex; flex-direction: column; gap: 0.5rem;">
                         @foreach($soinsSolo as $item)
                             <li>
                                 <a href="{{ $item->url }}"
                                    class="text-sm hover:opacity-70 transition-opacity"
-                                   style="color: #60916a; display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #b0f1b9; flex-shrink: 0;"></span>
+                                   style="color: #60916a;">
                                     {{ $item->label }}
                                 </a>
                             </li>

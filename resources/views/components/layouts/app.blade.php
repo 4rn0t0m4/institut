@@ -24,6 +24,7 @@
         {{ $slot }}
     </main>
 
+    @include('partials.social-bar')
     @include('partials.footer')
     @include('partials.flash')
 

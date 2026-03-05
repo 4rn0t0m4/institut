@@ -255,10 +255,12 @@ $breadcrumbJsonLd = json_encode([
 
         </div>
     </div>
+</div>
 
-    {{-- Description complète --}}
-    @if($product->description)
-        <div class="mt-16 pt-10" style="border-top: 2px solid #b0f1b9;">
+{{-- Description complète --}}
+@if($product->description)
+    <section class="py-16" style="background-color: #c9fad9;">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #60916a;">Tout savoir</p>
             <h2 class="text-2xl font-semibold mb-6" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
                 Description
@@ -267,10 +269,12 @@ $breadcrumbJsonLd = json_encode([
                 {!! $product->description !!}
             </div>
         </div>
-    @endif
+    </section>
+@endif
 
-    {{-- Avis clients --}}
-    <section id="avis" class="mt-16 pt-10" style="border-top: 2px solid #b0f1b9;">
+{{-- Avis clients --}}
+<section id="avis" class="py-16 bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #60916a;">Retours d'experience</p>
         <h2 class="text-2xl font-semibold mb-8" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
             Avis clients
@@ -299,7 +303,7 @@ $breadcrumbJsonLd = json_encode([
         @if($reviews->isNotEmpty())
             <div class="space-y-6 mb-10">
                 @foreach($reviews as $review)
-                    <div class="rounded-xl p-5" style="background-color: #f9fafb; border: 1px solid #e5e7eb;">
+                    <div class="rounded-xl p-5" style="background-color: #f0fdf4; border: 1px solid #b0f1b9;">
                         <div class="flex items-start justify-between gap-4 mb-2">
                             <div>
                                 <div class="flex items-center gap-2 mb-1">
@@ -313,7 +317,7 @@ $breadcrumbJsonLd = json_encode([
                                 </div>
                                 <div class="flex items-center gap-0.5">
                                     @for($i = 1; $i <= 5; $i++)
-                                        <svg class="w-4 h-4" fill="{{ $i <= $review->rating ? '#f59e0b' : '#e5e7eb' }}" viewBox="0 0 20 20">
+                                        <svg class="w-4 h-4" fill="{{ $i <= $review->rating ? '#f59e0b' : '#d1d5db' }}" viewBox="0 0 20 20">
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                         </svg>
                                     @endfor
@@ -331,13 +335,13 @@ $breadcrumbJsonLd = json_encode([
         @endif
 
         {{-- Formulaire d'avis --}}
-        <div class="max-w-xl" x-data="{ rating: 0 }">
-            <h3 class="text-lg font-semibold mb-4" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
+        <div class="max-w-xl rounded-2xl p-6" style="background-color: #f0fdf4; border: 1px solid #b0f1b9;" x-data="{ rating: 0 }">
+            <h3 class="text-lg font-semibold mb-5" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
                 Laisser un avis
             </h3>
 
             @if(session('review_success'))
-                <div class="rounded-xl p-4 mb-4" style="background-color: #ecfdf5; border: 1px solid #b0f1b9; color: #276e44;">
+                <div class="rounded-xl p-4" style="background-color: #ecfdf5; border: 1px solid #b0f1b9; color: #276e44;">
                     <p class="text-sm font-medium">{{ session('review_success') }}</p>
                 </div>
             @else
@@ -368,7 +372,7 @@ $breadcrumbJsonLd = json_encode([
                             <input type="text" id="author_name" name="author_name" required
                                    value="{{ old('author_name', auth()->user()?->name) }}"
                                    class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-600"
-                                   style="border-color: #d1d5db;">
+                                   style="border-color: #b0f1b9; background-color: #ffffff;">
                             @error('author_name') <p class="text-xs mt-1" style="color: #dc2626;">{{ $message }}</p> @enderror
                         </div>
 
@@ -378,7 +382,7 @@ $breadcrumbJsonLd = json_encode([
                             <input type="email" id="author_email" name="author_email" required
                                    value="{{ old('author_email', auth()->user()?->email) }}"
                                    class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-600"
-                                   style="border-color: #d1d5db;">
+                                   style="border-color: #b0f1b9; background-color: #ffffff;">
                             <p class="text-xs mt-1" style="color: #9ca3af;">Ne sera pas affiche publiquement</p>
                             @error('author_email') <p class="text-xs mt-1" style="color: #dc2626;">{{ $message }}</p> @enderror
                         </div>
@@ -391,7 +395,7 @@ $breadcrumbJsonLd = json_encode([
                                value="{{ old('title') }}"
                                placeholder="Resumez votre experience"
                                class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-600"
-                               style="border-color: #d1d5db;">
+                               style="border-color: #b0f1b9; background-color: #ffffff;">
                         @error('title') <p class="text-xs mt-1" style="color: #dc2626;">{{ $message }}</p> @enderror
                     </div>
 
@@ -401,7 +405,7 @@ $breadcrumbJsonLd = json_encode([
                         <textarea id="review_body" name="body" required rows="4"
                                   placeholder="Partagez votre experience avec ce produit..."
                                   class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-600 resize-y"
-                                  style="border-color: #d1d5db;">{{ old('body') }}</textarea>
+                                  style="border-color: #b0f1b9; background-color: #ffffff;">{{ old('body') }}</textarea>
                         @error('body') <p class="text-xs mt-1" style="color: #dc2626;">{{ $message }}</p> @enderror
                     </div>
 
@@ -414,11 +418,13 @@ $breadcrumbJsonLd = json_encode([
                 </form>
             @endif
         </div>
-    </section>
+    </div>
+</section>
 
-    {{-- Produits similaires --}}
-    @if($related->isNotEmpty())
-        <section class="mt-16 pt-10" style="border-top: 2px solid #b0f1b9;">
+{{-- Produits similaires --}}
+@if($related->isNotEmpty())
+    <section class="py-16" style="background-color: #c9fad9;">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #60916a;">Boutique</p>
             <h2 class="text-2xl font-semibold mb-8" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
                 Vous aimerez aussi
@@ -428,9 +434,9 @@ $breadcrumbJsonLd = json_encode([
                     <x-product-card :product="$p"/>
                 @endforeach
             </div>
-        </section>
-    @endif
-</div>
+        </div>
+    </section>
+@endif
 
 <script>
 function productForm(basePrice, salePrice) {
