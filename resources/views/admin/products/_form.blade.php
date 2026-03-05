@@ -161,15 +161,47 @@ document.addEventListener('DOMContentLoaded', function () {
             @error('brand_id') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
         </div>
 
+        {{-- Alertes stock --}}
+        @if(isset($product) && $product->exists)
+            @php $pendingAlerts = $product->stockNotifications()->whereNull('notified_at')->count(); @endphp
+            @if($pendingAlerts > 0)
+                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-800 dark:bg-amber-900/20 md:p-6">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-800/30">
+                            <svg class="h-5 w-5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-amber-800 dark:text-amber-200">{{ $pendingAlerts }} alerte{{ $pendingAlerts > 1 ? 's' : '' }} en attente</p>
+                            <p class="text-xs text-amber-600 dark:text-amber-400">{{ $pendingAlerts }} personne{{ $pendingAlerts > 1 ? 's' : '' }} ser{{ $pendingAlerts > 1 ? 'ont notifiée' : 'a notifiée' }}{{ $pendingAlerts > 1 ? 's' : '' }} au retour en stock</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @endif
+
         {{-- Stock --}}
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
             <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">Stock</h3>
 
-            <div>
-                <label for="stock_quantity" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Quantite en stock</label>
-                <input type="number" id="stock_quantity" name="stock_quantity" value="{{ old('stock_quantity', $product->stock_quantity ?? '') }}" min="0"
-                    class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90" />
-                @error('stock_quantity') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+            <div class="space-y-5">
+                <div>
+                    <label for="stock_status" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Statut du stock</label>
+                    <select id="stock_status" name="stock_status"
+                        class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90">
+                        <option value="instock" {{ old('stock_status', $product->stock_status ?? 'instock') === 'instock' ? 'selected' : '' }}>En stock</option>
+                        <option value="outofstock" {{ old('stock_status', $product->stock_status ?? '') === 'outofstock' ? 'selected' : '' }}>Rupture de stock</option>
+                        <option value="onbackorder" {{ old('stock_status', $product->stock_status ?? '') === 'onbackorder' ? 'selected' : '' }}>En commande</option>
+                    </select>
+                    @error('stock_status') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label for="stock_quantity" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Quantite en stock</label>
+                    <input type="number" id="stock_quantity" name="stock_quantity" value="{{ old('stock_quantity', $product->stock_quantity ?? '') }}" min="0"
+                        class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90" />
+                    @error('stock_quantity') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                </div>
             </div>
         </div>
 

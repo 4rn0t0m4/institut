@@ -164,7 +164,32 @@ $breadcrumbJsonLd = json_encode([
 
             {{-- Stock --}}
             @if($product->stock_status !== 'instock')
-                <p class="text-sm font-medium mb-4" style="color: #dc2626;">Produit épuisé</p>
+                <div class="mb-6 rounded-xl p-4" style="background-color: #fef2f2; border: 1px solid #fecaca;">
+                    <p class="text-sm font-medium mb-3" style="color: #dc2626;">Produit épuisé</p>
+
+                    @if(session('stock_alert'))
+                        <p class="text-sm" style="color: #276e44;">{{ session('stock_alert') }}</p>
+                    @else
+                        <p class="text-xs mb-2" style="color: #374151;">Recevez une alerte dès son retour en stock :</p>
+                        <form action="{{ route('shop.stock-notify', $product) }}" method="POST" class="flex gap-2" data-turbo="false">
+                            @csrf
+                            <input type="email" name="email" required
+                                   value="{{ auth()->user()?->email }}"
+                                   placeholder="votre@email.fr"
+                                   class="flex-1 text-sm px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-600"
+                                   style="border-color: #d1d5db;">
+                            <button type="submit"
+                                    class="text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
+                                    style="background-color: #276e44;"
+                                    onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">
+                                M'alerter
+                            </button>
+                        </form>
+                        @error('email')
+                            <p class="text-xs mt-1" style="color: #dc2626;">{{ $message }}</p>
+                        @enderror
+                    @endif
+                </div>
             @endif
 
             {{-- Formulaire ajout panier --}}

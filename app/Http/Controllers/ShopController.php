@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductTag;
+use App\Models\StockNotification;
 use Illuminate\Http\Request;
 
 class ShopController extends Controller
@@ -97,5 +98,17 @@ class ShopController extends Controller
             ->get();
 
         return view('shop.show', compact('product', 'related'));
+    }
+
+    public function stockNotify(Request $request, Product $product)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        StockNotification::firstOrCreate([
+            'product_id' => $product->id,
+            'email' => strtolower(trim($request->email)),
+        ]);
+
+        return back()->with('stock_alert', 'Vous serez prévenu(e) dès que ce produit sera de nouveau disponible.');
     }
 }
