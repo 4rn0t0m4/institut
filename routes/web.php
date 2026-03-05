@@ -25,6 +25,7 @@ Route::get('/boutique/{slug}', [ShopController::class, 'show'])->name('shop.show
 
 // Panier
 Route::get('/panier', [CartController::class, 'index'])->name('cart.index');
+Route::get('/panier/mini', [CartController::class, 'miniCart'])->name('cart.mini');
 Route::post('/panier/ajouter', [CartController::class, 'add'])->name('cart.add');
 Route::patch('/panier/{key}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/panier/{key}', [CartController::class, 'remove'])->name('cart.remove');

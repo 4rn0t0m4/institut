@@ -19,6 +19,15 @@ class CartController extends Controller
         ]);
     }
 
+    public function miniCart()
+    {
+        return view('cart.partials.mini-cart', [
+            'items'    => $this->cart->all(),
+            'subtotal' => $this->cart->subtotal(),
+            'count'    => $this->cart->count(),
+        ]);
+    }
+
     public function add(AddToCartRequest $request)
     {
         $product  = Product::findOrFail($request->product_id);

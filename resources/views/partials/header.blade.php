@@ -14,6 +14,7 @@
 
         // Catégories produits pour le méga-menu boutique
         $boutiqueCategories = \App\Models\ProductCategory::whereNull('parent_id')
+            ->where('slug', '!=', 'non-classe')
             ->with('children')
             ->get()
             ->filter(function($cat) {
@@ -109,23 +110,36 @@
                 @endauth
 
                 {{-- Panier --}}
-                <a href="{{ route('cart.index') }}"
-                   class="relative flex items-center hover:opacity-70 transition-opacity p-1"
-                   style="color: #276e44;" title="Mon panier">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                    <turbo-frame id="cart-count">
-                        @php $count = session('cart') ? array_sum(array_column(session('cart'), 'quantity')) : 0; @endphp
-                        @if($count > 0)
-                            <span class="absolute top-0 right-0 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold leading-none"
-                                  style="background-color: #276e44; font-size: 10px;">
-                                {{ $count }}
-                            </span>
-                        @endif
-                    </turbo-frame>
-                </a>
+                <div class="relative" x-data="{ cartOpen: false, cartHtml: '' }">
+                    <button @click="cartOpen = !cartOpen; if(cartOpen) fetch('{{ route('cart.mini') }}').then(r => r.text()).then(h => cartHtml = h)"
+                            class="relative flex items-center hover:opacity-70 transition-opacity p-1"
+                            style="color: #276e44;" title="Mon panier">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <turbo-frame id="cart-count">
+                            @php $count = session('cart') ? array_sum(array_column(session('cart'), 'quantity')) : 0; @endphp
+                            @if($count > 0)
+                                <span class="absolute top-0 right-0 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold leading-none"
+                                      style="background-color: #276e44; font-size: 10px;">
+                                    {{ $count }}
+                                </span>
+                            @endif
+                        </turbo-frame>
+                    </button>
+                    <div x-show="cartOpen" x-cloak @click.away="cartOpen = false"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 -translate-y-1"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-1"
+                         class="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-xl border z-50"
+                         style="border-color: #b0f1b9;">
+                        <div x-html="cartHtml"></div>
+                    </div>
+                </div>
 
                 {{-- Burger mobile --}}
                 <button class="md:hidden p-1 rounded-md hover:bg-green-50 transition-colors"

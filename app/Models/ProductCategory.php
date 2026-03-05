@@ -16,17 +16,10 @@ class ProductCategory extends Model
     }
 
     /**
-     * IDs de cette catégorie + enfants + parent (filtrage bidirectionnel).
+     * IDs pour le filtrage : catégorie courante + ses enfants (pas le parent).
      */
     public function familyIds(): \Illuminate\Support\Collection
     {
-        $ids = collect([$this->id]);
-        $ids = $ids->merge($this->children->pluck('id'));
-
-        if ($this->parent_id) {
-            $ids->push($this->parent_id);
-        }
-
-        return $ids;
+        return collect([$this->id])->merge($this->children->pluck('id'));
     }
 }

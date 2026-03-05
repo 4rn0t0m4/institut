@@ -22,28 +22,64 @@ class WpCustomers extends WpImportCommand
             ->where('address_type', 'billing')
             ->whereNotNull('email')
             ->where('email', '!=', '')
-            ->select('email', 'first_name', 'last_name', 'phone')
+            ->select('email', 'first_name', 'last_name', 'phone', 'address_1', 'address_2', 'city', 'postcode', 'country')
             ->get()
-            ->groupBy('email');
+            ->groupBy(fn($c) => strtolower(trim($c->email)));
+
+        // Get shipping addresses too
+        $shippingAddresses = $this->wp()
+            ->table('wc_order_addresses')
+            ->where('address_type', 'shipping')
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->select('email', 'first_name', 'last_name', 'address_1', 'address_2', 'city', 'postcode', 'country')
+            ->get()
+            ->keyBy(fn($s) => strtolower(trim($s->email)));
 
         $created = 0;
-        $skipped = 0;
+        $updated = 0;
 
         foreach ($customers as $email => $entries) {
             $c = $entries->first();
-            $email = strtolower(trim($email));
+            $s = $shippingAddresses->get($email);
 
-            // Skip the admin account
-            if (User::where('email', $email)->exists()) {
-                $user = User::where('email', $email)->first();
-                $skipped++;
+            $firstName = trim($c->first_name ?? '');
+            $lastName  = trim($c->last_name ?? '');
+            $name      = trim("$firstName $lastName") ?: $email;
+
+            $userData = [
+                'first_name' => $firstName,
+                'last_name'  => $lastName,
+                'name'       => $name,
+                'phone'      => $c->phone ?? null,
+                'address_1'  => $c->address_1 ?? null,
+                'address_2'  => $c->address_2 ?? null,
+                'city'       => $c->city ?? null,
+                'postcode'   => $c->postcode ?? null,
+                'country'    => $c->country ?? null,
+            ];
+
+            if ($s && !empty($s->address_1)) {
+                $userData += [
+                    'shipping_first_name' => trim($s->first_name ?? ''),
+                    'shipping_last_name'  => trim($s->last_name ?? ''),
+                    'shipping_address_1'  => $s->address_1 ?? null,
+                    'shipping_address_2'  => $s->address_2 ?? null,
+                    'shipping_city'       => $s->city ?? null,
+                    'shipping_postcode'   => $s->postcode ?? null,
+                    'shipping_country'    => $s->country ?? null,
+                ];
+            }
+
+            $user = User::where('email', $email)->first();
+
+            if ($user) {
+                $user->update($userData);
+                $updated++;
             } else {
-                $name = trim($c->first_name . ' ' . $c->last_name) ?: $email;
-
-                $user = User::create([
-                    'name'     => $name,
+                $user = User::create($userData + [
                     'email'    => $email,
-                    'password' => Hash::make(Str::random(32)),
+                    'password' => Str::random(32),
                 ]);
                 $created++;
             }
@@ -56,7 +92,7 @@ class WpCustomers extends WpImportCommand
 
         $linked = Order::whereNotNull('user_id')->count();
 
-        $this->printResult('Clients', $created, $skipped);
+        $this->printResult('Clients', $created, $updated);
         $this->info("  ✓ {$linked} commandes rattachées à un compte");
     }
 }

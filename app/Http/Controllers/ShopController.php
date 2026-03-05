@@ -13,6 +13,7 @@ class ShopController extends Controller
     public function index(Request $request)
     {
         $categories = ProductCategory::root()
+            ->where('slug', '!=', 'non-classe')
             ->with('children')
             ->orderBy('sort_order')
             ->get();
@@ -83,7 +84,7 @@ class ShopController extends Controller
     public function show(string $slug)
     {
         $product = Product::where('slug', $slug)
-            ->with(['category', 'brand', 'tags', 'addonAssignments.addon.group'])
+            ->with(['category.parent', 'brand', 'tags', 'addonAssignments.addon.group'])
             ->visibleTo(auth()->user())
             ->firstOrFail();
 

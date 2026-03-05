@@ -24,28 +24,21 @@ $productJsonLd = json_encode([
     ],
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
+$breadcrumbItems = [
+    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Boutique', 'item' => route('shop.index')],
+];
+$pos = 2;
+if ($product->category?->parent) {
+    $breadcrumbItems[] = ['@type' => 'ListItem', 'position' => $pos++, 'name' => $product->category->parent->name, 'item' => route('shop.index', ['categorie' => $product->category->parent->slug])];
+}
+if ($product->category) {
+    $breadcrumbItems[] = ['@type' => 'ListItem', 'position' => $pos++, 'name' => $product->category->name, 'item' => route('shop.index', ['categorie' => $product->category->slug])];
+}
+$breadcrumbItems[] = ['@type' => 'ListItem', 'position' => $pos, 'name' => $product->name];
 $breadcrumbJsonLd = json_encode([
     '@context' => 'https://schema.org',
     '@type' => 'BreadcrumbList',
-    'itemListElement' => array_values(array_filter([
-        [
-            '@type' => 'ListItem',
-            'position' => 1,
-            'name' => 'Boutique',
-            'item' => route('shop.index'),
-        ],
-        $product->category ? [
-            '@type' => 'ListItem',
-            'position' => 2,
-            'name' => $product->category->name,
-            'item' => route('shop.index', ['categorie' => $product->category->slug]),
-        ] : null,
-        [
-            '@type' => 'ListItem',
-            'position' => $product->category ? 3 : 2,
-            'name' => $product->name,
-        ],
-    ])),
+    'itemListElement' => $breadcrumbItems,
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 @endphp
 <script type="application/ld+json">{!! $productJsonLd !!}</script>
@@ -64,6 +57,11 @@ $breadcrumbJsonLd = json_encode([
     <nav class="text-xs mb-8 flex items-center gap-2" style="color: #60916a;">
         <a href="{{ route('shop.index') }}" class="hover:underline">Boutique</a>
         @if($product->category)
+            @if($product->category->parent)
+                <span>/</span>
+                <a href="{{ route('shop.index', ['categorie' => $product->category->parent->slug]) }}"
+                   class="hover:underline">{{ $product->category->parent->name }}</a>
+            @endif
             <span>/</span>
             <a href="{{ route('shop.index', ['categorie' => $product->category->slug]) }}"
                class="hover:underline">{{ $product->category->name }}</a>

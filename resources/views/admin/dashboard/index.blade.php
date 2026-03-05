@@ -238,7 +238,11 @@
                                     <a href="{{ route('admin.orders.show', $order) }}" class="text-brand-500 hover:underline">#{{ $order->id }}</a>
                                 </td>
                                 <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                                    {{ $order->user?->name ?? 'Invité' }}
+                                    @if($order->user)
+                                        <a href="{{ route('admin.customers.show', $order->user) }}" class="text-brand-500 hover:underline">{{ $order->user->name }}</a>
+                                    @else
+                                        <a href="{{ route('admin.orders.show', $order) }}" class="text-brand-500 hover:underline">{{ trim($order->billing_first_name . ' ' . $order->billing_last_name) ?: 'Invité' }}</a>
+                                    @endif
                                 </td>
                                 <td class="px-5 py-4">
                                     <x-admin.badge :status="$order->status" />
