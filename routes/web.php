@@ -23,6 +23,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/boutique', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/boutique/{slug}', [ShopController::class, 'show'])->name('shop.show');
 Route::post('/boutique/{product}/alerte-stock', [ShopController::class, 'stockNotify'])->name('shop.stock-notify');
+Route::post('/boutique/{product}/avis', [ShopController::class, 'storeReview'])->name('shop.review.store');
 
 // Panier
 Route::get('/panier', [CartController::class, 'index'])->name('cart.index');

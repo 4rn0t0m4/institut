@@ -24,6 +24,8 @@ class Product extends Model
     public function orderItems() { return $this->hasMany(OrderItem::class); }
     public function tags() { return $this->belongsToMany(ProductTag::class); }
     public function stockNotifications() { return $this->hasMany(StockNotification::class); }
+    public function reviews() { return $this->hasMany(ProductReview::class); }
+    public function approvedReviews() { return $this->hasMany(ProductReview::class)->approved(); }
 
     public function galleryImages(): \Illuminate\Database\Eloquent\Collection
     {

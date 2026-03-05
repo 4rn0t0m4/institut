@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductTag;
+use App\Models\ProductReview;
 use App\Models\StockNotification;
 use Illuminate\Http\Request;
 
@@ -97,7 +98,9 @@ class ShopController extends Controller
             ->limit(4)
             ->get();
 
-        return view('shop.show', compact('product', 'related'));
+        $reviews = $product->approvedReviews()->latest()->get();
+
+        return view('shop.show', compact('product', 'related', 'reviews'));
     }
 
     public function stockNotify(Request $request, Product $product)
@@ -110,5 +113,35 @@ class ShopController extends Controller
         ]);
 
         return back()->with('stock_alert', 'Vous serez prévenu(e) dès que ce produit sera de nouveau disponible.');
+    }
+
+    public function storeReview(Request $request, Product $product)
+    {
+        $validated = $request->validate([
+            'author_name' => 'required|string|max:100',
+            'author_email' => 'required|email|max:255',
+            'rating' => 'required|integer|min:1|max:5',
+            'title' => 'required|string|max:150',
+            'body' => 'required|string|max:2000',
+        ]);
+
+        $user = auth()->user();
+        $isVerifiedBuyer = false;
+
+        if ($user) {
+            $isVerifiedBuyer = $user->orders()
+                ->where('status', 'completed')
+                ->whereHas('items', fn ($q) => $q->where('product_id', $product->id))
+                ->exists();
+        }
+
+        ProductReview::create([
+            ...$validated,
+            'product_id' => $product->id,
+            'user_id' => $user?->id,
+            'is_verified_buyer' => $isVerifiedBuyer,
+        ]);
+
+        return back()->with('review_success', 'Merci pour votre avis ! Il sera publié après validation.');
     }
 }

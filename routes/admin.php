@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\ProductTagController;
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,11 @@ Route::resource('customers', CustomerController::class)->only(['index', 'show'])
 Route::resource('pages', PageController::class)->names('admin.pages');
 Route::resource('discounts', DiscountController::class)->except(['show'])->names('admin.discounts');
 Route::resource('tags', ProductTagController::class)->except(['show'])->names('admin.tags');
+
+Route::get('reviews', [ReviewController::class, 'index'])->name('admin.reviews.index');
+Route::patch('reviews/{review}/approve', [ReviewController::class, 'approve'])->name('admin.reviews.approve');
+Route::patch('reviews/{review}/reject', [ReviewController::class, 'reject'])->name('admin.reviews.reject');
+Route::delete('reviews/{review}', [ReviewController::class, 'destroy'])->name('admin.reviews.destroy');
 
 Route::get('settings', [SettingController::class, 'index'])->name('admin.settings.index');
 Route::put('settings', [SettingController::class, 'update'])->name('admin.settings.update');
