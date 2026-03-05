@@ -3,7 +3,7 @@
 
     <h1 class="text-2xl font-semibold text-gray-900 mb-8">Finaliser la commande</h1>
 
-    <form action="{{ route('checkout.store') }}" method="POST"
+    <form action="{{ route('checkout.store') }}" method="POST" data-turbo="false"
           x-data="{
               shippingSame: {{ old('shipping_same', $prefill['shipping_same'] ?? true) ? 'true' : 'false' }},
               shippingMethod: '{{ old('shipping_method', 'colissimo') }}',

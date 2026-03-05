@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CheckoutStoreRequest;
 use App\Models\Order;
-use App\Models\OrderItem;
 use App\Services\CartService;
 use App\Services\DiscountEngine;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
@@ -15,6 +16,7 @@ class CheckoutController extends Controller
     public function __construct(
         private CartService $cart,
         private DiscountEngine $discount,
+        private OrderService $orderService,
     ) {}
 
     /** Page récapitulatif & formulaire adresse */
@@ -89,114 +91,46 @@ class CheckoutController extends Controller
     }
 
     /** Crée la commande locale + affiche le formulaire de paiement Stripe */
-    public function store(Request $request)
+    public function store(CheckoutStoreRequest $request)
     {
-        $request->validate([
-            'billing_first_name' => 'required|string|max:100',
-            'billing_last_name'  => 'required|string|max:100',
-            'billing_email'      => 'required|email|max:255',
-            'billing_phone'      => 'nullable|string|max:30',
-            'billing_address_1'  => 'required|string|max:255',
-            'billing_address_2'  => 'nullable|string|max:255',
-            'billing_city'       => 'required|string|max:100',
-            'billing_postcode'   => 'required|string|max:20',
-            'billing_country'    => 'required|string|size:2',
-            'shipping_same'      => 'nullable|boolean',
-            'shipping_first_name'=> 'nullable|string|max:100',
-            'shipping_last_name' => 'nullable|string|max:100',
-            'shipping_address_1' => 'nullable|string|max:255',
-            'shipping_address_2' => 'nullable|string|max:255',
-            'shipping_city'      => 'nullable|string|max:100',
-            'shipping_postcode'  => 'nullable|string|max:20',
-            'shipping_country'   => 'nullable|string|size:2',
-            'customer_note'      => 'nullable|string|max:1000',
-            'shipping_method'    => 'required|in:' . implode(',', array_keys(config('shipping.methods'))),
-            'relay_point_code'   => 'nullable|required_if:shipping_method,boxtal|string|max:100',
-            'relay_point_name'   => 'nullable|string|max:255',
-            'relay_point_address'=> 'nullable|string|max:500',
-            'coupon_code'        => 'nullable|string|max:50',
-            'gift_wrap'          => 'nullable|boolean',
-            'gift_type'          => 'nullable|required_if:gift_wrap,1|in:boite,sac',
-            'gift_message'       => 'nullable|string|max:500',
-        ]);
-
         $items = $this->cart->itemsWithProducts();
 
         if (empty($items)) {
             return redirect()->route('cart.index');
         }
 
-        // Vérifier stock et prix actuels avant de créer la commande
-        $cartUpdated = false;
-        $stockErrors = [];
+        // Vérifier stock et prix actuels
+        $stockCheck = $this->orderService->validateCartStock($items);
 
-        foreach ($items as $key => $item) {
-            $product = $item['product'];
-            if (!$product || !$product->is_active) {
-                $this->cart->remove($key);
-                $stockErrors[] = "{$item['name']} n'est plus disponible.";
-                continue;
-            }
-
-            // Vérifier le prix
-            if (abs($product->currentPrice() - $item['price']) > 0.01) {
-                $this->cart->updatePrice($key, $product->currentPrice());
-                $cartUpdated = true;
-            }
-
-            // Vérifier le stock
-            if ($product->manage_stock && $product->stock_quantity < $item['quantity']) {
-                if ($product->stock_quantity <= 0) {
-                    $this->cart->remove($key);
-                    $stockErrors[] = "{$item['name']} est en rupture de stock.";
-                } else {
-                    $this->cart->update($key, $product->stock_quantity);
-                    $stockErrors[] = "{$item['name']} : quantité réduite à {$product->stock_quantity} (stock insuffisant).";
-                }
-            }
+        if (! empty($stockCheck['errors'])) {
+            return redirect()->route('cart.index')->with('warnings', $stockCheck['errors']);
         }
 
-        if (!empty($stockErrors)) {
-            return redirect()->route('cart.index')
-                ->with('warnings', $stockErrors);
-        }
-
-        if ($cartUpdated) {
+        if ($stockCheck['cartUpdated']) {
             return redirect()->route('cart.index')
                 ->with('warnings', ['Les prix de certains produits ont changé. Veuillez vérifier votre panier.']);
         }
 
         // Recalculer avec les données fraîches
-        $couponCode = $request->input('coupon_code');
-        $items      = $this->cart->itemsWithProducts();
-        $subtotal   = $this->cart->subtotal();
-        $discount   = $this->discount->calculate($items, $subtotal, $couponCode);
+        $items    = $this->cart->itemsWithProducts();
+        $subtotal = $this->cart->subtotal();
+        $discount = $this->discount->calculate($items, $subtotal, $request->input('coupon_code'));
 
         $shippingKey  = $request->shipping_method;
-        $shippingCost = config("shipping.methods.{$shippingKey}.price", 0);
-
-        // Livraison gratuite en point relais à partir du seuil
-        $threshold = config('shipping.free_shipping_threshold');
-        if ($threshold && config("shipping.methods.{$shippingKey}.free_above_threshold") && $subtotal >= $threshold) {
-            $shippingCost = 0;
-        }
+        $shippingCost = $this->orderService->calculateShipping($shippingKey, $subtotal);
         $giftWrap     = $request->boolean('gift_wrap');
         $giftCost     = $giftWrap ? 1.00 : 0;
         $total        = max(0, $subtotal - $discount['amount'] + $shippingCost + $giftCost);
 
-        // Build customer note with relay point info
-        $customerNote = $request->customer_note ?? '';
-        if ($shippingKey === 'boxtal' && $request->relay_point_name) {
-            $relayInfo = "Point relais : {$request->relay_point_name}";
-            if ($request->relay_point_address) {
-                $relayInfo .= " — {$request->relay_point_address}";
-            }
-            $customerNote = $relayInfo . ($customerNote ? "\n\n" . $customerNote : '');
-        }
-
         $shippingSame = $request->boolean('shipping_same', false);
+        $customerNote = $this->orderService->buildCustomerNote(
+            $request->customer_note,
+            $shippingKey,
+            $request->relay_point_name,
+            $request->relay_point_address,
+        );
 
-        $order = Order::create([
+        $order = $this->orderService->createOrder([
             'user_id'              => auth()->id(),
             'status'               => 'pending',
             'billing_first_name'   => $request->billing_first_name,
@@ -221,37 +155,13 @@ class CheckoutController extends Controller
             'shipping_method'      => config("shipping.methods.{$shippingKey}.label"),
             'tax_total'            => 0,
             'total'                => $total,
-            'customer_note'        => $customerNote ?: null,
+            'customer_note'        => $customerNote,
             'gift_wrap'            => $giftWrap,
             'gift_type'            => $giftWrap ? $request->gift_type : null,
             'gift_message'         => $giftWrap ? $request->gift_message : null,
             'currency'             => 'EUR',
             'payment_method'       => 'stripe',
-        ]);
-
-        foreach ($items as $item) {
-            $orderItem = OrderItem::create([
-                'order_id'     => $order->id,
-                'product_id'   => $item['product_id'],
-                'product_name' => $item['name'],
-                'quantity'     => $item['quantity'],
-                'unit_price'   => $item['price'],
-                'addons_price' => $item['addon_price'],
-                'total'        => ($item['price'] + $item['addon_price']) * $item['quantity'],
-                'tax'          => 0,
-            ]);
-
-            if (!empty($item['addons'])) {
-                foreach ($item['addons'] as $addonLabel => $addonValue) {
-                    $orderItem->addons()->create([
-                        'addon_label' => $addonLabel,
-                        'addon_value' => is_array($addonValue) ? implode(', ', $addonValue) : (string) $addonValue,
-                        'addon_price' => 0,
-                        'addon_type'  => 'text',
-                    ]);
-                }
-            }
-        }
+        ], $items);
 
         $paymentIntent = $this->createPaymentIntent($order, $total);
         $order->update(['stripe_payment_intent_id' => $paymentIntent->id]);

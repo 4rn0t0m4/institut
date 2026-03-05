@@ -37,4 +37,31 @@ class Product extends Model
     {
         return $this->sale_price ?? $this->price;
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeInStock($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('manage_stock', false)
+              ->orWhere('stock_quantity', '>', 0);
+        });
+    }
+
+    public function scopeOnSale($query)
+    {
+        return $query->whereNotNull('sale_price');
+    }
+
+    public function scopeVisibleTo($query, ?User $user)
+    {
+        if (! $user?->is_admin) {
+            $query->where('is_active', true);
+        }
+
+        return $query;
+    }
 }

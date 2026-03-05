@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password as PasswordFacade;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
@@ -51,7 +50,7 @@ class AuthController extends Controller
         $user = User::create([
             'name'     => $data['name'],
             'email'    => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => $data['password'],
         ]);
 
         Auth::login($user);
@@ -99,7 +98,7 @@ class AuthController extends Controller
         $status = PasswordFacade::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user, string $password) {
-                $user->forceFill(['password' => Hash::make($password)])->setRememberToken(Str::random(60));
+                $user->forceFill(['password' => $password])->setRememberToken(Str::random(60));
                 $user->save();
                 event(new PasswordReset($user));
             }

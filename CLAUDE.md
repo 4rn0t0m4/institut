@@ -35,7 +35,9 @@ php artisan cache:clear && php artisan view:clear && php artisan route:clear
 
 **Payments**: Stripe Checkout. Webhook at `POST /stripe/webhook` (CSRF-excluded). Config via `config/cashier.php` reading `STRIPE_KEY`, `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`.
 
-**Shipping**: 3 modes (Colissimo 7.90€, Boxtal relay 5€, Pickup free). Boxtal parcel point map widget via `@boxtal/parcel-point-map` loaded from CDN. Config in `config/shipping.php`.
+**Email**: Brevo (Sendinblue) via `symfony/brevo-mailer` transport. Config: `MAIL_MAILER=brevo` + `BREVO_API_KEY`.
+
+**Shipping**: 3 modes (Colissimo 7.90€, Boxtal relay 5€, Pickup free). Free relay shipping above 60€ (`config/shipping.php` → `free_shipping_threshold`). Boxtal parcel point map widget via `@boxtal/parcel-point-map` loaded from CDN.
 
 ### Route groups
 
@@ -47,8 +49,10 @@ php artisan cache:clear && php artisan view:clear && php artisan route:clear
 
 ### Key directories
 
-- `app/Http/Controllers/Admin/` — Admin CRUD controllers (Dashboard, Product, Category, Order, Page)
-- `app/Models/` — 22 Eloquent models. Key: Product, ProductCategory (hierarchical), Order, OrderItem, User
+- `app/Http/Controllers/Admin/` — Admin CRUD controllers (Dashboard, Product, Category, Order, Page, Brand, Discount, Tag, Customer, Setting)
+- `app/Models/` — 24 Eloquent models. Key: Product, ProductCategory (hierarchical), Order, OrderItem, User, DiscountRule, Quiz*, Media, Page, Setting
+- `app/Services/` — CartService (session cart), DiscountEngine (coupon/discount rules), AddonPriceCalculator
+- `app/Mail/` — OrderConfirmation, NewOrderAdmin, OrderShipped, PaymentFailed
 - `resources/views/admin/` — Admin panel views (TailAdmin-based, dark mode, Alpine.js sidebar)
 - `resources/views/layouts/` — Frontend layout
 - `app/Console/Commands/Migrate/` — WP legacy import commands (`migrate:wp-orders`, `migrate:wp-customers`, etc.)
@@ -67,6 +71,30 @@ resources/js/admin.js    → Admin JS (Alpine only, no Turbo)
 - **mysql** (default): Laravel app database (`institut_laravel`)
 - **wp_legacy**: WordPress database (`institut_db`, prefix `mod352_`) for data migration
 
+### Key services
+
+**CartService**: Session-based cart (key `'cart'`). Item uniqueness = `product_id + md5(serialized_addons)`. Always re-validates addon prices against DB on add to prevent frontend price tampering.
+
+**DiscountEngine**: Applies `DiscountRule` records in `sort_order`. Supports coupon codes (case-insensitive), min/max cart value, min/max quantity, category/product targeting, stackable flag, and date ranges.
+
+**AddonPriceCalculator**: Computes addon totals from DB only (never frontend input). Price types: `fixed` or `percentage` (of base product price).
+
+**BoxtalController**: Caches map token for 50 min (token TTL is 1 hour). Auth via base64(`BOXTAL_ACCESS_KEY:BOXTAL_SECRET_KEY`). Networks: Mondial Relay (`MONR_NETWORK`), Chronopost (`CHRP_NETWORK`).
+
+**StripeWebhookController**: Uses `DB::transaction` + `lockForUpdate()` for idempotency on `payment_intent.succeeded` / `payment_intent.payment_failed` events.
+
+### Features
+
+**Quiz system**: Full quiz/survey feature (models: Quiz, QuizQuestion, QuizChoice, QuizAnswer, QuizCompletion, QuizResult). Session-tracked answers, configurable login requirement, point-based result templates, Turbo Frame question navigation.
+
+**Product addons**: Products support configurable add-ons grouped by `ProductAddonFieldGroup`. Addons have `required` flag, `options` array, and `price_type` (fixed or percentage). Addon pricing is always server-side validated.
+
+**Discount rules**: `DiscountRule` supports coupon codes, cart value/quantity conditions, product/category targeting, percentage or fixed amounts, date ranges, and stackable combining.
+
+**Media library**: Centralized `Media` model for all assets (filename, path, url, mime_type, width, height, alt, title).
+
+**Google Analytics**: Spatie analytics package. Credentials at `storage/app/analytics/service-account-credentials.json`. Property ID via `ANALYTICS_PROPERTY_ID` env var.
+
 ## Conventions
 
 - All UI text is in **French**
@@ -74,5 +102,10 @@ resources/js/admin.js    → Admin JS (Alpine only, no Turbo)
 - Prices stored as `decimal:2` in models, displayed with `number_format($price, 2, ',', ' ') €`
 - User model has `'password' => 'hashed'` cast — never use `bcrypt()` when setting password via model (causes double hash)
 - Turbo is active on frontend; forms that need full POST (login, checkout) use `data-turbo="false"`
-- Admin views use `@extends('admin.layouts.app')` with `@section('content')`, frontend uses `<x-layouts.app>` component
+- Admin views use `@extends('admin.layouts.app')` with `@section('content')`, frontend uses `<x-layouts.app>` component (also `<x-layouts.guest>` for auth pages)
 - Product categories are hierarchical (parent_id). ShopController filters include parent + children bidirectionally
+- Products have `is_active` boolean — non-admins see only active products; admins see all (useful for previewing)
+- `Product::currentPrice()` returns `sale_price` if set, otherwise `price`
+- Order numbers auto-generated as `CMD-{uniqid}` on creation
+- CartController and QuizController use Turbo Streams for partial page updates
+- `/api/boxtal/*` and `/stripe/webhook` are public API routes defined in `routes/web.php` (not `routes/api.php`)

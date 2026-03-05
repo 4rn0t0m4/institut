@@ -2,60 +2,49 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductTag;
 use Illuminate\Http\Request;
 
 class ShopController extends Controller
 {
     public function index(Request $request)
     {
-        $categories = ProductCategory::whereNull('parent_id')
+        $categories = ProductCategory::root()
             ->with('children')
             ->orderBy('sort_order')
             ->get();
 
         $query = Product::with(['category', 'featuredImage', 'brand'])
+            ->visibleTo(auth()->user())
             ->orderBy('name');
-
-        if (!auth()->user()?->is_admin) {
-            $query->where('is_active', true);
-        }
 
         // Filtre catégorie (inclut parent + enfants dans les deux sens)
         $currentCategory = null;
         if ($request->filled('categorie')) {
             $currentCategory = ProductCategory::where('slug', $request->categorie)->first();
             if ($currentCategory) {
-                $categoryIds = collect([$currentCategory->id]);
-
-                // Ajouter les sous-catégories
-                $categoryIds = $categoryIds->merge($currentCategory->children->pluck('id'));
-
-                // Ajouter la catégorie parente si c'est une sous-catégorie
-                if ($currentCategory->parent_id) {
-                    $categoryIds->push($currentCategory->parent_id);
-                }
-
-                $query->whereIn('category_id', $categoryIds);
+                $query->whereIn('category_id', $currentCategory->familyIds());
             }
         }
 
         // Filtre marque
-        $brands = \App\Models\Brand::withCount(['products' => fn ($q) => $q->where('is_active', true)])
+        $brands = Brand::withCount(['products' => fn ($q) => $q->active()])
             ->having('products_count', '>', 0)
             ->orderBy('name')
             ->get();
         $currentBrand = null;
         if ($request->filled('marque')) {
-            $currentBrand = \App\Models\Brand::where('slug', $request->marque)->first();
+            $currentBrand = Brand::where('slug', $request->marque)->first();
             if ($currentBrand) {
                 $query->where('brand_id', $currentBrand->id);
             }
         }
 
         // Filtre tags (types de peau) — supporte tags[] (multi) et tag (simple)
-        $tags = \App\Models\ProductTag::withCount(['products' => fn ($q) => $q->where('is_active', true)])
+        $tags = ProductTag::withCount(['products' => fn ($q) => $q->active()])
             ->having('products_count', '>', 0)
             ->orderBy('name')
             ->get();
@@ -65,11 +54,11 @@ class ShopController extends Controller
             $selectedTagSlugs = [$request->tag];
         }
         if (!empty($selectedTagSlugs)) {
-            $selectedTagIds = \App\Models\ProductTag::whereIn('slug', $selectedTagSlugs)->pluck('id');
+            $selectedTagIds = ProductTag::whereIn('slug', $selectedTagSlugs)->pluck('id');
             if ($selectedTagIds->isNotEmpty()) {
                 $query->whereHas('tags', fn ($q) => $q->whereIn('product_tag_id', $selectedTagIds));
             }
-            $currentTag = \App\Models\ProductTag::whereIn('slug', $selectedTagSlugs)->first();
+            $currentTag = ProductTag::whereIn('slug', $selectedTagSlugs)->first();
         }
 
         // Filtre recherche
@@ -93,20 +82,16 @@ class ShopController extends Controller
 
     public function show(string $slug)
     {
-        $query = Product::where('slug', $slug)
-            ->with(['category', 'brand', 'tags', 'addonAssignments.addon.group']);
-
-        if (!auth()->user()?->is_admin) {
-            $query->where('is_active', true);
-        }
-
-        $product = $query->firstOrFail();
+        $product = Product::where('slug', $slug)
+            ->with(['category', 'brand', 'tags', 'addonAssignments.addon.group'])
+            ->visibleTo(auth()->user())
+            ->firstOrFail();
 
         // Produits similaires (même catégorie)
         $related = Product::with('featuredImage')
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
-            ->where('is_active', true)
+            ->active()
             ->limit(4)
             ->get();
 

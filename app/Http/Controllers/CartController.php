@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddToCartRequest;
 use App\Models\Product;
 use App\Services\CartService;
 use Illuminate\Http\Request;
@@ -18,14 +19,8 @@ class CartController extends Controller
         ]);
     }
 
-    public function add(Request $request)
+    public function add(AddToCartRequest $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity'   => 'integer|min:1|max:99',
-            'addons'     => 'array',
-        ]);
-
         $product  = Product::findOrFail($request->product_id);
         $quantity = (int) $request->input('quantity', 1);
         $addons   = $request->input('addons', []);

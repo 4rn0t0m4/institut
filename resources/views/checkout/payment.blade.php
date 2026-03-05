@@ -70,23 +70,26 @@
 <script src="https://js.stripe.com/v3/"></script>
 <script>
 (function() {
-    var config = @json([
-        'stripeKey'    => $stripeKey,
-        'clientSecret' => $clientSecret,
-        'returnUrl'    => route('checkout.success'),
-        'billing'      => [
-            'name'    => trim($order->billing_first_name . ' ' . $order->billing_last_name),
-            'email'   => $order->billing_email,
-            'phone'   => $order->billing_phone ?? '',
-            'address' => [
-                'line1'       => $order->billing_address_1 ?? '',
-                'line2'       => $order->billing_address_2 ?? '',
-                'city'        => $order->billing_city ?? '',
-                'postal_code' => $order->billing_postcode ?? '',
-                'country'     => $order->billing_country ?? 'FR',
+    @php
+        $paymentConfig = [
+            'stripeKey'    => $stripeKey,
+            'clientSecret' => $clientSecret,
+            'returnUrl'    => route('checkout.success'),
+            'billing'      => [
+                'name'    => trim($order->billing_first_name . ' ' . $order->billing_last_name),
+                'email'   => $order->billing_email,
+                'phone'   => $order->billing_phone ?? '',
+                'address' => [
+                    'line1'       => $order->billing_address_1 ?? '',
+                    'line2'       => $order->billing_address_2 ?? '',
+                    'city'        => $order->billing_city ?? '',
+                    'postal_code' => $order->billing_postcode ?? '',
+                    'country'     => $order->billing_country ?? 'FR',
+                ],
             ],
-        ],
-    ]);
+        ];
+    @endphp
+    var config = @json($paymentConfig);
 
     var stripe = Stripe(config.stripeKey);
     var elements = stripe.elements({

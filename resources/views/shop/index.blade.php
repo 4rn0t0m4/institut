@@ -69,10 +69,21 @@
             </form>
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-8">
+        <div class="flex flex-col lg:flex-row gap-8" x-data="{ filtersOpen: false }">
+
+            {{-- Bouton filtres mobile --}}
+            <button @click="filtersOpen = !filtersOpen"
+                    class="lg:hidden flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-lg border border-gray-300 hover:border-gray-400 transition self-start"
+                    style="color: #276e44;">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+                Filtrer
+            </button>
 
             {{-- Sidebar catégories --}}
-            <aside class="lg:w-56 flex-shrink-0" style="position: sticky; top: 100px; align-self: flex-start;">
+            <aside class="lg:w-56 flex-shrink-0" :class="filtersOpen ? 'block' : 'hidden lg:block'" style="position: sticky; top: 100px; align-self: flex-start;"
+                   x-cloak>
                 <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Catégories</p>
                 <ul class="space-y-1 text-sm">
                     <li>
