@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 
 class WpCategories extends WpImportCommand
 {
+    
     protected $signature   = 'migrate:wp-categories';
     protected $description = 'Importe les catégories de produits depuis WordPress';
 
