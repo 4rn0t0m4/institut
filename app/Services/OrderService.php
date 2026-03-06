@@ -55,18 +55,54 @@ class OrderService
     }
 
     /**
-     * Calcule le coût de livraison pour une méthode et un sous-total donnés.
+     * Calcule le coût de livraison pour une méthode, un sous-total et un pays donnés.
      */
-    public function calculateShipping(string $shippingKey, float $subtotal): float
+    public function calculateShipping(string $shippingKey, float $subtotal, string $country = 'FR'): float
     {
-        $cost = (float) config("shipping.methods.{$shippingKey}.price", 0);
-        $threshold = config('shipping.free_shipping_threshold');
+        $zone = $this->getShippingZone($country);
+        $isInternational = $zone !== 'FR';
+
+        $cost = $isInternational
+            ? (float) config("shipping.methods.{$shippingKey}.price_international", config("shipping.methods.{$shippingKey}.price", 0))
+            : (float) config("shipping.methods.{$shippingKey}.price", 0);
+
+        $threshold = config("shipping.zones.{$zone}.free_shipping_threshold");
 
         if ($threshold && config("shipping.methods.{$shippingKey}.free_above_threshold") && $subtotal >= $threshold) {
             $cost = 0;
         }
 
         return $cost;
+    }
+
+    /**
+     * Retourne la clé de zone pour un pays donné.
+     */
+    public function getShippingZone(string $country): string
+    {
+        if ($country === 'FR') {
+            return 'FR';
+        }
+
+        $internationalCountries = config('shipping.zones.international.countries', []);
+
+        if (in_array($country, $internationalCountries)) {
+            return 'international';
+        }
+
+        return 'FR';
+    }
+
+    /**
+     * Retourne les méthodes de livraison disponibles pour un pays donné.
+     */
+    public function availableMethodsForCountry(string $country): array
+    {
+        $zone = $this->getShippingZone($country);
+        $allowedKeys = config("shipping.zones.{$zone}.methods", ['colissimo', 'boxtal', 'pickup']);
+        $allMethods = config('shipping.methods');
+
+        return array_intersect_key($allMethods, array_flip($allowedKeys));
     }
 
     /**

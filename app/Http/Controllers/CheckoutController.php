@@ -31,6 +31,8 @@ class CheckoutController extends Controller
         $subtotal        = $this->cart->subtotal();
         $discount        = $this->discount->calculate($items, $subtotal);
         $shippingMethods = config('shipping.methods');
+        $shippingCountries = config('shipping.countries');
+        $shippingZones = config('shipping.zones');
 
         // Pré-remplir avec les coordonnées du profil ou la dernière commande
         $prefill = [];
@@ -85,9 +87,7 @@ class CheckoutController extends Controller
             }
         }
 
-        $freeShippingThreshold = config('shipping.free_shipping_threshold', 0);
-
-        return view('checkout.index', compact('items', 'subtotal', 'discount', 'shippingMethods', 'prefill', 'freeShippingThreshold'));
+        return view('checkout.index', compact('items', 'subtotal', 'discount', 'shippingMethods', 'shippingCountries', 'shippingZones', 'prefill'));
     }
 
     /** Crée la commande locale + affiche le formulaire de paiement Stripe */
@@ -117,12 +117,13 @@ class CheckoutController extends Controller
         $discount = $this->discount->calculate($items, $subtotal, $request->input('coupon_code'));
 
         $shippingKey  = $request->shipping_method;
-        $shippingCost = $this->orderService->calculateShipping($shippingKey, $subtotal);
+        $shippingSame = $request->boolean('shipping_same', false);
+        $shippingCountry = $shippingSame ? $request->billing_country : ($request->shipping_country ?? $request->billing_country);
+        $shippingCost = $this->orderService->calculateShipping($shippingKey, $subtotal, $shippingCountry);
         $giftWrap     = $request->boolean('gift_wrap');
         $giftCost     = $giftWrap ? 1.00 : 0;
         $total        = max(0, $subtotal - $discount['amount'] + $shippingCost + $giftCost);
 
-        $shippingSame = $request->boolean('shipping_same', false);
         $customerNote = $this->orderService->buildCustomerNote(
             $request->customer_note,
             $shippingKey,

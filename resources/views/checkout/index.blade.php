@@ -7,15 +7,37 @@
           x-data="{
               shippingSame: {{ old('shipping_same', $prefill['shipping_same'] ?? true) ? 'true' : 'false' }},
               shippingMethod: '{{ old('shipping_method', 'colissimo') }}',
+              billingCountry: '{{ old('billing_country', $prefill['billing_country'] ?? 'FR') }}',
+              shippingCountryField: '{{ old('shipping_country', $prefill['shipping_country'] ?? 'FR') }}',
               shippingPrices: @js(collect($shippingMethods)->mapWithKeys(fn($m, $k) => [$k => $m['price']])),
+              shippingPricesIntl: @js(collect($shippingMethods)->mapWithKeys(fn($m, $k) => [$k => $m['price_international'] ?? $m['price']])),
               freeShippingMethods: @js(collect($shippingMethods)->filter(fn($m) => !empty($m['free_above_threshold']))->keys()),
-              freeShippingThreshold: {{ $freeShippingThreshold }},
+              shippingZones: @js($shippingZones),
               subtotal: {{ $subtotal }},
               discountAmount: {{ $discount['amount'] }},
               giftWrap: {{ old('gift_wrap') ? 'true' : 'false' }},
               giftType: '{{ old('gift_type', 'boite') }}',
+
+              get effectiveCountry() {
+                  if (this.shippingMethod === 'pickup') return 'FR';
+                  return (!this.shippingSame && this.shippingCountryField) ? this.shippingCountryField : this.billingCountry;
+              },
+              get currentZone() {
+                  if (this.effectiveCountry === 'FR') return 'FR';
+                  let intl = this.shippingZones.international?.countries || [];
+                  return intl.includes(this.effectiveCountry) ? 'international' : 'FR';
+              },
+              get allowedMethods() {
+                  return this.shippingZones[this.currentZone]?.methods || ['colissimo', 'boxtal', 'pickup'];
+              },
+              get freeShippingThreshold() {
+                  return this.shippingZones[this.currentZone]?.free_shipping_threshold || 0;
+              },
               get shippingCost() {
-                  let price = this.shippingPrices[this.shippingMethod] ?? 0;
+                  let isIntl = this.currentZone !== 'FR';
+                  let price = isIntl
+                      ? (this.shippingPricesIntl[this.shippingMethod] ?? 0)
+                      : (this.shippingPrices[this.shippingMethod] ?? 0);
                   if (this.freeShippingThreshold && this.freeShippingMethods.includes(this.shippingMethod) && this.subtotal >= this.freeShippingThreshold) {
                       price = 0;
                   }
@@ -44,7 +66,7 @@
                               'Content-Type': 'application/json',
                               'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
                           },
-                          body: JSON.stringify({ zipCode: zipCode, city: city, country: 'FR' })
+                          body: JSON.stringify({ zipCode: zipCode, city: city, country: this.effectiveCountry })
                       });
                       const data = await res.json();
                       this.relayPoints = data.points || [];
@@ -75,7 +97,6 @@
               },
 
               autoSearchRelay() {
-                  // Prendre l'adresse de livraison si différente, sinon facturation
                   let zip, city;
                   if (!this.shippingSame) {
                       zip = document.querySelector('[name=shipping_postcode]')?.value;
@@ -90,6 +111,13 @@
                       this.$refs.relayCity.value = city;
                       this.searchRelayPoints(zip, city);
                   }
+              },
+
+              onCountryChange() {
+                  if (!this.allowedMethods.includes(this.shippingMethod)) {
+                      this.shippingMethod = this.allowedMethods[0] || 'boxtal';
+                  }
+                  this.resetRelay();
               }
           }"
           x-effect="if (shippingMethod === 'boxtal' && !relaySearched && !relayLoading) { $nextTick(() => autoSearchRelay()) } else if (shippingMethod !== 'boxtal') { resetRelay() }">
@@ -169,13 +197,13 @@
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Pays *</label>
                             <select name="billing_country"
+                                    x-model="billingCountry"
+                                    @change="if (shippingSame) onCountryChange()"
                                     class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500"
                                     required>
-                                @php $billingCountry = old('billing_country', $prefill['billing_country'] ?? 'FR'); @endphp
-                                <option value="FR" {{ $billingCountry === 'FR' ? 'selected' : '' }}>France</option>
-                                <option value="BE" {{ $billingCountry === 'BE' ? 'selected' : '' }}>Belgique</option>
-                                <option value="CH" {{ $billingCountry === 'CH' ? 'selected' : '' }}>Suisse</option>
-                                <option value="LU" {{ $billingCountry === 'LU' ? 'selected' : '' }}>Luxembourg</option>
+                                @foreach($shippingCountries as $code => $label)
+                                    <option value="{{ $code }}">{{ $label }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -233,13 +261,13 @@
                         </div>
                         <div>
                             <label class="block text-sm text-gray-700 mb-1">Pays</label>
-                            @php $shippingCountry = old('shipping_country', $prefill['shipping_country'] ?? 'FR'); @endphp
                             <select name="shipping_country"
+                                    x-model="shippingCountryField"
+                                    @change="onCountryChange()"
                                     class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-green-500 focus:border-green-500">
-                                <option value="FR" {{ $shippingCountry === 'FR' ? 'selected' : '' }}>France</option>
-                                <option value="BE" {{ $shippingCountry === 'BE' ? 'selected' : '' }}>Belgique</option>
-                                <option value="CH" {{ $shippingCountry === 'CH' ? 'selected' : '' }}>Suisse</option>
-                                <option value="LU" {{ $shippingCountry === 'LU' ? 'selected' : '' }}>Luxembourg</option>
+                                @foreach($shippingCountries as $code => $label)
+                                    <option value="{{ $code }}">{{ $label }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -252,9 +280,17 @@
                     </h2>
                     @error('shipping_method')<p class="text-xs text-red-500 mb-3">{{ $message }}</p>@enderror
 
+                    <div x-show="currentZone !== 'FR'" x-transition
+                         class="mb-3 p-3 text-sm rounded-lg" style="background-color: #f0fdf4; border: 1px solid #b0f1b9; color: #276e44;">
+                        Pour les livraisons hors France, seul le point relais est disponible.
+                        Livraison gratuite à partir de 80,00 €.
+                    </div>
+
                     <div class="space-y-3">
                         @foreach($shippingMethods as $key => $method)
                             <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer transition"
+                                   x-show="allowedMethods.includes('{{ $key }}')"
+                                   x-transition
                                    :class="shippingMethod === '{{ $key }}'
                                        ? 'border-green-600 bg-green-50 ring-1 ring-green-600'
                                        : 'border-gray-200 hover:border-gray-300'">
@@ -271,7 +307,7 @@
                                             <span style="color: #276e44;">Gratuit</span>
                                         </template>
                                         <template x-if="subtotal < freeShippingThreshold">
-                                            <span>{{ number_format($method['price'], 2, ',', ' ') }} €</span>
+                                            <span x-text="currentZone !== 'FR' ? '{{ number_format($method['price_international'] ?? $method['price'], 2, ',', ' ') }} €' : '{{ number_format($method['price'], 2, ',', ' ') }} €'"></span>
                                         </template>
                                     @else
                                         {{ $method['price'] > 0 ? number_format($method['price'], 2, ',', ' ') . ' €' : 'Gratuit' }}

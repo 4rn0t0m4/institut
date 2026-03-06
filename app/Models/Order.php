@@ -1,9 +1,10 @@
 <?php
 namespace App\Models;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
-{
+{    use HasFactory;
     protected $fillable = [
         'user_id','number','status','subtotal','discount_total','shipping_total',
         'tax_total','total','currency','payment_method','stripe_payment_intent_id',

@@ -34,8 +34,8 @@ class ShopController extends Controller
         }
 
         // Filtre marque
-        $brands = Brand::withCount(['products' => fn ($q) => $q->active()])
-            ->having('products_count', '>', 0)
+        $brands = Brand::whereHas('products', fn ($q) => $q->active())
+            ->withCount(['products' => fn ($q) => $q->active()])
             ->orderBy('name')
             ->get();
         $currentBrand = null;
@@ -47,8 +47,8 @@ class ShopController extends Controller
         }
 
         // Filtre tags (types de peau) — supporte tags[] (multi) et tag (simple)
-        $tags = ProductTag::withCount(['products' => fn ($q) => $q->active()])
-            ->having('products_count', '>', 0)
+        $tags = ProductTag::whereHas('products', fn ($q) => $q->active())
+            ->withCount(['products' => fn ($q) => $q->active()])
             ->orderBy('name')
             ->get();
         $currentTag = null;

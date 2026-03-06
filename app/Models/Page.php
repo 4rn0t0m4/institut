@@ -1,9 +1,10 @@
 <?php
 namespace App\Models;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Page extends Model
-{
+{    use HasFactory;
     protected $fillable = [
         'parent_id','title','slug','content','status','template',
         'meta_title','meta_description','featured_image','sort_order','published_at',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Services\OrderService;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CheckoutStoreRequest extends FormRequest
@@ -14,6 +15,7 @@ class CheckoutStoreRequest extends FormRequest
     public function rules(): array
     {
         $shippingKeys = implode(',', array_keys(config('shipping.methods')));
+        $countryKeys = implode(',', array_keys(config('shipping.countries')));
 
         return [
             'billing_first_name'  => 'required|string|max:100',
@@ -24,7 +26,7 @@ class CheckoutStoreRequest extends FormRequest
             'billing_address_2'   => 'nullable|string|max:255',
             'billing_city'        => 'required|string|max:100',
             'billing_postcode'    => 'required|string|max:20',
-            'billing_country'     => 'required|string|size:2',
+            'billing_country'     => 'required|string|in:' . $countryKeys,
             'shipping_same'       => 'nullable|boolean',
             'shipping_first_name' => 'nullable|string|max:100',
             'shipping_last_name'  => 'nullable|string|max:100',
@@ -32,7 +34,7 @@ class CheckoutStoreRequest extends FormRequest
             'shipping_address_2'  => 'nullable|string|max:255',
             'shipping_city'       => 'nullable|string|max:100',
             'shipping_postcode'   => 'nullable|string|max:20',
-            'shipping_country'    => 'nullable|string|size:2',
+            'shipping_country'    => 'nullable|string|in:' . $countryKeys,
             'customer_note'       => 'nullable|string|max:1000',
             'shipping_method'     => 'required|in:' . $shippingKeys,
             'relay_point_code'    => 'nullable|required_if:shipping_method,boxtal|string|max:100',
@@ -43,6 +45,22 @@ class CheckoutStoreRequest extends FormRequest
             'gift_type'           => 'nullable|required_if:gift_wrap,1|in:boite,sac',
             'gift_message'        => 'nullable|string|max:500',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $country = $this->boolean('shipping_same', false)
+                ? $this->billing_country
+                : ($this->shipping_country ?? $this->billing_country);
+
+            $orderService = app(OrderService::class);
+            $allowed = array_keys($orderService->availableMethodsForCountry($country ?? 'FR'));
+
+            if ($this->shipping_method && ! in_array($this->shipping_method, $allowed)) {
+                $validator->errors()->add('shipping_method', 'Ce mode de livraison n\'est pas disponible pour le pays sélectionné.');
+            }
+        });
     }
 
     public function messages(): array

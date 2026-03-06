@@ -1,7 +1,26 @@
 <?php
 
 return [
-    'free_shipping_threshold' => 60.00, // Livraison gratuite en point relais à partir de ce montant
+    // Pays supportés avec leur libellé
+    'countries' => [
+        'FR' => 'France',
+        'BE' => 'Belgique',
+        'ES' => 'Espagne',
+        'IT' => 'Italie',
+    ],
+
+    // Zones de livraison par pays
+    'zones' => [
+        'FR' => [
+            'methods' => ['colissimo', 'boxtal', 'pickup'],
+            'free_shipping_threshold' => 60.00,
+        ],
+        'international' => [
+            'methods' => ['boxtal'],
+            'free_shipping_threshold' => 80.00,
+            'countries' => ['BE', 'ES', 'IT'],
+        ],
+    ],
 
     'methods' => [
         'colissimo' => [
@@ -12,12 +31,16 @@ return [
             'label' => 'Livraison en point relais (Mondial Relay et Chronopost)',
             'price' => 5.00,
             'free_above_threshold' => true,
+            'price_international' => 5.90,
         ],
         'pickup' => [
             'label' => 'Retrait à l\'institut',
             'price' => 0.00,
         ],
     ],
+
+    // Legacy key kept for backward compat
+    'free_shipping_threshold' => 60.00,
 
     'boxtal' => [
         'access_key'     => env('BOXTAL_ACCESS_KEY'),

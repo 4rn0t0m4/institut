@@ -96,7 +96,11 @@ class QuizController extends Controller
     private function resolveNextQuestion(Quiz $quiz, QuizQuestion $current, $choice): ?QuizQuestion
     {
         // Branchement via goto sur le choix
-        if ($choice && $choice->goto) {
+        if ($choice && $choice->goto && $choice->goto !== 'next') {
+            if ($choice->goto === 'end') {
+                return null;
+            }
+
             return QuizQuestion::where('quiz_id', $quiz->id)
                 ->where('id', $choice->goto)
                 ->first();
