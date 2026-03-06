@@ -40,7 +40,7 @@
         </div>
 
         <p style="text-align: center; margin: 28px 0;">
-            <a href="{{ route('shop.show', $product->slug) }}" class="btn">Voir le produit</a>
+            <a href="{{ $product->url() }}" class="btn">Voir le produit</a>
         </p>
 
         <p style="font-size: 13px; color: #6b7280;">

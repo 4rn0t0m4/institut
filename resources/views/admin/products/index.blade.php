@@ -131,7 +131,7 @@
                             </td>
                             <td class="px-5 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    <a href="{{ route('shop.show', $product->slug) }}" target="_blank"
+                                    <a href="{{ $product->url() }}" target="_blank"
                                         class="text-gray-500 hover:text-brand-500 dark:text-gray-400" title="Voir sur le site">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>

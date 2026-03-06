@@ -21,9 +21,10 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Boutique
 Route::get('/boutique', [ShopController::class, 'index'])->name('shop.index');
-Route::get('/boutique/{slug}', [ShopController::class, 'show'])->name('shop.show');
 Route::post('/boutique/{product}/alerte-stock', [ShopController::class, 'stockNotify'])->name('shop.stock-notify');
 Route::post('/boutique/{product}/avis', [ShopController::class, 'storeReview'])->name('shop.review.store');
+Route::get('/boutique/{parent}/{child}/{product}', [ShopController::class, 'show'])->name('shop.show');
+Route::get('/boutique/{parent}/{child?}', [ShopController::class, 'categoryOrProduct'])->name('shop.category');
 
 // Panier
 Route::get('/panier', [CartController::class, 'index'])->name('cart.index');

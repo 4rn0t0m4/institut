@@ -16,7 +16,7 @@
         <div class="max-h-64 overflow-y-auto space-y-3 mb-3">
             @foreach($items as $item)
                 <div class="flex items-center gap-3">
-                    <a href="{{ route('shop.show', $item['slug']) }}" class="w-10 h-10 rounded flex-shrink-0 overflow-hidden bg-gray-100">
+                    <a href="{{ $item['url'] }}" class="w-10 h-10 rounded flex-shrink-0 overflow-hidden bg-gray-100">
                         @if(!empty($item['image']))
                             <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover">
                         @else

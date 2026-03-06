@@ -106,12 +106,21 @@ class WpProducts extends WpImportCommand
             ->pluck('tt.term_id')
             ->all();
 
+        // Privilégier la sous-catégorie (enfant) plutôt que la catégorie parente
+        $childId = null;
+        $parentId = null;
+
         foreach ($termIds as $termId) {
             if (isset($wpCatToLaravel[$termId])) {
-                return $wpCatToLaravel[$termId];
+                $cat = ProductCategory::find($wpCatToLaravel[$termId]);
+                if ($cat && $cat->parent_id) {
+                    $childId = $cat->id;
+                } elseif ($cat) {
+                    $parentId = $cat->id;
+                }
             }
         }
 
-        return null;
+        return $childId ?? $parentId;
     }
 }

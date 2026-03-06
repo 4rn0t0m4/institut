@@ -29,10 +29,10 @@ $breadcrumbItems = [
 ];
 $pos = 2;
 if ($product->category?->parent) {
-    $breadcrumbItems[] = ['@type' => 'ListItem', 'position' => $pos++, 'name' => $product->category->parent->name, 'item' => route('shop.index', ['categorie' => $product->category->parent->slug])];
+    $breadcrumbItems[] = ['@type' => 'ListItem', 'position' => $pos++, 'name' => $product->category->parent->name, 'item' => $product->category->parent->url()];
 }
 if ($product->category) {
-    $breadcrumbItems[] = ['@type' => 'ListItem', 'position' => $pos++, 'name' => $product->category->name, 'item' => route('shop.index', ['categorie' => $product->category->slug])];
+    $breadcrumbItems[] = ['@type' => 'ListItem', 'position' => $pos++, 'name' => $product->category->name, 'item' => $product->category->url()];
 }
 $breadcrumbItems[] = ['@type' => 'ListItem', 'position' => $pos, 'name' => $product->name];
 $breadcrumbJsonLd = json_encode([
@@ -59,11 +59,11 @@ $breadcrumbJsonLd = json_encode([
         @if($product->category)
             @if($product->category->parent)
                 <span>/</span>
-                <a href="{{ route('shop.index', ['categorie' => $product->category->parent->slug]) }}"
+                <a href="{{ $product->category->parent->url() }}"
                    class="hover:underline">{{ $product->category->parent->name }}</a>
             @endif
             <span>/</span>
-            <a href="{{ route('shop.index', ['categorie' => $product->category->slug]) }}"
+            <a href="{{ $product->category->url() }}"
                class="hover:underline">{{ $product->category->name }}</a>
         @endif
         <span>/</span>

@@ -28,6 +28,16 @@ class ShopTest extends TestCase
         $response->assertDontSee('Crème Cachée');
     }
 
+    public function test_old_categorie_param_redirects_to_new_url(): void
+    {
+        $cat = ProductCategory::factory()->create(['slug' => 'soins-visage']);
+
+        $response = $this->get(route('shop.index', ['categorie' => 'soins-visage']));
+
+        $response->assertRedirect($cat->url());
+        $response->assertStatus(301);
+    }
+
     public function test_shop_filters_by_category(): void
     {
         $cat = ProductCategory::factory()->create(['slug' => 'soins-visage']);
@@ -36,7 +46,7 @@ class ShopTest extends TestCase
         Product::factory()->create(['name' => 'Sérum Visage', 'category_id' => $cat->id]);
         Product::factory()->create(['name' => 'Huile Massage', 'category_id' => $catOther->id]);
 
-        $response = $this->get(route('shop.index', ['categorie' => 'soins-visage']));
+        $response = $this->get($cat->url());
 
         $response->assertSee('Sérum Visage');
         $response->assertDontSee('Huile Massage');
@@ -68,9 +78,11 @@ class ShopTest extends TestCase
 
     public function test_product_detail_page_loads(): void
     {
-        $product = Product::factory()->create();
+        $parent = ProductCategory::factory()->create(['slug' => 'soins']);
+        $child = ProductCategory::factory()->create(['slug' => 'cremes', 'parent_id' => $parent->id]);
+        $product = Product::factory()->create(['category_id' => $child->id]);
 
-        $response = $this->get(route('shop.show', $product->slug));
+        $response = $this->get($product->url());
 
         $response->assertStatus(200);
         $response->assertSee($product->name);
@@ -78,9 +90,11 @@ class ShopTest extends TestCase
 
     public function test_inactive_product_returns_404_for_guest(): void
     {
-        $product = Product::factory()->create(['is_active' => false]);
+        $parent = ProductCategory::factory()->create(['slug' => 'soins2']);
+        $child = ProductCategory::factory()->create(['slug' => 'cremes2', 'parent_id' => $parent->id]);
+        $product = Product::factory()->create(['is_active' => false, 'category_id' => $child->id]);
 
-        $this->get(route('shop.show', $product->slug))->assertStatus(404);
+        $this->get($product->url())->assertStatus(404);
     }
 
     public function test_category_includes_children(): void
@@ -90,7 +104,7 @@ class ShopTest extends TestCase
 
         Product::factory()->create(['name' => 'Bracelet Or', 'category_id' => $child->id]);
 
-        $response = $this->get(route('shop.index', ['categorie' => 'bijoux']));
+        $response = $this->get($parent->url());
 
         $response->assertSee('Bracelet Or');
     }

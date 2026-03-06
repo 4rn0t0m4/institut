@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\ProductReview;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -102,7 +103,9 @@ class ReviewTest extends TestCase
 
     public function test_only_approved_reviews_shown_on_product_page(): void
     {
-        $product = Product::factory()->create();
+        $parent = ProductCategory::factory()->create(['slug' => 'soins']);
+        $child = ProductCategory::factory()->create(['slug' => 'cremes', 'parent_id' => $parent->id]);
+        $product = Product::factory()->create(['category_id' => $child->id]);
         ProductReview::factory()->approved()->create([
             'product_id'  => $product->id,
             'author_name' => 'Approuvé',
@@ -112,7 +115,7 @@ class ReviewTest extends TestCase
             'author_name' => 'En attente',
         ]);
 
-        $response = $this->get(route('shop.show', $product->slug));
+        $response = $this->get($product->url());
 
         $response->assertSee('Approuvé');
         $response->assertDontSee('En attente');

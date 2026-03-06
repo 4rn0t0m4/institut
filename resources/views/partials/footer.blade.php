@@ -35,9 +35,9 @@
                 <p class="font-semibold mb-3">Boutique</p>
                 <ul class="space-y-1.5" style="color: #60916a;">
                     <li><a href="{{ route('shop.index') }}" class="hover:opacity-70 transition-opacity">Tous les produits</a></li>
-                    <li><a href="{{ route('shop.index', ['categorie' => 'produits-visage']) }}" class="hover:opacity-70 transition-opacity">Produits Visage</a></li>
-                    <li><a href="{{ route('shop.index', ['categorie' => 'produits-corps']) }}" class="hover:opacity-70 transition-opacity">Produits Corps</a></li>
-                    <li><a href="{{ route('shop.index', ['categorie' => 'coffrets-cadeaux']) }}" class="hover:opacity-70 transition-opacity">Coffrets Cadeaux</a></li>
+                    <li><a href="{{ url('boutique/produits-visage') }}" class="hover:opacity-70 transition-opacity">Produits Visage</a></li>
+                    <li><a href="{{ url('boutique/produits-corps') }}" class="hover:opacity-70 transition-opacity">Produits Corps</a></li>
+                    <li><a href="{{ url('boutique/coffrets-cadeaux') }}" class="hover:opacity-70 transition-opacity">Coffrets Cadeaux</a></li>
                     <li><a href="{{ route('quiz.show', 'type-de-peau') }}" class="hover:opacity-70 transition-opacity">Quiz Type de Peau</a></li>
                 </ul>
             </div>

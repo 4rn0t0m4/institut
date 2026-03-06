@@ -14,7 +14,7 @@ class CartController extends Controller
     public function index()
     {
         return view('cart.index', [
-            'items'    => $this->cart->all(),
+            'items'    => $this->cart->itemsWithProducts(),
             'subtotal' => $this->cart->subtotal(),
         ]);
     }
@@ -22,7 +22,7 @@ class CartController extends Controller
     public function miniCart()
     {
         return view('cart.partials.mini-cart', [
-            'items'    => $this->cart->all(),
+            'items'    => $this->cart->itemsWithProducts(),
             'subtotal' => $this->cart->subtotal(),
             'count'    => $this->cart->count(),
         ]);

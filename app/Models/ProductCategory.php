@@ -23,4 +23,13 @@ class ProductCategory extends Model
     {
         return collect([$this->id])->merge($this->children->pluck('id'));
     }
+
+    public function url(): string
+    {
+        if ($this->parent) {
+            return url("boutique/{$this->parent->slug}/{$this->slug}");
+        }
+
+        return url("boutique/{$this->slug}");
+    }
 }

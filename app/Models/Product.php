@@ -69,4 +69,20 @@ class Product extends Model
 
         return $query;
     }
+
+    public function url(): string
+    {
+        $category = $this->relationLoaded('category') ? $this->category : $this->category()->with('parent')->first();
+
+        if ($category && $category->parent_id) {
+            $parent = $category->relationLoaded('parent') ? $category->parent : $category->parent()->first();
+            return url("boutique/{$parent->slug}/{$category->slug}/{$this->slug}");
+        }
+
+        if ($category) {
+            return url("boutique/{$category->slug}/{$this->slug}");
+        }
+
+        return url("boutique/{$this->slug}");
+    }
 }

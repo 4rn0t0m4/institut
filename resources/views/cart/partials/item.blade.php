@@ -3,7 +3,7 @@
      class="flex items-start gap-4 bg-white border border-gray-100 rounded-lg p-4">
 
     {{-- Image produit --}}
-    <a href="{{ route('shop.show', $item['slug']) }}" class="w-16 h-16 rounded flex-shrink-0 overflow-hidden bg-gray-100">
+    <a href="{{ $item['url'] }}" class="w-16 h-16 rounded flex-shrink-0 overflow-hidden bg-gray-100">
         @if(!empty($item['image']))
             <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover">
         @else

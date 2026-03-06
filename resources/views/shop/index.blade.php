@@ -25,11 +25,8 @@
                 @else Boutique
                 @endif
             </h1>
-            <form action="{{ route('shop.index') }}" method="GET" class="flex flex-wrap items-center gap-2"
+            <form action="{{ $currentCategory ? $currentCategory->url() : route('shop.index') }}" method="GET" class="flex flex-wrap items-center gap-2"
                   x-data="{ tagOpen: false }" @click.outside="tagOpen = false">
-                @if($currentCategory)
-                    <input type="hidden" name="categorie" value="{{ $currentCategory->slug }}">
-                @endif
                 @if($currentBrand)
                     <input type="hidden" name="marque" value="{{ $currentBrand->slug }}">
                 @endif
@@ -94,7 +91,7 @@
                     </li>
                     @foreach($categories as $cat)
                         <li>
-                            <a href="{{ route('shop.index', ['categorie' => $cat->slug]) }}"
+                            <a href="{{ $cat->url() }}"
                                class="block px-2 py-1 rounded {{ $currentCategory?->id === $cat->id ? 'bg-green-50 text-green-700 font-medium' : 'text-gray-700 hover:text-green-700' }}">
                                 {{ $cat->name }}
                             </a>
@@ -102,7 +99,7 @@
                                 <ul class="ml-3 mt-1 space-y-1">
                                     @foreach($cat->children as $child)
                                         <li>
-                                            <a href="{{ route('shop.index', ['categorie' => $child->slug]) }}"
+                                            <a href="{{ $child->url() }}"
                                                class="block px-2 py-1 rounded text-xs {{ $currentCategory?->id === $child->id ? 'text-green-700 font-medium' : 'text-gray-500 hover:text-green-700' }}">
                                                 {{ $child->name }}
                                             </a>
@@ -118,14 +115,14 @@
                     <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3 mt-6">Marques</p>
                     <ul class="space-y-1 text-sm">
                         <li>
-                            <a href="{{ route('shop.index', request()->only('categorie', 'q')) }}"
+                            <a href="{{ $currentCategory ? $currentCategory->url() : route('shop.index') }}"
                                class="block px-2 py-1 rounded {{ !$currentBrand ? 'bg-green-50 text-green-700 font-medium' : 'text-gray-700 hover:text-green-700' }}">
                                 Toutes les marques
                             </a>
                         </li>
                         @foreach($brands as $brand)
                             <li>
-                                <a href="{{ route('shop.index', array_merge(request()->only('categorie', 'q'), ['marque' => $brand->slug])) }}"
+                                <a href="{{ ($currentCategory ? $currentCategory->url() : route('shop.index')) . '?marque=' . $brand->slug }}"
                                    class="block px-2 py-1 rounded {{ $currentBrand?->id === $brand->id ? 'bg-green-50 text-green-700 font-medium' : 'text-gray-700 hover:text-green-700' }}">
                                     {{ $brand->name }} <span class="text-gray-400 text-xs">({{ $brand->products_count }})</span>
                                 </a>
@@ -136,8 +133,7 @@
 
                 @if($tags->isNotEmpty())
                     <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3 mt-6">Type de peau</p>
-                    <form method="GET" action="{{ route('shop.index') }}" class="space-y-1 text-sm">
-                        @if($currentCategory)<input type="hidden" name="categorie" value="{{ $currentCategory->slug }}">@endif
+                    <form method="GET" action="{{ $currentCategory ? $currentCategory->url() : route('shop.index') }}" class="space-y-1 text-sm">
                         @if($currentBrand)<input type="hidden" name="marque" value="{{ $currentBrand->slug }}">@endif
                         @if(request('q'))<input type="hidden" name="q" value="{{ request('q') }}">@endif
                         @foreach($tags as $tag)

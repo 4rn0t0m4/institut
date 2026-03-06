@@ -241,7 +241,7 @@
                 {{-- Catégories avec sous-catégories --}}
                 @foreach($boutiqueCategories as $cat)
                     <div>
-                        <a href="{{ route('shop.index', ['categorie' => $cat->slug]) }}"
+                        <a href="{{ $cat->url() }}"
                            class="text-xs font-bold uppercase tracking-wider hover:opacity-70 transition-opacity"
                            style="color: #276e44; letter-spacing: 0.1em;">
                             {{ $cat->name }}
@@ -250,7 +250,7 @@
                             <ul class="mt-4" style="display: flex; flex-direction: column; gap: 0.5rem;">
                                 @foreach($cat->children as $sub)
                                     <li>
-                                        <a href="{{ route('shop.index', ['categorie' => $sub->slug]) }}"
+                                        <a href="{{ $sub->url() }}"
                                            class="text-sm hover:opacity-70 transition-opacity"
                                            style="color: #60916a;">
                                             {{ $sub->name }}
@@ -265,7 +265,7 @@
                 {{-- Encart produit mis en avant --}}
                 @if($featuredProduct)
                     <div style="background: linear-gradient(135deg, #e8fae8 0%, #f0fdf4 100%); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column;">
-                        <a href="{{ route('shop.show', $featuredProduct->slug) }}" class="block" style="flex: 1;">
+                        <a href="{{ $featuredProduct->url() }}" class="block" style="flex: 1;">
                             @if($featuredProduct->featuredImage)
                                 <img src="{{ $featuredProduct->featuredImage->url }}"
                                      alt="{{ $featuredProduct->name }}"
@@ -344,13 +344,13 @@
                     Tous les produits
                 </a>
                 @foreach($boutiqueCategories as $cat)
-                    <a href="{{ route('shop.index', ['categorie' => $cat->slug]) }}"
+                    <a href="{{ $cat->url() }}"
                        class="block py-2 text-sm font-medium"
                        style="color: #276e44;">
                         {{ $cat->name }}
                     </a>
                     @foreach($cat->children as $sub)
-                        <a href="{{ route('shop.index', ['categorie' => $sub->slug]) }}"
+                        <a href="{{ $sub->url() }}"
                            class="block py-1.5 pl-4 text-sm"
                            style="color: #60916a;">
                             {{ $sub->name }}

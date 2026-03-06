@@ -28,7 +28,7 @@
     {{-- Produits --}}
     @foreach($products as $product)
     <url>
-        <loc>{{ route('shop.show', $product->slug) }}</loc>
+        <loc>{{ $product->url() }}</loc>
         <lastmod>{{ $product->updated_at->toW3cString() }}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
