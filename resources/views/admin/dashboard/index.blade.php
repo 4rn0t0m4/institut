@@ -234,15 +234,16 @@
                     <tbody>
                         @forelse ($recentOrders as $order)
                             <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0">
-                                <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                                    <a href="{{ route('admin.orders.show', $order) }}" class="text-brand-500 hover:underline">#{{ $order->id }}</a>
+                                <td class="px-5 py-4">
+                                    <a href="{{ route('admin.orders.show', $order) }}" class="text-sm font-medium text-brand-500 hover:underline">{{ $order->number }}</a>
                                 </td>
-                                <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                                    @if($order->user)
-                                        <a href="{{ route('admin.customers.show', $order->user) }}" class="text-brand-500 hover:underline">{{ $order->user->name }}</a>
+                                <td class="px-5 py-4">
+                                    @if($order->user_id)
+                                        <a href="{{ route('admin.customers.show', $order->user_id) }}" class="text-sm font-medium text-gray-700 hover:underline dark:text-gray-300">{{ $order->billing_first_name }} {{ $order->billing_last_name }}</a>
                                     @else
-                                        <a href="{{ route('admin.orders.show', $order) }}" class="text-brand-500 hover:underline">{{ trim($order->billing_first_name . ' ' . $order->billing_last_name) ?: 'Invité' }}</a>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">{{ $order->billing_first_name }} {{ $order->billing_last_name }}</div>
                                     @endif
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ $order->billing_email }}</div>
                                 </td>
                                 <td class="px-5 py-4">
                                     <x-admin.badge :status="$order->status" />

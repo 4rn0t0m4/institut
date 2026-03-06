@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\OrderShipped;
 use App\Models\Order;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -29,7 +30,17 @@ class OrderController extends Controller
 
         $orders = $query->paginate(20)->withQueryString();
 
-        return view('admin.orders.index', compact('orders'));
+        $paid = Order::whereIn('status', ['processing', 'completed']);
+        $metrics = [
+            'total_orders'    => $paid->count(),
+            'revenue'         => $paid->sum('total'),
+            'items_sold'      => OrderItem::whereHas('order', fn ($q) => $q->whereIn('status', ['processing', 'completed']))->sum('quantity'),
+            'average_order'   => $paid->count() > 0 ? $paid->avg('total') : 0,
+            'pending'         => Order::where('status', 'pending')->count(),
+            'processing'      => Order::where('status', 'processing')->count(),
+        ];
+
+        return view('admin.orders.index', compact('orders', 'metrics'));
     }
 
     public function show(Order $order)

@@ -46,7 +46,7 @@
         'w-[290px]': $store.sidebar.isExpanded || $store.sidebar.isMobileOpen || $store.sidebar.isHovered,
         'w-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
         'translate-x-0': $store.sidebar.isMobileOpen,
-        '-translate-x-full xl:translate-x-0': !$store.sidebar.isMobileOpen
+        '-translate-x-full lg:translate-x-0': !$store.sidebar.isMobileOpen
     }"
     @mouseenter="if (!$store.sidebar.isExpanded) $store.sidebar.setHovered(true)"
     @mouseleave="$store.sidebar.setHovered(false)">
@@ -54,7 +54,7 @@
     {{-- Logo --}}
     <div class="pt-8 pb-7 flex"
         :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen)
-            ? 'xl:justify-center' : 'justify-start'">
+            ? 'lg:justify-center' : 'justify-start'">
         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2">
             <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                 class="text-xl font-bold text-gray-900 dark:text-white">
@@ -95,7 +95,7 @@
                                             class="menu-item group w-full"
                                             :class="[
                                                 isSubmenuOpen({{ $groupIndex }}, {{ $itemIndex }}) ? 'menu-item-active' : 'menu-item-inactive',
-                                                !$store.sidebar.isExpanded && !$store.sidebar.isHovered ? 'xl:justify-center' : 'xl:justify-start'
+                                                !$store.sidebar.isExpanded && !$store.sidebar.isHovered ? 'lg:justify-center' : 'xl:justify-start'
                                             ]">
                                             <span :class="isSubmenuOpen({{ $groupIndex }}, {{ $itemIndex }}) ? 'menu-item-icon-active' : 'menu-item-icon-inactive'">
                                                 {!! AdminMenuHelper::getIconSvg($item['icon']) !!}
@@ -131,7 +131,7 @@
                                             :class="[
                                                 isActive('{{ $item['path'] }}') ? 'menu-item-active' : 'menu-item-inactive',
                                                 (!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen)
-                                                    ? 'xl:justify-center' : 'justify-start'
+                                                    ? 'lg:justify-center' : 'justify-start'
                                             ]">
                                             <span :class="isActive('{{ $item['path'] }}') ? 'menu-item-icon-active' : 'menu-item-icon-inactive'">
                                                 {!! AdminMenuHelper::getIconSvg($item['icon']) !!}

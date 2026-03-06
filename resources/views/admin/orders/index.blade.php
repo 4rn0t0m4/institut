@@ -3,6 +3,34 @@
 @section('content')
     <x-admin.page-breadcrumb title="Commandes" :breadcrumbs="['Commandes' => null]" />
 
+    {{-- Metric cards --}}
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6 mb-6">
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Commandes</span>
+            <p class="mt-1 text-xl font-bold text-gray-800 dark:text-white/90">{{ number_format($metrics['total_orders']) }}</p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Chiffre d'affaires</span>
+            <p class="mt-1 text-xl font-bold text-gray-800 dark:text-white/90">{{ number_format($metrics['revenue'], 2, ',', ' ') }} &euro;</p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Produits vendus</span>
+            <p class="mt-1 text-xl font-bold text-gray-800 dark:text-white/90">{{ number_format($metrics['items_sold']) }}</p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Panier moyen</span>
+            <p class="mt-1 text-xl font-bold text-gray-800 dark:text-white/90">{{ number_format($metrics['average_order'], 2, ',', ' ') }} &euro;</p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+            <span class="text-xs text-gray-500 dark:text-gray-400">Non réglées</span>
+            <p class="mt-1 text-xl font-bold text-orange-500">{{ $metrics['pending'] }}</p>
+        </div>
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+            <span class="text-xs text-gray-500 dark:text-gray-400">En cours</span>
+            <p class="mt-1 text-xl font-bold text-brand-500">{{ $metrics['processing'] }}</p>
+        </div>
+    </div>
+
     <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         {{-- Filters --}}
         <div class="flex flex-col gap-4 px-5 py-4 border-b border-gray-200 dark:border-gray-800 md:px-6 sm:flex-row sm:items-center">

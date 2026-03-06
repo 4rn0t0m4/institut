@@ -38,7 +38,7 @@
             });
 
             Alpine.store('sidebar', {
-                isExpanded: window.innerWidth >= 1280,
+                isExpanded: window.innerWidth >= 1024,
                 isMobileOpen: false,
                 isHovered: false,
                 toggleExpanded() {
@@ -52,7 +52,7 @@
                     this.isMobileOpen = val;
                 },
                 setHovered(val) {
-                    if (window.innerWidth >= 1280 && !this.isExpanded) {
+                    if (window.innerWidth >= 1024 && !this.isExpanded) {
                         this.isHovered = val;
                     }
                 }
@@ -73,9 +73,9 @@
 
 <body
     x-data
-    x-init="$store.sidebar.isExpanded = window.innerWidth >= 1280;
+    x-init="$store.sidebar.isExpanded = window.innerWidth >= 1024;
         window.addEventListener('resize', () => {
-            if (window.innerWidth < 1280) {
+            if (window.innerWidth < 1024) {
                 $store.sidebar.setMobileOpen(false);
                 $store.sidebar.isExpanded = false;
             } else {
@@ -84,14 +84,14 @@
             }
         });">
 
-    <div class="min-h-screen xl:flex">
+    <div class="min-h-screen lg:flex">
         @include('admin.layouts.backdrop')
         @include('admin.layouts.sidebar')
 
         <div class="flex-1 transition-all duration-300 ease-in-out"
             :class="{
-                'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
-                'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
+                'lg:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
+                'lg:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
                 'ml-0': $store.sidebar.isMobileOpen
             }">
             @include('admin.layouts.header')

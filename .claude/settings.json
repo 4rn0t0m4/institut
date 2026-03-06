@@ -2,7 +2,39 @@
   "permissions": {
     "allow": [
       "Bash(git add app/Http/Controllers/Admin/ProductController.php app/Http/Controllers/ShopController.php app/Models/Product.php app/Models/StockNotification.php app/Providers/EventServiceProvider.php app/Observers/ProductObserver.php app/Mail/BackInStock.php database/migrations/2026_03_05_213229_create_stock_notifications_table.php resources/views/admin/products/_form.blade.php resources/views/shop/show.blade.php resources/views/emails/back-in-stock.blade.php routes/web.php)",
-      "Bash(php artisan tinker --execute=\"DB::connection\\(''wp_legacy''\\)->select\\(\"\"SELECT option_name, option_value FROM mod352_options WHERE option_name LIKE ''%shipping%'' OR option_name LIKE ''%woocommerce_flat%'' OR option_name LIKE ''%woocommerce_free%'' OR option_name LIKE ''%woocommerce_local%'' LIMIT 30\"\"\\)\")"
+      "Bash(php artisan tinker --execute=\"DB::connection\\(''wp_legacy''\\)->select\\(\"\"SELECT option_name, option_value FROM mod352_options WHERE option_name LIKE ''%shipping%'' OR option_name LIKE ''%woocommerce_flat%'' OR option_name LIKE ''%woocommerce_free%'' OR option_name LIKE ''%woocommerce_local%'' LIMIT 30\"\"\\)\")",
+      "Bash(mysqldump -u root institut_db)",
+      "Bash(mysql -u root -e \"SELECT COUNT\\(*\\) as total FROM mod352_posts;\" institut_db)",
+      "Bash(mysql -u root -e \"SHOW DATABASES;\")",
+      "Bash(mysql -u root -e \"SELECT COUNT\\(*\\) as total FROM mod352_posts;\" institut_legacy)",
+      "Bash(php artisan list)",
+      "Bash(php artisan migrate:fresh)",
+      "Bash(php artisan migrate:wp-products)",
+      "Bash(php artisan migrate:wp-customers)",
+      "Bash(php artisan migrate:wp-orders)",
+      "Bash(php artisan migrate:wp-pages)",
+      "Bash(php artisan migrate:wp-quizzes)",
+      "Bash(php artisan migrate:wp-discounts)",
+      "Bash(php artisan migrate:wp-menus)",
+      "Bash(mysqldump -u root --set-gtid-purged=OFF --single-transaction institut_db)",
+      "Bash(mysql -u root institut_db -e \"SELECT id, parent_id, name, slug FROM product_categories WHERE slug = ''cremes-visage'' OR parent_id IN \\(SELECT id FROM product_categories WHERE slug = ''cremes-visage''\\);\")",
+      "Bash(mysql -u root institut_db -e \"SELECT id, parent_id, name, slug FROM product_categories ORDER BY parent_id, sort_order;\")",
+      "Bash(mysql -u root institut_db -e \"SELECT COUNT\\(*\\) as total FROM products WHERE category_id = 8;\")",
+      "Bash(mysql -u root institut_db -e \"SELECT category_id, COUNT\\(*\\) as total FROM products GROUP BY category_id ORDER BY total DESC;\")",
+      "Bash(mysql -u root institut_legacy -e \":*)",
+      "Bash(mysql -u root institut_db -e \"SELECT pc.name, pc.slug, pc.parent_id, COUNT\\(p.id\\) as products FROM product_categories pc LEFT JOIN products p ON p.category_id = pc.id GROUP BY pc.id ORDER BY pc.parent_id, pc.sort_order;\")",
+      "Bash(php artisan tinker --execute=\":*)",
+      "Bash(grep -v \"route\\(''shop\\\\.show'', $product->slug\\)\")",
+      "Bash(grep -v \"route\\(''shop\\\\.show'', $featuredProduct->slug\\)\")",
+      "Bash(sed -i '' \"s|{{ route\\(''shop\\\\.index'', \\\\[''categorie'' => $cat->slug\\\\]\\) }}|{{ $cat->url\\(\\) }}|g\" resources/views/shop/index.blade.php resources/views/partials/header.blade.php resources/views/partials/footer.blade.php)",
+      "Bash(sed -i '' \"s|{{ route\\(''shop\\\\.index'', \\\\[''categorie'' => $child->slug\\\\]\\) }}|{{ $child->url\\(\\) }}|g\" resources/views/shop/index.blade.php)",
+      "Bash(sed -i '' \"s|{{ route\\(''shop\\\\.index'', \\\\[''categorie'' => $sub->slug\\\\]\\) }}|{{ $sub->url\\(\\) }}|g\" resources/views/partials/header.blade.php)",
+      "Bash(git rm --cached -r .DS_Store)",
+      "Bash(git rm --cached -r '**/.DS_Store')",
+      "Bash(git add .gitignore app/Console/Commands/Migrate/WpProducts.php app/Http/Controllers/CartController.php app/Http/Controllers/ShopController.php app/Models/Product.php app/Models/ProductCategory.php app/Services/CartService.php resources/views/admin/products/index.blade.php resources/views/cart/partials/item.blade.php resources/views/cart/partials/mini-cart.blade.php resources/views/components/product-card.blade.php resources/views/emails/back-in-stock.blade.php resources/views/partials/footer.blade.php resources/views/partials/header.blade.php resources/views/shop/index.blade.php resources/views/shop/show.blade.php resources/views/sitemap.blade.php routes/web.php tests/Feature/ReviewTest.php tests/Feature/ShopTest.php .DS_Store)",
+      "Bash(git add .gitignore app/Console/Commands/Migrate/WpProducts.php app/Http/Controllers/CartController.php app/Http/Controllers/ShopController.php app/Models/Product.php app/Models/ProductCategory.php app/Services/CartService.php resources/views/admin/products/index.blade.php resources/views/cart/partials/item.blade.php resources/views/cart/partials/mini-cart.blade.php resources/views/components/product-card.blade.php resources/views/emails/back-in-stock.blade.php resources/views/partials/footer.blade.php resources/views/partials/header.blade.php resources/views/shop/index.blade.php resources/views/shop/show.blade.php resources/views/sitemap.blade.php routes/web.php tests/Feature/ReviewTest.php tests/Feature/ShopTest.php)",
+      "Bash(php artisan vendor:publish --tag=laravel-pagination --list)",
+      "Bash(php artisan vendor:publish --tag=laravel-pagination)"
     ]
   }
 }

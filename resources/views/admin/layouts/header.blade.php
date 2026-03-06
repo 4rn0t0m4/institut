@@ -1,9 +1,9 @@
-<header class="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 xl:border-b">
-    <div class="flex items-center justify-between w-full px-3 py-3 sm:px-4 xl:px-6 lg:py-4">
+<header class="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
+    <div class="flex items-center justify-between w-full px-3 py-3 sm:px-4 lg:px-6 lg:py-4">
 
         {{-- Desktop sidebar toggle --}}
         <button
-            class="hidden xl:flex items-center justify-center w-10 h-10 text-gray-500 border border-gray-200 rounded-lg dark:border-gray-800 dark:text-gray-400 lg:h-11 lg:w-11"
+            class="hidden lg:flex items-center justify-center w-10 h-10 text-gray-500 border border-gray-200 rounded-lg dark:border-gray-800 dark:text-gray-400 lg:h-11 lg:w-11"
             :class="{ 'bg-gray-100 dark:bg-white/[0.03]': !$store.sidebar.isExpanded }"
             @click="$store.sidebar.toggleExpanded()" aria-label="Toggle Sidebar">
             <svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15,7 +15,7 @@
 
         {{-- Mobile menu toggle --}}
         <button
-            class="flex xl:hidden items-center justify-center w-10 h-10 text-gray-500 rounded-lg dark:text-gray-400 lg:h-11 lg:w-11"
+            class="flex lg:hidden items-center justify-center w-10 h-10 text-gray-500 rounded-lg dark:text-gray-400 lg:h-11 lg:w-11"
             @click="$store.sidebar.toggleMobileOpen()" aria-label="Toggle Mobile Menu">
             <svg x-show="!$store.sidebar.isMobileOpen" width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -30,7 +30,7 @@
         </button>
 
         {{-- Mobile logo --}}
-        <a href="{{ route('admin.dashboard') }}" class="xl:hidden font-bold text-lg text-gray-900 dark:text-white">
+        <a href="{{ route('admin.dashboard') }}" class="lg:hidden font-bold text-lg text-gray-900 dark:text-white">
             Admin ICC
         </a>
 
