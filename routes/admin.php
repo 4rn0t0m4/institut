@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\ProductTagController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\ShippingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -28,6 +29,9 @@ Route::get('reviews', [ReviewController::class, 'index'])->name('admin.reviews.i
 Route::patch('reviews/{review}/approve', [ReviewController::class, 'approve'])->name('admin.reviews.approve');
 Route::patch('reviews/{review}/reject', [ReviewController::class, 'reject'])->name('admin.reviews.reject');
 Route::delete('reviews/{review}', [ReviewController::class, 'destroy'])->name('admin.reviews.destroy');
+
+Route::get('shipping', [ShippingController::class, 'index'])->name('admin.shipping.index');
+Route::put('shipping', [ShippingController::class, 'update'])->name('admin.shipping.update');
 
 Route::get('settings', [SettingController::class, 'index'])->name('admin.settings.index');
 Route::put('settings', [SettingController::class, 'update'])->name('admin.settings.update');
