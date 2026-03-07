@@ -68,9 +68,26 @@ class DiscountEngine
             return false;
         }
 
-        // Quantity condition (total cart qty)
+        // Quantity condition — count only targeted products when filters are set
         if ($rule->min_quantity !== null || $rule->max_quantity !== null) {
-            $totalQty = array_sum(array_column($items, 'quantity'));
+            $totalQty = 0;
+            $hasTargets = !empty($rule->target_categories) || !empty($rule->target_products);
+
+            foreach ($items as $item) {
+                if ($hasTargets) {
+                    $product = $item['product'] ?? null;
+                    if (!$product) {
+                        continue;
+                    }
+                    $matches = (!empty($rule->target_products) && in_array($product->id, $rule->target_products))
+                            || (!empty($rule->target_categories) && in_array($product->category_id, $rule->target_categories));
+                    if (!$matches) {
+                        continue;
+                    }
+                }
+                $totalQty += $item['quantity'];
+            }
+
             if ($rule->min_quantity !== null && $totalQty < $rule->min_quantity) {
                 return false;
             }
