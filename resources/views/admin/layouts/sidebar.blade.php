@@ -58,11 +58,11 @@
         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2">
             <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
                 class="text-xl font-bold text-gray-900 dark:text-white">
-                Admin ICC
+                Administration Institut Corps à Coeur
             </span>
             <span x-show="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen"
                 class="text-xl font-bold text-gray-900 dark:text-white">
-                A
+                ICC
             </span>
         </a>
     </div>

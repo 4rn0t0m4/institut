@@ -352,20 +352,27 @@
                                 <div class="flex items-start gap-3 p-3 cursor-pointer transition border-l-4"
                                      @click="selectRelayPoint(point)"
                                      :class="relayPointCode === point.code
-                                         ? (point.network === 'CHRP_NETWORK' ? 'bg-blue-50 border-l-blue-600' : 'bg-green-50 border-l-green-600')
+                                         ? (point.network === 'CHRP_NETWORK' ? 'bg-blue-50 border-l-[#337ab7]' : 'bg-pink-50 border-l-[#96154a]')
                                          : 'hover:bg-gray-50 border-l-transparent'"
                                      :id="'relay-item-' + point.code">
                                     <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2 flex-wrap">
                                             <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-xs font-bold shrink-0"
-                                                  :class="point.network === 'CHRP_NETWORK' ? 'bg-blue-600' : 'bg-green-700'"
+                                                  :class="point.network === 'CHRP_NETWORK' ? 'bg-[#337ab7]' : 'bg-[#96154a]'"
                                                   x-text="idx + 1"></span>
                                             <span class="text-sm font-medium text-gray-900" x-text="point.name"></span>
-                                            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full leading-none"
-                                                  :class="point.network === 'CHRP_NETWORK' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'"
-                                                  x-text="point.networkLabel"></span>
                                         </div>
                                         <p class="text-xs text-gray-500 ml-7" x-text="[point.street, point.zipCode + ' ' + point.city].filter(Boolean).join(', ')"></p>
+                                        <div class="ml-7 mt-1" x-show="relayPointCode === point.code && point.openingDays && point.openingDays.length > 0" x-transition>
+                                            <table class="text-[11px] text-gray-500 leading-tight">
+                                                <template x-for="d in (point.openingDays || [])" :key="d.day">
+                                                    <tr>
+                                                        <td class="pr-2 font-medium text-gray-600" x-text="d.day"></td>
+                                                        <td x-text="d.slots || 'Fermé'"></td>
+                                                    </tr>
+                                                </template>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </template>
@@ -375,6 +382,12 @@
                         <div class="order-1 sm:order-2">
                             <div id="relay-map" class="w-full rounded-lg border border-gray-200 overflow-hidden" style="height: 384px;"></div>
                         </div>
+                    </div>
+
+                    {{-- Légende réseaux --}}
+                    <div x-show="relayPoints.length > 0" class="flex items-center gap-4 text-xs text-gray-500 mt-3">
+                        <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background:#337ab7"></span> Chronopost</span>
+                        <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background:#96154a"></span> Mondial Relay</span>
                     </div>
 
                     {{-- Aucun résultat --}}
@@ -591,9 +604,7 @@ window.__relayMap = (function() {
                 if (item) item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             });
 
-            var badge = isChrono ? 'Chronopost' : 'Mondial Relay';
-            var popupHtml = '<span class="relay-popup-badge' + (isChrono ? ' relay-popup-badge--chrono' : '') + '">' + badge + '</span>' +
-                '<strong class="relay-popup-name">' +
+            var popupHtml = '<strong class="relay-popup-name">' +
                 point.name + '</strong><br><span class="relay-popup-addr">' +
                 point.street + '<br>' + point.zipCode + ' ' + point.city + '</span>';
 
@@ -629,21 +640,16 @@ window.__relayMap = (function() {
 <style>
 .relay-marker {
     width: 28px; height: 28px; border-radius: 50%;
-    background: #15803d; color: #fff;
+    background: #96154a; color: #fff;
     display: flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 700; cursor: pointer;
     border: 2px solid #fff;
     box-shadow: 0 2px 6px rgba(0,0,0,.3);
     transition: transform .2s, opacity .2s;
 }
-.relay-marker--chrono { background: #2563eb; }
-.relay-popup-badge {
-    display: inline-block; font-size: 10px; font-weight: 600;
-    padding: 1px 6px; border-radius: 9px; margin-bottom: 4px;
-    background: #dcfce7; color: #15803d;
-}
-.relay-popup-badge--chrono { background: #dbeafe; color: #2563eb; }
+.relay-marker--chrono { background: #337ab7; }
 .relay-popup-name { font-size: 13px; display: block; }
 .relay-popup-addr { font-size: 12px; color: #666; }
+.maplibregl-popup-close-button { font-size: 20px; width: 28px; height: 28px; line-height: 28px; padding: 0; }
 </style>
 </x-layouts.app>

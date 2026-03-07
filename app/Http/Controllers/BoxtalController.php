@@ -58,9 +58,26 @@ class BoxtalController extends Controller
         ];
 
         // Normalize point data for frontend (API returns parcelPoint nested object)
-        $results = collect($points)->map(function ($entry) use ($networkLabels) {
+        $dayLabels = [
+            'MONDAY' => 'Lun', 'TUESDAY' => 'Mar', 'WEDNESDAY' => 'Mer',
+            'THURSDAY' => 'Jeu', 'FRIDAY' => 'Ven', 'SATURDAY' => 'Sam', 'SUNDAY' => 'Dim',
+        ];
+
+        $results = collect($points)->map(function ($entry) use ($networkLabels, $dayLabels) {
             $p = $entry['parcelPoint'] ?? $entry;
             $network = $p['network'] ?? '';
+
+            $openingDays = collect($p['openingDays'] ?? [])->map(function ($day) use ($dayLabels) {
+                $slots = collect($day['openingPeriods'] ?? [])->map(function ($slot) {
+                    return ($slot['openingTime'] ?? '') . '-' . ($slot['closingTime'] ?? '');
+                })->join(', ');
+
+                return [
+                    'day'   => $dayLabels[$day['weekday']] ?? $day['weekday'],
+                    'slots' => $slots,
+                ];
+            })->values()->all();
+
             return [
                 'code'         => $p['code'] ?? '',
                 'name'         => $p['name'] ?? '',
@@ -71,6 +88,7 @@ class BoxtalController extends Controller
                 'city'         => $p['location']['city'] ?? '',
                 'lat'          => (float) ($p['location']['position']['latitude'] ?? 0),
                 'lng'          => (float) ($p['location']['position']['longitude'] ?? 0),
+                'openingDays'  => $openingDays,
             ];
         })->take(30)->values();
 
