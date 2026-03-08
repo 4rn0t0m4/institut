@@ -72,6 +72,7 @@ class OrderController extends Controller
 
         // Envoyer l'email d'expédition quand un numéro de suivi est ajouté ou modifié
         if (($validated['tracking_number'] ?? null) && $validated['tracking_number'] !== $oldTrackingNumber) {
+            $order->update(['shipped_at' => now()]);
             Mail::to($order->billing_email)->send(new OrderShipped($order));
         }
 
