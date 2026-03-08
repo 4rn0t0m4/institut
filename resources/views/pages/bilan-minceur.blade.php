@@ -28,7 +28,7 @@
 
     {{-- Intro --}}
     <div class="rounded-2xl p-6 sm:p-8 mb-8 text-center" style="background: linear-gradient(135deg, #f0faf3 0%, #e8f5ee 100%); border: 1px solid #b0f1b9;">
-        <p class="text-lg font-semibold mb-3" style="color: #276e44;">Prête à transformer votre silhouette ? ✨</p>
+        <p class="text-lg font-semibold mb-3" style="color: #276e44;">Prête à transformer votre silhouette ?</p>
         <p class="text-gray-600 mb-4">
             Vous rêvez de vous sentir mieux dans votre corps, de gommer quelques complexes ou de retrouver une peau plus ferme ?
             <strong>Votre transformation commence ici.</strong>
@@ -39,21 +39,12 @@
             à votre métabolisme, votre mode de vie et vos envies.
         </p>
         <p class="text-sm font-medium mt-4" style="color: #276e44;">
-            En prenant 2 minutes pour répondre à ces questions, vous nous permettez de préparer votre accueil et de poser les bases de votre réussite.
+            En prenant 2 minutes pour répondre à ces questions, vous nous permettez de préparer votre accueil et de poser les bases de votre réussite :
         </p>
-        <ul class="text-left text-sm text-gray-600 mt-4 space-y-2 max-w-lg mx-auto">
-            <li class="flex items-start gap-2">
-                <span style="color: #276e44;" class="mt-0.5">✓</span>
-                Identifier précisément vos besoins (perte de poids, volume ou fermeté)
-            </li>
-            <li class="flex items-start gap-2">
-                <span style="color: #276e44;" class="mt-0.5">✓</span>
-                Préparer votre <strong>Bilan Minceur personnalisé (30 €)</strong>, l'examen clé pour définir votre protocole de soin
-            </li>
-            <li class="flex items-start gap-2">
-                <span style="color: #276e44;" class="mt-0.5">✓</span>
-                Envisager ensemble une cure durable sur plusieurs mois pour des résultats réels et visibles
-            </li>
+        <ul class="text-left text-sm text-gray-600 mt-3 space-y-2 max-w-lg mx-auto">
+            <li>— Identifier précisément vos besoins (perte de poids, volume ou fermeté)</li>
+            <li>— Préparer votre <strong>Bilan Minceur personnalisé (30 €)</strong>, l'examen clé pour définir votre protocole de soin</li>
+            <li>— Envisager ensemble une cure durable sur plusieurs mois pour des résultats réels et visibles</li>
         </ul>
         <p class="mt-5 font-semibold" style="color: #276e44;">
             Faites le premier pas vers la version de vous-même que vous allez adorer ! 👇
@@ -156,25 +147,19 @@
             <p class="text-sm text-gray-500 mb-5">Lisez attentivement avant de valider</p>
 
             <div class="space-y-4 mb-6">
-                <div class="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-100">
-                    <div class="text-2xl">💎</div>
-                    <div>
-                        <p class="font-semibold text-sm text-gray-800 mb-1">Le Bilan Minceur Obligatoire (30 €)</p>
+                <div class="p-4 bg-white rounded-xl border border-gray-100">
+                    <p class="font-semibold text-sm text-gray-800 mb-1">Le Bilan Minceur Obligatoire (30 €)</p>
                         <p class="text-sm text-gray-600">
                             Avant de débuter, un bilan complet est indispensable. Il nous permet de comprendre votre problématique
                             et de créer un programme <strong>100 % personnalisé</strong> selon vos envies et vos besoins physiologiques.
                         </p>
-                    </div>
                 </div>
-                <div class="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-100">
-                    <div class="text-2xl">📅</div>
-                    <div>
-                        <p class="font-semibold text-sm text-gray-800 mb-1">La Notion de Cure</p>
-                        <p class="text-sm text-gray-600">
-                            Une séance isolée ne suffit pas à transformer votre silhouette. Pour des résultats visibles et profonds,
-                            nos cures s'étendent généralement <strong>sur plusieurs mois</strong>.
-                        </p>
-                    </div>
+                <div class="p-4 bg-white rounded-xl border border-gray-100">
+                    <p class="font-semibold text-sm text-gray-800 mb-1">La Notion de Cure</p>
+                    <p class="text-sm text-gray-600">
+                        Une séance isolée ne suffit pas à transformer votre silhouette. Pour des résultats visibles et profonds,
+                        nos cures s'étendent généralement <strong>sur plusieurs mois</strong>.
+                    </p>
                 </div>
             </div>
 
