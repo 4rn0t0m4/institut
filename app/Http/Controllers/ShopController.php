@@ -129,7 +129,7 @@ class ShopController extends Controller
         }
 
         // Produits similaires (même catégorie)
-        $related = Product::with('featuredImage')
+        $related = Product::with(['featuredImage', 'brand', 'category'])
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->active()

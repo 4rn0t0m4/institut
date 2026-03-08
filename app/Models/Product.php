@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => cache()->forget('header_navigation'));
+        static::deleted(fn () => cache()->forget('header_navigation'));
+    }
     protected $fillable = [
         'category_id','brand_id','name','slug','short_description','description',
         'price','sale_price','sku','stock_quantity','manage_stock','stock_status',

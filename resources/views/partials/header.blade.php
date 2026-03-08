@@ -2,37 +2,52 @@
         x-data="{ mobileOpen: false, soinsOpen: false, boutiqueOpen: false }">
 
     @php
-        $menu = \App\Models\Menu::where('location','primary')
-                ->with(['items.children'])->first();
+        // Cache le header 30 min — toutes les requêtes en un seul bloc mis en cache
+        $headerData = cache()->remember('header_navigation', 1800, function () {
+            $menu = \App\Models\Menu::where('location','primary')
+                    ->with(['items.children'])->first();
 
-        $soinsItems   = $menu ? $menu->items->filter(fn($i) => !in_array($i->id, [19, 40])) : collect();
-        $boutiqueItem = $menu ? $menu->items->firstWhere('id', 19) : null;
+            $soinsItems   = $menu ? $menu->items->filter(fn($i) => !in_array($i->id, [19, 40])) : collect();
 
-        // Séparer soins avec/sans enfants
-        $soinsWithChildren = $soinsItems->filter(fn($i) => $i->children->isNotEmpty());
-        $soinsSolo = $soinsItems->filter(fn($i) => $i->children->isEmpty());
+            // Catégories produits pour le méga-menu boutique
+            // Une seule requête avec withCount au lieu de N exists()
+            $allCategories = \App\Models\ProductCategory::whereNull('parent_id')
+                ->where('slug', '!=', 'non-classe')
+                ->with('children')
+                ->get();
 
-        // Catégories produits pour le méga-menu boutique
-        $boutiqueCategories = \App\Models\ProductCategory::whereNull('parent_id')
-            ->where('slug', '!=', 'non-classe')
-            ->with('children')
-            ->get()
-            ->filter(function($cat) {
+            $allCatIds = $allCategories->flatMap(fn($cat) => $cat->children->pluck('id')->push($cat->id));
+            $activeCatIds = \App\Models\Product::where('is_active', true)
+                ->whereIn('category_id', $allCatIds)
+                ->distinct()
+                ->pluck('category_id');
+
+            $boutiqueCategories = $allCategories->filter(function($cat) use ($activeCatIds) {
                 $ids = $cat->children->pluck('id')->push($cat->id);
-                return \App\Models\Product::whereIn('category_id', $ids)->where('is_active', true)->exists();
+                return $ids->intersect($activeCatIds)->isNotEmpty();
             });
 
-        // Un produit mis en avant pour l'encart boutique
-        $featuredProduct = \App\Models\Product::whereNotNull('featured_image_id')
-            ->where('is_active', true)
-            ->where('is_featured', true)
-            ->with('featuredImage')
-            ->first()
-            ?? \App\Models\Product::whereNotNull('featured_image_id')
+            // Un produit mis en avant pour l'encart boutique
+            $featuredProduct = \App\Models\Product::whereNotNull('featured_image_id')
                 ->where('is_active', true)
+                ->where('is_featured', true)
                 ->with('featuredImage')
-                ->inRandomOrder()
-                ->first();
+                ->first()
+                ?? \App\Models\Product::whereNotNull('featured_image_id')
+                    ->where('is_active', true)
+                    ->with('featuredImage')
+                    ->inRandomOrder()
+                    ->first();
+
+            return compact('soinsItems', 'boutiqueCategories', 'featuredProduct');
+        });
+
+        $soinsItems         = $headerData['soinsItems'];
+        $boutiqueCategories = $headerData['boutiqueCategories'];
+        $featuredProduct    = $headerData['featuredProduct'];
+
+        $soinsWithChildren = $soinsItems->filter(fn($i) => $i->children->isNotEmpty());
+        $soinsSolo = $soinsItems->filter(fn($i) => $i->children->isEmpty());
     @endphp
 
     <div class="w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">

@@ -4,7 +4,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductCategory extends Model
-{    use HasFactory;
+{
+    use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => cache()->forget('header_navigation'));
+        static::deleted(fn () => cache()->forget('header_navigation'));
+    }
     protected $fillable = ['parent_id','name','slug','description','image','sort_order'];
 
     public function parent() { return $this->belongsTo(ProductCategory::class,'parent_id'); }
@@ -26,8 +33,9 @@ class ProductCategory extends Model
 
     public function url(): string
     {
-        if ($this->parent) {
-            return url("boutique/{$this->parent->slug}/{$this->slug}");
+        if ($this->parent_id) {
+            $parent = $this->relationLoaded('parent') ? $this->parent : $this->parent()->first(['id', 'slug']);
+            return url("boutique/{$parent->slug}/{$this->slug}");
         }
 
         return url("boutique/{$this->slug}");
