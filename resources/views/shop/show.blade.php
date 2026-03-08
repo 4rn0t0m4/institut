@@ -2,7 +2,7 @@
 
 {{-- Schema.org Product + BreadcrumbList --}}
 @php
-$productJsonLd = json_encode([
+$productSchema = [
     '@context' => 'https://schema.org',
     '@type' => 'Product',
     'name' => $product->name,
@@ -22,7 +22,18 @@ $productJsonLd = json_encode([
             ? 'https://schema.org/OutOfStock'
             : 'https://schema.org/InStock',
     ],
-], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+];
+if ($reviews->count() > 0) {
+    $avgRating = round($reviews->avg('rating'), 1);
+    $productSchema['aggregateRating'] = [
+        '@type' => 'AggregateRating',
+        'ratingValue' => $avgRating,
+        'reviewCount' => $reviews->count(),
+        'bestRating' => 5,
+        'worstRating' => 1,
+    ];
+}
+$productJsonLd = json_encode($productSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
 $breadcrumbItems = [
     ['@type' => 'ListItem', 'position' => 1, 'name' => 'Boutique', 'item' => route('shop.index')],

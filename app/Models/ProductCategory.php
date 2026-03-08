@@ -12,7 +12,7 @@ class ProductCategory extends Model
         static::saved(fn () => cache()->forget('header_navigation'));
         static::deleted(fn () => cache()->forget('header_navigation'));
     }
-    protected $fillable = ['parent_id','name','slug','description','image','sort_order'];
+    protected $fillable = ['parent_id','name','slug','description','image','sort_order','meta_title','meta_description'];
 
     public function parent() { return $this->belongsTo(ProductCategory::class,'parent_id'); }
     public function children() { return $this->hasMany(ProductCategory::class,'parent_id')->orderBy('sort_order'); }

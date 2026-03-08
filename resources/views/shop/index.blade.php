@@ -1,4 +1,7 @@
-<x-layouts.app title="Boutique" meta-description="Découvrez notre sélection de cosmétiques naturels et produits de beauté. Soins visage, corps, huiles essentielles et accessoires bien-être — Institut Corps à Coeur.">
+<x-layouts.app
+    :title="$currentCategory ? ($currentCategory->meta_title ?: $currentCategory->name) : 'Boutique'"
+    :meta-description="$currentCategory ? ($currentCategory->meta_description ?: $currentCategory->description ?: 'Découvrez notre sélection de cosmétiques naturels et produits de beauté. Soins visage, corps, huiles essentielles et accessoires bien-être — Institut Corps à Coeur.') : 'Découvrez notre sélection de cosmétiques naturels et produits de beauté. Soins visage, corps, huiles essentielles et accessoires bien-être — Institut Corps à Coeur.'"
+    :canonical="$currentCategory ? $currentCategory->url() : route('shop.index')">
 
     @push('json-ld')
     <script type="application/ld+json">

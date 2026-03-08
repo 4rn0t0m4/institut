@@ -41,6 +41,25 @@
             </div>
         </div>
 
+        {{-- SEO --}}
+        <div class="border-t border-gray-200 dark:border-gray-800 pt-5 mt-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-4">SEO</p>
+            <div class="space-y-4">
+                <div>
+                    <label for="meta_title" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Titre SEO <span class="text-gray-400 font-normal">(laissez vide pour utiliser le nom)</span></label>
+                    <input type="text" id="meta_title" name="meta_title" value="{{ old('meta_title', $category->meta_title ?? '') }}" maxlength="70"
+                        class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90" />
+                    @error('meta_title') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label for="meta_description" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Meta description <span class="text-gray-400 font-normal">(max 160 caractères)</span></label>
+                    <textarea id="meta_description" name="meta_description" rows="3" maxlength="160"
+                        class="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90">{{ old('meta_description', $category->meta_description ?? '') }}</textarea>
+                    @error('meta_description') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                </div>
+            </div>
+        </div>
+
         <div class="mt-6 flex gap-3">
             <button type="submit" class="rounded-lg bg-brand-500 px-6 py-3 text-sm font-medium text-white hover:bg-brand-600">
                 {{ isset($category) && $category->exists ? 'Mettre a jour' : 'Creer la categorie' }}

@@ -25,6 +25,16 @@
     </url>
     @endforeach
 
+    {{-- Catégories --}}
+    @foreach($categories as $category)
+    <url>
+        <loc>{{ $category->url() }}</loc>
+        <lastmod>{{ $category->updated_at->toW3cString() }}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    @endforeach
+
     {{-- Produits --}}
     @foreach($products as $product)
     <url>
