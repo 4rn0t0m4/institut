@@ -11,6 +11,7 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\BoxtalController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\BilanMinceurController;
 use Illuminate\Support\Facades\Route;
 
 // Sitemap
@@ -43,6 +44,10 @@ Route::get('/quiz/{slug}', [QuizController::class, 'show'])->name('quiz.show');
 Route::get('/quiz/{slug}/question/{question}', [QuizController::class, 'question'])->name('quiz.question');
 Route::post('/quiz/{slug}/question/{question}', [QuizController::class, 'answer'])->name('quiz.answer');
 Route::get('/quiz/{slug}/resultat/{completion}', [QuizController::class, 'result'])->name('quiz.result');
+
+// Bilan Minceur (avant le wildcard pages)
+Route::get('/amincissement/bilan-minceur-personnalise', [BilanMinceurController::class, 'show'])->name('bilan-minceur.show');
+Route::post('/amincissement/bilan-minceur-personnalise', [BilanMinceurController::class, 'submit'])->name('bilan-minceur.submit');
 
 // Pages statiques (en dernier pour ne pas capturer les autres routes)
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
