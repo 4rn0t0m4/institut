@@ -1,0 +1,511 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Page;
+use App\Models\Product;
+use App\Models\ProductCategory;
+use Illuminate\Database\Seeder;
+
+class SeoSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // ─── Pages ─────────────────────────────────────────────────────────
+        // Note : le layout ajoute " — Institut Corps à Coeur" après le meta_title
+        $pages = [
+            // Services principaux (meta_title WP à remplacer)
+            2  => ['meta_title' => 'Soins sportifs – Massage & récupération Mézidon-Canon',
+                   'meta_description' => 'Massages de récupération, drainages et soins bien-être pour sportifs à Mézidon-Canon près de Caen. Réservez votre séance à l\'Institut Corps à Cœur.'],
+            3  => ['meta_title' => 'Épilation cire & lumière pulsée – Mézidon-Canon Calvados',
+                   'meta_description' => 'Épilation à la cire et à la lumière pulsée à Mézidon-Canon. Résultats durables, peau douce, proche Caen (14). Réservez à l\'Institut Corps à Cœur.'],
+            4  => ['meta_title' => 'Amincissement & remodelage corporel – Mézidon-Canon',
+                   'meta_description' => 'Soins minceur haute technologie : EstheShape, adipologie, pressothérapie à Mézidon-Canon près de Caen. Résultats visibles et durables.'],
+            5  => ['meta_title' => 'Massages & balnéothérapie – Mézidon-Canon près de Caen',
+                   'meta_description' => 'Massages du monde, massages duo et balnéothérapie à Mézidon-Canon. Détente et relaxation profonde à l\'Institut Corps à Cœur, Calvados.'],
+            6  => ['meta_title' => 'Onglerie – Pose d\'ongles Mézidon-Canon Calvados',
+                   'meta_description' => 'Pose d\'ongles en gel, résine et semi-permanent à Mézidon-Canon. Nail art et manucurie professionnelle à l\'Institut Corps à Cœur près de Caen.'],
+            7  => ['meta_title' => 'Soins du regard – Cils & sourcils Mézidon-Canon',
+                   'meta_description' => 'Extension de cils, rehaussement, teinture sourcils à Mézidon-Canon. Soins du regard professionnels à l\'Institut Corps à Cœur, Calvados.'],
+            8  => ['meta_title' => 'Soins visage & peeling – Mézidon-Canon Calvados',
+                   'meta_description' => 'Soins visage sur mesure, peeling, photo-rajeunissement et mésoporation à Mézidon-Canon. Institut de beauté près de Caen, Calvados.'],
+
+            // Pages légales
+            15 => ['meta_title' => 'Conditions Générales de Vente',
+                   'meta_description' => 'Consultez nos conditions générales de vente pour la boutique en ligne de l\'Institut Corps à Cœur, Mézidon-Canon (14).'],
+            16 => ['meta_title' => 'Politique de remboursement et retours',
+                   'meta_description' => 'Notre politique de remboursement et retours pour les achats de cosmétiques sur la boutique de l\'Institut Corps à Cœur.'],
+            17 => ['meta_title' => 'Mentions légales',
+                   'meta_description' => 'Mentions légales de l\'Institut Corps à Cœur, institut de beauté et bien-être à Mézidon-Canon, Calvados (14).'],
+
+            // Sous-pages soins (manquantes ou avec "Institut Corps à Cœur" en double)
+            19 => ['meta_title' => 'Mésoporation visage anti-âge Mézidon-Canon',
+                   'meta_description' => 'Soin anti-âge sans aiguille par mésoporation à Mézidon-Canon. Hydratation profonde et éclat retrouvé à l\'Institut Corps à Cœur près de Caen.'],
+            20 => ['meta_title' => 'Photo-rajeunissement visage Mézidon-Canon Calvados',
+                   'meta_description' => 'Traitement anti-âge par lumière pulsée à Mézidon-Canon. Réduction des rides, taches et rougeurs. Institut Corps à Cœur près de Caen.'],
+            21 => ['meta_title' => 'EstheShape – Remodelage corporel Mézidon-Canon',
+                   'meta_description' => 'EstheShape, technologie de remodelage corporel innovante à Mézidon-Canon. Sculptez votre silhouette à l\'Institut Corps à Cœur, proche Caen.'],
+            22 => ['meta_title' => 'Adipologie – Soin minceur Mézidon-Canon Calvados',
+                   'meta_description' => 'Adipologie haute technologie à Mézidon-Canon près de Caen. Raffermissement et élimination des graisses localisées à l\'Institut Corps à Cœur.'],
+            23 => ['meta_title' => 'Mésoporation Fat Redux – Soin minceur Mézidon-Canon',
+                   'meta_description' => 'Mésoporation Fat Redux, soin minceur ciblé sans chirurgie à Mézidon-Canon près de Caen. Résultats durables à l\'Institut Corps à Cœur.'],
+            24 => ['meta_title' => 'Drainage lymphatique & pressothérapie Mézidon-Canon',
+                   'meta_description' => 'Drainage lymphatique et pressothérapie à Mézidon-Canon. Jambes légères et détoxification à l\'Institut Corps à Cœur, Caen Calvados.'],
+            25 => ['meta_title' => 'Balnéothérapie Duo Mézidon-Canon près de Caen',
+                   'meta_description' => 'Séance de balnéothérapie duo en privatif à Mézidon-Canon. Bain hydromassant et détente en duo à l\'Institut Corps à Cœur.'],
+            26 => ['meta_title' => 'Balnéothérapie Mézidon-Canon – Bain relaxant Calvados',
+                   'meta_description' => 'Bain hydromassant et balnéothérapie en privatif à Mézidon-Canon près de Caen. Relaxation profonde à l\'Institut Corps à Cœur.'],
+            27 => ['meta_title' => 'Massages du Monde à Mézidon-Canon – Calvados',
+                   'meta_description' => 'Massages Thaï, Shiatsu, Abyanga, Balinais et Lomi Lomi à Mézidon-Canon. Voyagez au fil des soins à l\'Institut Corps à Cœur.'],
+            28 => ['meta_title' => 'Massage en Duo Mézidon-Canon – Bien-être à deux',
+                   'meta_description' => 'Massages en duo dans le Calvados à Mézidon-Canon. Offrez un moment de bien-être partagé à l\'Institut Corps à Cœur près de Caen.'],
+
+            // Pages quiz résultats peau
+            30 => ['meta_title' => 'Votre type de peau – Quiz beauté',
+                   'meta_description' => 'Découvrez votre type de peau et les produits adaptés grâce au quiz beauté de l\'Institut Corps à Cœur.'],
+            31 => ['meta_title' => 'Soins pour peau sèche et mature',
+                   'meta_description' => 'Produits cosmétiques pour peaux sèches et matures. Nourrissez et repulpez votre peau avec notre sélection Jadea.'],
+            32 => ['meta_title' => 'Soins pour peau sèche et sensible',
+                   'meta_description' => 'Produits doux et apaisants pour peaux sèches et sensibles. Découvrez notre sélection Jadea adaptée à votre type de peau.'],
+            33 => ['meta_title' => 'Soins pour peau sèche et hyperpigmentée',
+                   'meta_description' => 'Cosmétiques pour peaux sèches et hyperpigmentées. Unifiez et hydratez votre teint avec notre gamme Jadea.'],
+            34 => ['meta_title' => 'Soins pour peau sèche',
+                   'meta_description' => 'Produits hydratants pour peau sèche. Baumes, crèmes et huiles Jadea et Eskalia pour retrouver confort et souplesse.'],
+            35 => ['meta_title' => 'Soins pour peau déshydratée',
+                   'meta_description' => 'Réhydratez votre peau en profondeur avec nos soins ciblés Jadea : sérums, crèmes et masques pour peaux déshydratées.'],
+            36 => ['meta_title' => 'Soins pour peau déshydratée et sensible',
+                   'meta_description' => 'Produits apaisants et hydratants pour peaux déshydratées sensibles. Sélection Jadea pour confort et hydratation.'],
+            37 => ['meta_title' => 'Soins pour peau déshydratée acnéique',
+                   'meta_description' => 'Soins hydratants et purifiants pour peaux déshydratées acnéiques. Rééquilibrez et purifiez votre peau avec la gamme Jadea.'],
+            38 => ['meta_title' => 'Soins pour peau déshydratée et mature',
+                   'meta_description' => 'Cosmétiques pour peaux déshydratées et matures. Hydratation intense et soin anti-âge avec la gamme Jadea.'],
+            39 => ['meta_title' => 'Soins pour peau mixte à normale',
+                   'meta_description' => 'Produits équilibrants pour peaux mixtes à normales. Matifiez et hydratez votre peau avec notre gamme Jadea.'],
+            40 => ['meta_title' => 'Soins pour peau déshydratée et hyperpigmentée',
+                   'meta_description' => 'Soins éclat et hydratation pour peaux déshydratées hyperpigmentées. Unifiez votre teint avec nos produits Jadea.'],
+            41 => ['meta_title' => 'Soins pour peau mixte sensible',
+                   'meta_description' => 'Produits doux équilibrants pour peaux mixtes sensibles. Réduisez les rougeurs et apaisez votre peau avec la gamme Jadea.'],
+            42 => ['meta_title' => 'Soins pour peau mixte avec acné',
+                   'meta_description' => 'Soins purifiants pour peaux mixtes acnéiques. Réduisez les imperfections et équilibrez votre sébum avec la gamme Jadea.'],
+            43 => ['meta_title' => 'Soins pour peau mixte hyperpigmentée',
+                   'meta_description' => 'Produits éclat et anti-taches pour peaux mixtes hyperpigmentées. Unifiez votre teint avec notre gamme Jadea.'],
+            44 => ['meta_title' => 'Soins pour peau mixte mature',
+                   'meta_description' => 'Cosmétiques anti-âge équilibrants pour peaux mixtes matures. Hydratez et repulpez votre peau avec la sélection Jadea.'],
+            45 => ['meta_title' => 'Soins pour peau grasse mature',
+                   'meta_description' => 'Produits matifiants et anti-âge pour peaux grasses matures. Réglez l\'excès de sébum tout en traitant le vieillissement cutané.'],
+            46 => ['meta_title' => 'Soins pour peau grasse hyperpigmentée',
+                   'meta_description' => 'Soins purifiants et éclaircissants pour peaux grasses hyperpigmentées. Unifiez votre teint avec notre gamme Jadea ciblée.'],
+            47 => ['meta_title' => 'Soins pour peau grasse acnéique',
+                   'meta_description' => 'Soins purifiants pour peaux grasses acnéiques. Réduisez les imperfections et réglez le sébum avec la gamme Purifier Jadea.'],
+            48 => ['meta_title' => 'Soins pour peau grasse',
+                   'meta_description' => 'Soins matifiants et purifiants pour peaux grasses. Découvrez notre sélection Jadea pour une peau équilibrée et nette.'],
+            49 => ['meta_title' => 'Soins pour peau grasse et sensible',
+                   'meta_description' => 'Produits purifiants et apaisants pour peaux grasses sensibles. Réduisez les imperfections sans agresser votre peau avec Jadea.'],
+        ];
+
+        foreach ($pages as $id => $seo) {
+            Page::where('id', $id)->update($seo);
+        }
+
+        // ─── Catégories ────────────────────────────────────────────────────
+        $categories = [
+            2  => ['meta_title' => 'Soins visage naturels – Nettoyants, crèmes & gommages',
+                   'meta_description' => 'Gamme de soins visage naturels : nettoyants, crèmes hydratantes, gommages et masques. Marques Eskalia et Jadea sélectionnées par votre institut.'],
+            3  => ['meta_title' => 'Soins corps naturels – Huiles, gommages & baumes',
+                   'meta_description' => 'Soins corps naturels : huiles de douche, gommages, baumes réparateurs et laits corps. Cosmétiques sélectionnés par l\'Institut Corps à Cœur.'],
+            4  => ['meta_title' => 'Parfums & Bougies Bijou Eskalia',
+                   'meta_description' => 'Parfums voyageurs et bougies bijou Eskalia. Chaque bougie renferme un bijou surprise. Offrez une expérience sensorielle unique.'],
+            5  => ['meta_title' => 'Bijoux fantaisie Nakupenda – Bagues, bracelets & boucles',
+                   'meta_description' => 'Bagues, bracelets, boucles d\'oreilles et colliers fantaisie Nakupenda. Bijoux dorés tendance disponibles à l\'Institut Corps à Cœur.'],
+            6  => ['meta_title' => 'Coffrets cadeaux beauté & bien-être',
+                   'meta_description' => 'Coffrets cadeaux beauté : soins visage, corps, bougies de massage et bijoux. Idées cadeaux originales pour toutes les occasions.'],
+            7  => ['meta_title' => 'Nettoyants visage naturels – Fluides & lotions',
+                   'meta_description' => 'Nettoyants visage doux et naturels : fluides moussants, lotions tonifiantes et démaquillants. Marques Eskalia et Jadea en boutique.'],
+            8  => ['meta_title' => 'Crèmes visage naturelles – Jour, nuit & anti-âge',
+                   'meta_description' => 'Crèmes visage jour, nuit et anti-âge aux ingrédients naturels. Gammes Eskalia et Jadea pour hydrater, purifier et traiter votre peau.'],
+            9  => ['meta_title' => 'Gommages & masques visage naturels',
+                   'meta_description' => 'Gommages et masques visage purifiants et hydratants Eskalia et Jadea. Affinez le grain de peau et retrouvez un teint éclatant.'],
+            10 => ['meta_title' => 'Huiles de douche Eskalia – Soin et douceur',
+                   'meta_description' => 'Huiles de douche Eskalia aux parfums voyageurs : Bali, Guadeloupe, Egypte, Islande. Peau douce et nourrie après chaque douche.'],
+            11 => ['meta_title' => 'Gommages corps naturels – Peau douce & lisse',
+                   'meta_description' => 'Gommages corps au sucre et à la pierre d\'alun. Peeling corps doux aux ingrédients naturels pour une peau lisse et hydratée.'],
+            12 => ['meta_title' => 'Baumes réparateurs corps – Soin intense peau sèche',
+                   'meta_description' => 'Baumes ultra-réparateurs pour peaux sèches et abîmées. Beurres de karité Charme d\'orient et baumes Eskalia pour une peau nourrie.'],
+            13 => ['meta_title' => 'Crèmes mains, huiles corps & laits hydratants',
+                   'meta_description' => 'Crèmes mains, huiles corps et laits hydratants naturels. Textures légères et parfums envoûtants pour un soin quotidien.'],
+            14 => ['meta_title' => 'Parfums naturels Eskalia – Voyage & sensorialité',
+                   'meta_description' => 'Eaux de parfum Eskalia aux fragrances inspirées des voyages : Bali, Guadeloupe, Egypte. Parfums naturels à l\'Institut Corps à Cœur.'],
+            15 => ['meta_title' => 'Bougies Bijou Eskalia – Une bougie, un bijou surprise',
+                   'meta_description' => 'Bougies bijou Eskalia artisanales : chaque bougie renferme un bijou surprise. Cadeau original et unique pour offrir ou se faire plaisir.'],
+            16 => ['meta_title' => 'Bagues fantaisie Nakupenda – Dorées & originales',
+                   'meta_description' => 'Bagues fantaisie dorées et ornées de pierres Nakupenda. Collection tendance disponible à l\'Institut Corps à Cœur, Mézidon-Canon.'],
+            17 => ['meta_title' => 'Boucles d\'oreilles Nakupenda – Créoles & pendantes',
+                   'meta_description' => 'Créoles et pendantes Nakupenda dorées. Boucles d\'oreilles fantaisie tendance à prix doux, disponibles à l\'Institut Corps à Cœur.'],
+            18 => ['meta_title' => 'Bracelets Nakupenda – Perles, chaînes & joncs dorés',
+                   'meta_description' => 'Bracelets fantaisie Nakupenda : perles, chaînes dorées, joncs et doubles anneaux. Accessoires tendance pour sublimer votre look.'],
+        ];
+
+        foreach ($categories as $id => $seo) {
+            ProductCategory::where('id', $id)->update($seo);
+        }
+
+        // ─── Produits ──────────────────────────────────────────────────────
+        $products = [
+            // Eskalia Bali
+            1  => ['meta_title' => 'Fluide Nettoyant Bali Eskalia – Nettoyant visage naturel',
+                   'meta_description' => 'Fluide nettoyant moussant Bali Eskalia. Nettoie en douceur et respecte l\'équilibre de la peau. Cosmétique naturel à l\'Institut Corps à Cœur.'],
+            2  => ['meta_title' => 'Elixir Bali Eskalia – Soin corps hydratant multi-usage',
+                   'meta_description' => 'Elixir corps Bali Eskalia aux huiles nourrissantes. Hydrate et sublime la peau. Cosmétique naturel voyageur disponible à Corps à Cœur.'],
+            3  => ['meta_title' => 'Huile de Douche Bali Eskalia 500ml – Peau douce',
+                   'meta_description' => 'Huile de douche Bali Eskalia 500ml au parfum exotique. Nettoie et nourrit à chaque douche. Cosmétique naturel inspiré de Bali.'],
+            4  => ['meta_title' => 'Crème Teintée Miel Bali Eskalia – Teint naturel',
+                   'meta_description' => 'Crème teintée Miel Bali Eskalia. Unification du teint et soin hydratant tout-en-un. Disponible à l\'Institut Corps à Cœur, Mézidon-Canon.'],
+            5  => ['meta_title' => 'Crème Jour et Nuit Bali Eskalia – Hydratation 24h',
+                   'meta_description' => 'Crème visage jour et nuit Bali Eskalia. Hydratation prolongée aux extraits naturels inspirés de Bali. Disponible en boutique.'],
+            6  => ['meta_title' => 'Baume Ultra Réparateur Bali Eskalia – Peau abîmée',
+                   'meta_description' => 'Baume ultra-réparateur Bali Eskalia pour peaux sèches et abîmées. Restaure et nourrit intensément la peau.'],
+            7  => ['meta_title' => 'Bougie Bijou Bali Eskalia – Cadeau surprise',
+                   'meta_description' => 'Bougie bijou Bali Eskalia : une bougie artisanale avec un bijou surprise à l\'intérieur. Idée cadeau originale à l\'Institut Corps à Cœur.'],
+            8  => ['meta_title' => 'Eau de Parfum Bali Eskalia – Fragrance exotique',
+                   'meta_description' => 'Eau de parfum Bali Eskalia aux notes exotiques et sensuelles. Parfum naturel voyageur disponible à l\'Institut Corps à Cœur.'],
+
+            // Eskalia Guadeloupe
+            9  => ['meta_title' => 'Fluide Nettoyant Guadeloupe Eskalia – Éclat du teint',
+                   'meta_description' => 'Fluide nettoyant moussant Guadeloupe Eskalia aux actifs naturels antillais. Nettoie et illumine le teint. Disponible à Corps à Cœur.'],
+            10 => ['meta_title' => 'Lotion Tonifiante Guadeloupe Eskalia – Peau fraîche',
+                   'meta_description' => 'Lotion tonifiante Guadeloupe Eskalia. Resserre les pores et prépare la peau au soin. Disponible à l\'Institut Corps à Cœur, Mézidon-Canon.'],
+            11 => ['meta_title' => 'Concentré Bonne Mine Guadeloupe Eskalia – Éclat',
+                   'meta_description' => 'Concentré bonne mine Guadeloupe Eskalia. Illuminez votre teint avec ce soin naturel aux actifs antillais. Boutique Corps à Cœur.'],
+            12 => ['meta_title' => 'Gommage Masque Guadeloupe Eskalia – Visage purifié',
+                   'meta_description' => 'Gommage masque visage Guadeloupe Eskalia. Purifie et affine le grain de peau aux extraits naturels des Antilles.'],
+            13 => ['meta_title' => 'Gommage Corps Guadeloupe Eskalia au Sucre',
+                   'meta_description' => 'Gommage corps au sucre Guadeloupe Eskalia. Exfolie en douceur pour une peau lisse et parfumée aux actifs naturels antillais.'],
+            14 => ['meta_title' => 'Gelée Pailletée Guadeloupe Eskalia – Corps brillant',
+                   'meta_description' => 'Gelée pailletée corps Guadeloupe Eskalia. Hydrate et fait briller la peau avec de subtils reflets dorés. Soin corps original.'],
+            15 => ['meta_title' => 'Spray Hydratant Corps Guadeloupe Eskalia – Brume',
+                   'meta_description' => 'Spray hydratant corps Guadeloupe Eskalia. Brume légère pour une hydratation instantanée et un parfum exotique toute la journée.'],
+            16 => ['meta_title' => 'Baume Réparateur Guadeloupe Eskalia 250ml',
+                   'meta_description' => 'Baume ultra-réparateur Guadeloupe Eskalia 250ml. Nourrit et répare les peaux sèches avec les actifs naturels des Antilles.'],
+            17 => ['meta_title' => 'Eau de Parfum Guadeloupe Eskalia – Évasion tropicale',
+                   'meta_description' => 'Eau de parfum Guadeloupe Eskalia aux notes tropicales et fleuries. Sentez l\'essence des Antilles. Disponible à Corps à Cœur.'],
+            18 => ['meta_title' => 'Huile de Douche Guadeloupe Eskalia 500ml',
+                   'meta_description' => 'Huile de douche Guadeloupe Eskalia 500ml. Nourrit et parfume votre peau sous la douche avec des actifs naturels antillais.'],
+
+            // Eskalia Maroc
+            19 => ['meta_title' => 'Huile de Douche Maroc Eskalia – Hammam naturel',
+                   'meta_description' => 'Huile de douche Maroc Eskalia inspirée du hammam marocain. Nettoie et hydrate avec les actifs naturels du Maroc.'],
+            20 => ['meta_title' => 'Baume Réparateur Maroc Eskalia – Peau nourrie',
+                   'meta_description' => 'Baume ultra-réparateur Maroc Eskalia aux actifs nourrissants d\'inspiration marocaine. Pour peaux sèches et abîmées.'],
+
+            // Eskalia Ile Maurice
+            21 => ['meta_title' => 'Baume Réparateur Ile Maurice Eskalia – Soin intense',
+                   'meta_description' => 'Baume ultra-réparateur Ile Maurice Eskalia. Nourrit en profondeur et répare les peaux sèches. Actifs naturels inspirés de l\'Ile Maurice.'],
+            22 => ['meta_title' => 'Huile de Douche Ile Maurice Eskalia – Douceur tropicale',
+                   'meta_description' => 'Huile de douche Ile Maurice Eskalia aux fragrances tropicales. Nourrit et parfume votre peau à chaque douche.'],
+
+            // Eskalia Costa Rica
+            23 => ['meta_title' => 'Baume Réparateur Costa Rica Eskalia – Nourrissant',
+                   'meta_description' => 'Baume ultra-réparateur Costa Rica Eskalia. Formule nourrissante aux actifs naturels d\'Amérique Centrale pour les peaux sèches.'],
+            24 => ['meta_title' => 'Crème Gommante Corps Costa Rica Eskalia',
+                   'meta_description' => 'Crème gommante corps Costa Rica Eskalia. Exfolie en douceur et nourrit votre peau avec des actifs naturels exotiques.'],
+
+            // Eskalia Italie
+            25 => ['meta_title' => 'Crème Gommante Corps Italie Eskalia – Méditerranéen',
+                   'meta_description' => 'Crème gommante corps Italie Eskalia aux inspirations méditerranéennes. Peau lisse et parfumée après chaque utilisation.'],
+
+            // Eskalia Lui
+            26 => ['meta_title' => 'Huile de Douche Lui Eskalia – Soin corps homme',
+                   'meta_description' => 'Huile de douche homme Lui Eskalia. Hydrate et nourrit la peau masculine. Soin corps naturel disponible à l\'Institut Corps à Cœur.'],
+
+            // Jadea Purifier
+            27 => ['meta_title' => 'Nettoyant Biphase Purifier n°2 Jadea – Peau purifiée',
+                   'meta_description' => 'Nettoyant biphase Purifier n°2 Jadea pour peaux acnéiques. Nettoie en profondeur et purifie les pores. Cosmétique professionnel Jadea.'],
+            28 => ['meta_title' => 'Crème de Jour Matifiante Purifier n°5 Jadea',
+                   'meta_description' => 'Crème de jour matifiante Purifier n°5 Jadea. Réduit le brillant et resserre les pores pour une peau purifiée toute la journée.'],
+            29 => ['meta_title' => 'Crème de Nuit Purifiante Purifier n°6 Jadea',
+                   'meta_description' => 'Crème de nuit purifiante Purifier n°6 Jadea. Traite les imperfections pendant le sommeil pour une peau nette au réveil.'],
+            30 => ['meta_title' => 'Gommage Purifiant Purifier n°7 Jadea',
+                   'meta_description' => 'Gommage purifiant Purifier n°7 Jadea. Élimine les impuretés et affine le grain de peau. Soin visage professionnel.'],
+            31 => ['meta_title' => 'Masque Purifiant Purifier n°8 Jadea – Anti-imperfections',
+                   'meta_description' => 'Masque purifiant Purifier n°8 Jadea. Absorbe l\'excès de sébum et réduit les imperfections pour une peau nette.'],
+            32 => ['meta_title' => 'Roll-on Imperfections Purifier n°10 Jadea',
+                   'meta_description' => 'Roll-on imperfections ciblé Purifier n°10 Jadea. Traitement localisé des boutons et imperfections. Soin professionnel Jadea.'],
+
+            // Jadea Hydrater
+            33 => ['meta_title' => 'Lait Démaquillant Hydrater n°2 Jadéa – Douceur',
+                   'meta_description' => 'Lait démaquillant Hydrater n°2 Jadéa. Élimine le maquillage en douceur tout en hydratant. Pour peaux normales à déshydratées.'],
+            34 => ['meta_title' => 'Lotion Tonifiante Hydrater n°3 Jadéa – Fraîcheur',
+                   'meta_description' => 'Lotion tonifiante Hydrater n°3 Jadéa. Prépare la peau au soin et booste l\'hydratation. Cosmétique professionnel Jadea.'],
+            35 => ['meta_title' => 'Crème Contour des Yeux Hydrater n°4 Jadéa',
+                   'meta_description' => 'Crème contour des yeux hydratante Hydrater n°4 Jadéa. Réduit poches et cernes. Soin regard professionnel pour peaux déshydratées.'],
+            36 => ['meta_title' => 'Sérum Hydratation Intense Hydrater n°5 Jadéa',
+                   'meta_description' => 'Sérum hydratation intense Hydrater n°5 Jadéa. Boost d\'hydratation pour peaux déshydratées. Actifs hydratants concentrés Jadea.'],
+            37 => ['meta_title' => 'Crème de Jour Hydratante Hydrater n°6 Jadéa',
+                   'meta_description' => 'Crème de jour hydratante Hydrater n°6 Jadéa. Hydratation longue durée pour peaux normales à déshydratées. Soin quotidien professionnel.'],
+            38 => ['meta_title' => 'Crème de Nuit Hydratante Hydrater n°7 Jadéa',
+                   'meta_description' => 'Crème de nuit hydratante Hydrater n°7 Jadéa. Régénère et hydrate pendant le sommeil. Pour peaux déshydratées et sensibles.'],
+            39 => ['meta_title' => 'Gommage Hydratant Hydrater n°8 Jadéa',
+                   'meta_description' => 'Gommage hydratant Hydrater n°8 Jadéa. Exfolie en douceur et hydrate simultanément. Grain de peau affiné et éclat retrouvé.'],
+            40 => ['meta_title' => 'Masque Lissant Hydrater n°9 Jadéa – Peau douce',
+                   'meta_description' => 'Masque lissant Hydrater n°9 Jadéa. Lisse et hydrate intensément la peau. Soin masque professionnel pour peaux déshydratées.'],
+            41 => ['meta_title' => 'Crème Cou et Buste Hydrater n°10 Jadéa',
+                   'meta_description' => 'Crème hydratante cou et buste Hydrater n°10 Jadéa. Raffermit et nourrit les zones délicates. Soin complet professionnel.'],
+
+            // Jadea Anti Age
+            42 => ['meta_title' => 'Nettoyant Biphase Anti Age n°2 Jadéa',
+                   'meta_description' => 'Nettoyant biphase Anti Age n°2 Jadéa. Nettoie en profondeur et prépare la peau aux soins anti-âge. Pour peaux matures.'],
+            43 => ['meta_title' => 'Concentré Revitalisant Anti Age n°3 Jadéa',
+                   'meta_description' => 'Concentré revitalisant Anti Age n°3 Jadéa. Repulpe et revitalise les peaux matures. Actifs anti-âge haute concentration.'],
+            44 => ['meta_title' => 'Booster 2 en 1 Anti Age n°4 Jadéa – Rides',
+                   'meta_description' => 'Booster 2 en 1 Anti Age n°4 Jadéa. Lisse les rides et densifie la peau. Soin anti-âge concentré professionnel Jadea.'],
+            45 => ['meta_title' => 'Contour des Yeux 2 en 1 Anti Age n°5 Jadéa',
+                   'meta_description' => 'Crème contour des yeux 2 en 1 Anti Age n°5 Jadéa. Réduit rides, poches et cernes. Soin regard anti-âge professionnel.'],
+            46 => ['meta_title' => 'Crème de Jour Anti Age n°6 Jadéa – Anti-rides',
+                   'meta_description' => 'Crème de jour anti-âge n°6 Jadéa. Lisse les rides et prévient le vieillissement cutané. Protection quotidienne peaux matures.'],
+            47 => ['meta_title' => 'Crème de Nuit Anti Age n°7 Jadéa – Régénération',
+                   'meta_description' => 'Crème de nuit anti-âge n°7 Jadéa. Régénère et répare la peau pendant le sommeil. Actifs concentrés pour peaux matures.'],
+            48 => ['meta_title' => 'Gommage Auto Adaptatif Anti Age n°8 Jadéa',
+                   'meta_description' => 'Gommage auto adaptatif Anti Age n°8 Jadéa. Exfoliant innovant pour peaux matures. Affine le grain sans agresser.'],
+
+            // Eskalia Egypte
+            49 => ['meta_title' => 'Fluide Nettoyant Egypte Eskalia – Pureté orientale',
+                   'meta_description' => 'Fluide nettoyant moussant Egypte Eskalia aux actifs orientaux. Nettoie et purifie en douceur pour un teint unifié.'],
+            50 => ['meta_title' => 'Lotion Tonifiante Egypte Eskalia – Fraîcheur du Nil',
+                   'meta_description' => 'Lotion tonifiante Egypte Eskalia. Resserre les pores et illumine le teint avec les actifs naturels inspirés de l\'Egypte.'],
+            51 => ['meta_title' => 'Crème Jour et Nuit Egypte Eskalia – Teint lumineux',
+                   'meta_description' => 'Crème visage jour et nuit Egypte Eskalia. Hydratation intense et éclat du teint aux actifs naturels orientaux.'],
+            52 => ['meta_title' => 'Gouttes Autobronzantes Egypte Eskalia – Hâle naturel',
+                   'meta_description' => 'Gouttes autobronzantes Egypte Eskalia. Obtenez un teint hâlé et naturel sans exposition au soleil. Disponible à Corps à Cœur.'],
+            53 => ['meta_title' => 'Gommage Masque Egypte Eskalia – Éclat intense',
+                   'meta_description' => 'Gommage masque visage Egypte Eskalia. Double action exfoliante et purifiante pour un teint éclatant aux actifs orientaux.'],
+            54 => ['meta_title' => 'Baume Lèvres Egypte Eskalia – Lèvres douces',
+                   'meta_description' => 'Baume à lèvres Egypte Eskalia. Nourrit et protège les lèvres avec les actifs naturels orientaux. Geste beauté essentiel.'],
+            55 => ['meta_title' => 'Lait Corps Egypte Eskalia – Hydratation légère',
+                   'meta_description' => 'Lait corps Egypte Eskalia. Texture légère vite absorbée pour une hydratation quotidienne aux parfums orientaux envoûtants.'],
+            56 => ['meta_title' => 'Eau de Parfum Egypte Eskalia – Mystère oriental',
+                   'meta_description' => 'Eau de parfum Egypte Eskalia aux notes orientales envoutantes. Parfum naturel unisexe disponible à l\'Institut Corps à Cœur.'],
+            57 => ['meta_title' => 'Crème Mains et Pieds Egypte Eskalia – Soin intense',
+                   'meta_description' => 'Crème mains et pieds Egypte Eskalia. Nourrit et répare les mains et les pieds avec les actifs naturels orientaux d\'Eskalia.'],
+            58 => ['meta_title' => 'Gommage Corps Sucre Egypte Eskalia – Peau veloutée',
+                   'meta_description' => 'Gommage corps au sucre Egypte Eskalia. Exfolie en douceur et parfume la peau avec les actifs naturels orientaux.'],
+            59 => ['meta_title' => 'Bougie Bijoux Egypte Eskalia – Cadeau original',
+                   'meta_description' => 'Bougie bijou Egypte Eskalia : bougie artisanale aux parfums orientaux avec un bijou surprise. Idée cadeau idéale.'],
+            60 => ['meta_title' => 'Huile de Douche Egypte Eskalia 500ml – Soin oriental',
+                   'meta_description' => 'Huile de douche Egypte Eskalia 500ml. Nettoie et nourrit votre peau avec des actifs naturels orientaux envoûtants.'],
+            61 => ['meta_title' => 'Baume Réparateur Egypte Eskalia 250ml',
+                   'meta_description' => 'Baume réparateur Egypte Eskalia 250ml. Nourrit en profondeur les peaux sèches et abîmées avec les actifs orientaux.'],
+
+            // Coffrets Eskalia
+            62 => ['meta_title' => 'Winter Box Corps Egypte Eskalia – Coffret hiver',
+                   'meta_description' => 'Coffret Winter Box corps Egypte Eskalia. Ensemble soins corps aux actifs orientaux pour l\'hiver. Idée cadeau beauté.'],
+            63 => ['meta_title' => 'Box Surprise Jadea – Coffret beauté à découvrir',
+                   'meta_description' => 'Box surprise Jadea : sélection de soins visage professionnels Jadea. Coffret idéal pour découvrir la gamme à l\'Institut Corps à Cœur.'],
+
+            // Nakupenda Bagues
+            64 => ['meta_title' => 'Bague Nakupenda – Bijou fantaisie doré',
+                   'meta_description' => 'Bague fantaisie Nakupenda. Bijou doré tendance disponible à l\'Institut Corps à Cœur, Mézidon-Canon.'],
+            65 => ['meta_title' => 'Bague Fleur Pendante Nakupenda – Fantaisie unique',
+                   'meta_description' => 'Bague fleur pendante Nakupenda. Bijou fantaisie dorée original disponible à l\'Institut Corps à Cœur. Parfaite pour un cadeau.'],
+            66 => ['meta_title' => 'Bague Ronde Marron Nakupenda – Pierre naturelle',
+                   'meta_description' => 'Bague ronde avec pierre marron Nakupenda. Bijou fantaisie tendance aux tons naturels. Disponible à l\'Institut Corps à Cœur.'],
+            67 => ['meta_title' => 'Bague Ornement Marron Nakupenda – Style bohème',
+                   'meta_description' => 'Bague ornement marron Nakupenda. Bijou fantaisie aux tons naturels et chauds. Style bohème disponible à Corps à Cœur.'],
+
+            // Eskalia petits formats
+            68 => ['meta_title' => 'Baume Réparateur Egypte Eskalia 100ml – Voyage',
+                   'meta_description' => 'Baume réparateur Egypte Eskalia 100ml format voyage. Nourrit les peaux sèches en déplacement. Cosmétique naturel oriental.'],
+            69 => ['meta_title' => 'Huile de Douche Egypte Eskalia 100ml – Compact',
+                   'meta_description' => 'Huile de douche Egypte Eskalia 100ml format compact idéal en voyage. Peau nourrie aux actifs orientaux, partout avec vous.'],
+            70 => ['meta_title' => 'Huile de Douche Guadeloupe Eskalia 100ml – Voyage',
+                   'meta_description' => 'Huile de douche Guadeloupe Eskalia 100ml format voyage. Peau hydratée aux actifs naturels antillais, partout avec vous.'],
+            71 => ['meta_title' => 'Baume Réparateur Guadeloupe Eskalia 100ml',
+                   'meta_description' => 'Baume ultra-réparateur Guadeloupe Eskalia 100ml. Format pratique pour peaux sèches aux actifs naturels antillais.'],
+            72 => ['meta_title' => 'Huile de Douche Bali Eskalia 100ml – Format nomade',
+                   'meta_description' => 'Huile de douche Bali Eskalia 100ml format nomade. Emportez les actifs naturels de Bali partout avec vous.'],
+
+            // Nakupenda Bagues suite
+            73 => ['meta_title' => 'Bague Dorée Chaîne Nakupenda – Minimaliste',
+                   'meta_description' => 'Bague dorée avec chaîne Nakupenda. Bijou fantaisie minimaliste et tendance. Disponible à l\'Institut Corps à Cœur, Mézidon-Canon.'],
+            74 => ['meta_title' => 'Double Bague Dorée Ornement Marron Nakupenda',
+                   'meta_description' => 'Double bague dorée ornement marron Nakupenda. Bijou fantaisie tendance aux tons chauds. Disponible à l\'Institut Corps à Cœur.'],
+            75 => ['meta_title' => 'Bague Dorée Pierre Orangée Nakupenda – Éclat',
+                   'meta_description' => 'Bague dorée avec pierre marron orangée Nakupenda. Bijou fantaisie aux couleurs naturelles. Disponible à l\'Institut Corps à Cœur.'],
+            76 => ['meta_title' => 'Bague Dorée Nakupenda – Classique et élégante',
+                   'meta_description' => 'Bague dorée simple Nakupenda. Bijou fantaisie classique et élégant. Disponible à l\'Institut Corps à Cœur, Mézidon-Canon.'],
+            77 => ['meta_title' => 'Bague Double Anneaux Pierre Centrale Nakupenda',
+                   'meta_description' => 'Bague dorée double anneaux avec pierre centrale Nakupenda. Bijou fantaisie unique disponible à l\'Institut Corps à Cœur.'],
+
+            // Nakupenda Bracelets
+            78 => ['meta_title' => 'Triple Bracelet Perles Nakupenda – Look bohème',
+                   'meta_description' => 'Triple bracelet en perles Nakupenda. Bijou fantaisie bohème et tendance. Disponible à l\'Institut Corps à Cœur, Mézidon-Canon.'],
+            79 => ['meta_title' => 'Double Bracelet Perles et Chaînes Nakupenda',
+                   'meta_description' => 'Double bracelet perles et chaînes Nakupenda. Bijou fantaisie mixant textures et matières. Disponible à l\'Institut Corps à Cœur.'],
+            80 => ['meta_title' => 'Bracelet Double Chaîne Perles Nakupenda',
+                   'meta_description' => 'Bracelet double chaîne et perles Nakupenda. Bijou fantaisie tendance pour poignet stylé. Disponible à Corps à Cœur.'],
+            81 => ['meta_title' => 'Bracelet Doré 3 Pierres Beige Nakupenda',
+                   'meta_description' => 'Bracelet doré 3 pierres beige Nakupenda. Bijou fantaisie élégant aux tons naturels. Disponible à l\'Institut Corps à Cœur.'],
+            82 => ['meta_title' => 'Bracelet Doré Double Cercle Nakupenda – Minimaliste',
+                   'meta_description' => 'Bracelet doré double cercle Nakupenda. Bijou fantaisie minimaliste et chic. Disponible à l\'Institut Corps à Cœur, Mézidon-Canon.'],
+            83 => ['meta_title' => 'Bracelet Doré Cercles Entrelacés Nakupenda',
+                   'meta_description' => 'Bracelet doré cercles entrelacés Nakupenda. Bijou fantaisie géométrique et tendance. Disponible à l\'Institut Corps à Cœur.'],
+            84 => ['meta_title' => 'Bracelet Doré Grosse Maille Nakupenda – Bold',
+                   'meta_description' => 'Bracelet doré chaîne grosse maille Nakupenda. Bijou fantaisie affirmé et tendance. Disponible à l\'Institut Corps à Cœur.'],
+
+            // Nakupenda Boucles d'oreilles
+            85 => ['meta_title' => 'Boucles d\'oreilles Boule Beige Nakupenda',
+                   'meta_description' => 'Boucles d\'oreilles boule beige Nakupenda. Bijou fantaisie simple et élégant. Disponible à l\'Institut Corps à Cœur, Mézidon-Canon.'],
+            86 => ['meta_title' => 'Créoles Beiges et Dorées Nakupenda',
+                   'meta_description' => 'Créoles beiges et dorées Nakupenda. Boucles d\'oreilles fantaisie tendance aux tons naturels. Disponible à Corps à Cœur.'],
+            87 => ['meta_title' => 'Boucles d\'oreilles Pendantes Beige Dorée Nakupenda',
+                   'meta_description' => 'Boucles d\'oreilles pendantes beige et dorée Nakupenda. Bijou fantaisie chic et féminin. Disponible à l\'Institut Corps à Cœur.'],
+            88 => ['meta_title' => 'Créoles Dorées Chaînes Pendantes Nakupenda',
+                   'meta_description' => 'Créoles dorées avec chaînes pendantes Nakupenda. Boucles d\'oreilles fantaisie tendance. Disponible à l\'Institut Corps à Cœur.'],
+            89 => ['meta_title' => 'Boucles d\'oreilles Pendantes Dorées Nakupenda',
+                   'meta_description' => 'Boucles d\'oreilles pendantes dorées Nakupenda. Bijou fantaisie élégant pour toutes occasions. Disponible à Corps à Cœur.'],
+            90 => ['meta_title' => 'Boucles d\'oreilles Cœur Doré Nakupenda',
+                   'meta_description' => 'Boucles d\'oreilles pendantes dorées avec cœur Nakupenda. Bijou fantaisie romantique. Idée cadeau disponible à Corps à Cœur.'],
+            91 => ['meta_title' => 'Boucles d\'oreilles Dorées et Marrons Nakupenda',
+                   'meta_description' => 'Boucles d\'oreilles pendantes dorées et marrons Nakupenda. Bijou fantaisie naturel et tendance. Disponible à Corps à Cœur.'],
+            92 => ['meta_title' => 'Créoles Dorées et Marrons Nakupenda',
+                   'meta_description' => 'Créoles dorées et marrons Nakupenda. Boucles d\'oreilles fantaisie aux tons naturels. Disponible à l\'Institut Corps à Cœur.'],
+
+            // Charme d'orient Karité
+            93  => ['meta_title' => 'Beurre de Karité Fleur d\'Oranger Charme d\'orient',
+                    'meta_description' => 'Beurre de karité fleur d\'oranger Charme d\'orient. Nourrit intensément les peaux sèches avec un parfum floral délicat.'],
+            94  => ['meta_title' => 'Beurre de Karité Fruits Charme d\'Orient',
+                    'meta_description' => 'Beurre de karité aux fruits Charme d\'Orient. Hydrate et nourrit en profondeur avec des actifs naturels et un parfum fruité.'],
+            95  => ['meta_title' => 'Beurre de Karité Thé Vert Charme d\'Orient',
+                    'meta_description' => 'Beurre de karité au thé vert Charme d\'Orient. Propriétés antioxydantes et nourrissantes pour peaux sèches. Actifs naturels.'],
+            96  => ['meta_title' => 'Beurre de Karité Neutre Charme d\'Orient – Pur',
+                    'meta_description' => 'Beurre de karité neutre pur Charme d\'Orient. Sans parfum, idéal pour peaux sensibles. Nourrissant et protecteur naturel.'],
+            97  => ['meta_title' => 'Beurre de Karité Néroli Charme d\'Orient',
+                    'meta_description' => 'Beurre de karité au néroli Charme d\'Orient. Actifs tonifiants et parfum délicat d\'orange amère. Soin corps nourrissant.'],
+            98  => ['meta_title' => 'Beurre de Karité Tiaré Charme d\'Orient – Polynésie',
+                    'meta_description' => 'Beurre de karité à la fleur de tiaré Charme d\'Orient. Parfum exotique polynésien et nutrition intense pour peaux sèches.'],
+            99  => ['meta_title' => 'Beurre de Karité Effluves du Nil Charme d\'orient',
+                    'meta_description' => 'Beurre de karité Effluves du Nil Charme d\'orient. Inspiration orientale pour un soin corps nourrissant aux notes mystérieuses.'],
+
+            // Charme d'orient Gommages
+            100 => ['meta_title' => 'Gommage Corps Figues Dattes Charme d\'orient',
+                    'meta_description' => 'Gommage corps à la pierre d\'alun, figues et dattes Charme d\'orient. Exfoliant naturel oriental pour peau lisse et douce.'],
+            101 => ['meta_title' => 'Gommage Pierre d\'Alun Rose Charme d\'Orient',
+                    'meta_description' => 'Gommage corps pierre d\'alun et rose Charme d\'Orient. Exfoliant naturel purificateur aux notes florales. Peau lisse et parfumée.'],
+            102 => ['meta_title' => 'Gommage Corps Fleur d\'Oranger Charme d\'orient',
+                    'meta_description' => 'Gommage corps à la fleur d\'oranger Charme d\'orient. Exfoliant naturel aux actifs purifiants et au parfum floral oriental.'],
+
+            // Charme d'orient Corps
+            103 => ['meta_title' => 'Lait Corps Parfum d\'Orient Charme d\'Orient',
+                    'meta_description' => 'Lait corps parfum d\'orient Charme d\'Orient. Hydrate et parfume la peau avec les senteurs orientales envoûtantes.'],
+            104 => ['meta_title' => 'Huile Corps Vanille Charme d\'Orient – Gourmande',
+                    'meta_description' => 'Huile corps à la vanille Charme d\'Orient. Texture soyeuse et parfum gourmand pour une peau douce et hydratée.'],
+            105 => ['meta_title' => 'Huile Corps Douceurs Orientales Charme d\'orient',
+                    'meta_description' => 'Huile corps Douceurs Orientales Charme d\'orient. Mélange d\'huiles nourrissantes aux fragrances orientales. Peau sublimée.'],
+            106 => ['meta_title' => 'Huile Corps Parfums d\'Orient Charme d\'Orient',
+                    'meta_description' => 'Huile corps Parfums d\'Orient Charme d\'Orient. Actifs naturels nourrissants et parfum oriental envoûtant pour la peau.'],
+            107 => ['meta_title' => 'Huile Corps Fleur de Tiaré Charme d\'orient',
+                    'meta_description' => 'Huile corps à la fleur de tiaré Charme d\'orient. Parfum polynésien envoûtant et actifs nourrissants pour peau veloutée.'],
+            108 => ['meta_title' => 'Huile Corps Jasmin Charme d\'Orient – Floral oriental',
+                    'meta_description' => 'Huile corps au jasmin Charme d\'Orient. Parfum floral oriental et texture soyeuse pour une peau hydratée et parfumée.'],
+
+            // Coffrets corps et visage
+            109 => ['meta_title' => 'Coffret Corps Guadeloupe Eskalia – Soin complet',
+                    'meta_description' => 'Coffret soin corps Guadeloupe Eskalia. Ensemble complet de soins corps aux actifs naturels antillais. Idée cadeau beauté.'],
+            110 => ['meta_title' => 'Coffret Soin Visage Guadeloupe Eskalia',
+                    'meta_description' => 'Coffret soin visage Guadeloupe Eskalia. Actifs naturels antillais pour un teint lumineux. Idée cadeau beauté originale.'],
+            111 => ['meta_title' => 'Coffret Soin Visage Egypte Eskalia – Éclat oriental',
+                    'meta_description' => 'Coffret soin visage Egypte Eskalia. Ensemble de soins visage aux actifs naturels orientaux. Cadeau beauté original.'],
+            112 => ['meta_title' => 'Coffret Soin Visage Hydratant Jadea',
+                    'meta_description' => 'Coffret soin visage hydratant Jadea. Ensemble complet pour peaux déshydratées : nettoyant, sérum et crème hydratants professionnels.'],
+            113 => ['meta_title' => 'Coffret Soin Anti Age Jadéa – Traitement anti-rides',
+                    'meta_description' => 'Coffret soin anti-âge Jadéa. Ensemble complet pour peaux matures : repulpant, anti-rides et régénérant. Offrez la jeunesse.'],
+
+            // Nakupenda Colliers
+            114 => ['meta_title' => 'Collier Pendentif Ovale Doré Nakupenda',
+                    'meta_description' => 'Collier pendentif ovale doré Nakupenda. Bijou fantaisie élégant et minimaliste. Disponible à l\'Institut Corps à Cœur, Mézidon-Canon.'],
+            115 => ['meta_title' => 'Collier Pendentif Rond Doré Nakupenda',
+                    'meta_description' => 'Collier pendentif rond doré Nakupenda. Bijou fantaisie simple et chic. Disponible à l\'Institut Corps à Cœur, Mézidon-Canon.'],
+            116 => ['meta_title' => 'Collier Pendentif Pierre Beige Nakupenda',
+                    'meta_description' => 'Collier avec pendentif pierre beige Nakupenda. Bijou fantaisie aux tons naturels. Disponible à l\'Institut Corps à Cœur.'],
+            117 => ['meta_title' => 'Collier Pierres Beige Marron Nakupenda',
+                    'meta_description' => 'Collier parsemé de pierres beige et marron Nakupenda. Bijou fantaisie aux tons naturels. Disponible à l\'Institut Corps à Cœur.'],
+
+            // Nakupenda Bracelet jonc
+            118 => ['meta_title' => 'Bracelet Jonc Doré et Beige Nakupenda',
+                    'meta_description' => 'Bracelet jonc doré et beige Nakupenda. Bijou fantaisie élégant et épuré. Disponible à l\'Institut Corps à Cœur, Mézidon-Canon.'],
+
+            // Eskalia Islande
+            119 => ['meta_title' => 'Huile de Douche Islande Eskalia – Fraîcheur nordique',
+                    'meta_description' => 'Huile de douche Islande Eskalia aux actifs inspirés des paysages nordiques. Peau nourrie et fraîche à chaque douche.'],
+
+            // Bougies de massage
+            120 => ['meta_title' => 'Bougie de Massage Noix de Coco – Soin sensuel',
+                    'meta_description' => 'Bougie de massage à la noix de coco. Cire naturelle qui devient huile de massage au contact de la peau. Cadeau bien-être.'],
+            121 => ['meta_title' => 'Bougie de Massage Pomme d\'Amour – Gourmande',
+                    'meta_description' => 'Bougie de massage pomme d\'amour. Cire naturelle gourmande se transformant en huile de massage. Idée cadeau originale.'],
+            122 => ['meta_title' => 'Bougie de Massage Monoï – Évasion polynésienne',
+                    'meta_description' => 'Bougie de massage au monoï. Cire naturelle polynésienne pour un massage sensoriel. Parfum exotique envoûtant.'],
+            123 => ['meta_title' => 'Bougie de Massage Fleur de Coton – Douceur',
+                    'meta_description' => 'Bougie de massage à la fleur de coton. Cire naturelle pour un massage relaxant. Parfum délicat et enveloppant.'],
+            124 => ['meta_title' => 'Bougie de Massage Thé Vert – Tonique',
+                    'meta_description' => 'Bougie de massage au thé vert. Cire naturelle antioxydante pour un massage bien-être. Parfum frais et tonique.'],
+
+            // Coffrets Saint-Valentin et spéciaux
+            125 => ['meta_title' => 'Coffret Saint-Valentin Bougie Massage & Bain',
+                    'meta_description' => 'Coffret Saint-Valentin bougie de massage et bombes de bain. Idée cadeau romantique et bien-être à l\'Institut Corps à Cœur.'],
+            126 => ['meta_title' => 'Coffret Saint-Valentin Bougie & Boucles d\'Oreilles',
+                    'meta_description' => 'Coffret Saint-Valentin bougie de massage et boucles d\'oreilles Nakupenda. Cadeau beauté et bien-être original pour elle.'],
+            127 => ['meta_title' => 'Coffret Saint-Valentin Bijoux Nakupenda',
+                    'meta_description' => 'Coffret Saint-Valentin bijoux Nakupenda. Ensemble de bijoux fantaisie dorés pour un cadeau romantique et tendance.'],
+            128 => ['meta_title' => 'Coffret Saint-Valentin Bougie Bijou & Huile Douche',
+                    'meta_description' => 'Coffret Saint-Valentin bougie bijou Eskalia et huile de douche. Cadeau original alliant surprise et soin corps.'],
+
+            // Crème teintée Nude Bali
+            129 => ['meta_title' => 'Crème Teintée Nude Bali Eskalia – Teint naturel',
+                    'meta_description' => 'Crème teintée nude Bali Eskalia. Unifie le teint avec un résultat naturel et hydratant. Disponible à l\'Institut Corps à Cœur.'],
+
+            // Coffrets Jadea par type de peau
+            130 => ['meta_title' => 'Coffret Base Peau Sèche Jadea – Soins essentiels',
+                    'meta_description' => 'Coffret de base peau sèche Jadea. Kit de soins essentiels pour peaux sèches : nettoyant et crème hydratante professionnels.'],
+            131 => ['meta_title' => 'Coffret Complet Peau Sèche Jadea',
+                    'meta_description' => 'Coffret complet peau sèche Jadea. Routine de soin complète : nettoyant, gommage, masque et crème hydratante.'],
+            132 => ['meta_title' => 'Coffret Peau Sèche Hyperpigmentée Jadea',
+                    'meta_description' => 'Coffret peau sèche et hyperpigmentée Jadea. Soins ciblés pour hydrater et unifier le teint.'],
+            133 => ['meta_title' => 'Coffret Base Peau Sèche Sensible Jadea',
+                    'meta_description' => 'Coffret peau sèche et sensible Jadea. Soins doux et apaisants pour peaux sèches réactives.'],
+            134 => ['meta_title' => 'Coffret Complet Peau Sèche Sensible Jadea',
+                    'meta_description' => 'Coffret complet peau sèche et sensible Jadea. Routine de soin douce et nourrissante pour peaux sèches réactives.'],
+            135 => ['meta_title' => 'Coffret Base Peau Déshydratée Jadea',
+                    'meta_description' => 'Coffret peau déshydratée Jadea. Kit essentiel pour réhydrater et rééquilibrer les peaux manquant d\'eau.'],
+            136 => ['meta_title' => 'Coffret Complet Peau Déshydratée Jadea',
+                    'meta_description' => 'Coffret complet peau déshydratée Jadea. Routine hydratation complète : nettoyant, sérum, masque et crème.'],
+            137 => ['meta_title' => 'Coffret Peau Déshydratée Acnéique Jadea',
+                    'meta_description' => 'Coffret peau déshydratée acnéique Jadea. Soins pour hydrater et purifier les peaux manquant d\'eau à imperfections.'],
+            138 => ['meta_title' => 'Coffret Complet Peau Déshydratée et Acné Jadea',
+                    'meta_description' => 'Coffret complet peau déshydratée et acnéique Jadea. Routine purifiante et hydratante pour peaux à imperfections.'],
+            139 => ['meta_title' => 'Coffret Peau Déshydratée Anti Age Jadea',
+                    'meta_description' => 'Coffret complet peau déshydratée anti-âge Jadea. Soins pour hydrater et traiter le vieillissement cutané.'],
+            140 => ['meta_title' => 'Coffret Base Peau Normale Jadea',
+                    'meta_description' => 'Coffret peau normale Jadea. Kit de soins quotidiens pour entretenir et protéger les peaux normales.'],
+            141 => ['meta_title' => 'Coffret Complet Peau Normale Jadea',
+                    'meta_description' => 'Coffret complet peau normale Jadea. Routine de soin complète pour maintenir l\'équilibre et l\'éclat des peaux normales.'],
+            142 => ['meta_title' => 'Coffret Peau Normale Légèrement Acnéique Jadea',
+                    'meta_description' => 'Coffret peau normale et légèrement acnéique Jadea. Soins équilibrants pour traiter les imperfections ponctuelles.'],
+            143 => ['meta_title' => 'Coffret Complet Peau Normale Acnéique Jadea',
+                    'meta_description' => 'Coffret complet peau normale acnéique Jadea. Routine purifiante complète pour peaux normales à tendance acnéique.'],
+            144 => ['meta_title' => 'Coffret Peau Normale Mature Jadea – Anti-âge',
+                    'meta_description' => 'Coffret peau normale mature Jadea. Soins anti-âge pour prévenir et traiter les premiers signes du vieillissement.'],
+            145 => ['meta_title' => 'Coffret Peau Normale Hyperpigmentée Jadea',
+                    'meta_description' => 'Coffret peau normale hyperpigmentée Jadea. Soins pour unifier le teint et réduire les taches pigmentaires.'],
+            146 => ['meta_title' => 'Coffret Complet Peau Normale Hyperpigmentée Jadea',
+                    'meta_description' => 'Coffret complet peau normale hyperpigmentée Jadea. Routine anti-taches complète pour unifier le teint naturellement.'],
+            147 => ['meta_title' => 'Coffret Base Peau Grasse Jadea – Soins purifiants',
+                    'meta_description' => 'Coffret peau grasse Jadea. Kit de soins purifiants et matifiants pour peaux grasses et mixtes.'],
+            149 => ['meta_title' => 'Coffret Peau Grasse Mature Jadea – Matifiant & anti-âge',
+                    'meta_description' => 'Coffret peau grasse mature Jadea. Soins matifiants et anti-âge pour peaux grasses qui vieillissent.'],
+        ];
+
+        foreach ($products as $id => $seo) {
+            Product::where('id', $id)->update($seo);
+        }
+    }
+}
