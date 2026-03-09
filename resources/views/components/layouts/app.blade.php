@@ -26,16 +26,6 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
 
-        // Consentement RGPD par défaut (désactivé pour l'UE)
-        gtag('consent', 'default', {
-            analytics_storage: 'denied',
-            ad_storage: 'denied',
-            ad_user_data: 'denied',
-            ad_personalization: 'denied',
-            region: ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','GB'],
-            wait_for_update: 500,
-        });
-
         gtag('js', new Date());
         gtag('set', 'linker', {'domains': ['institutcorpsacoeur.fr']});
         @if ($gaId)
