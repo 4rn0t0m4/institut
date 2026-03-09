@@ -7,6 +7,7 @@ use App\Mail\OrderConfirmation;
 use App\Mail\PaymentFailed;
 use App\Models\Order;
 use App\Models\Product;
+use App\Services\BoxtalConnectService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -71,11 +72,16 @@ class StripeWebhookController extends Controller
             $this->decrementStock($order);
         });
 
-        // Emails envoyés hors transaction (pas besoin de bloquer)
-        $order = Order::where('stripe_payment_intent_id', $paymentIntent->id)->first();
+        // Emails + Boxtal Connect envoyés hors transaction (pas besoin de bloquer)
+        $order = Order::where('stripe_payment_intent_id', $paymentIntent->id)->with('items')->first();
         if ($order && $order->status === 'processing') {
             Mail::to($order->billing_email)->send(new OrderConfirmation($order));
             Mail::to(config('mail.admin_address', config('mail.from.address')))->send(new NewOrderAdmin($order));
+
+            // Sync automatique vers le dashboard Boxtal Connect
+            if ($order->shipping_key === 'boxtal') {
+                app(BoxtalConnectService::class)->pushOrder($order);
+            }
         }
     }
 

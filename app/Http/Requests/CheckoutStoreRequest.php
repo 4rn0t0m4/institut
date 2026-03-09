@@ -40,6 +40,7 @@ class CheckoutStoreRequest extends FormRequest
             'relay_point_code'    => 'nullable|required_if:shipping_method,boxtal|string|max:100',
             'relay_point_name'    => 'nullable|string|max:255',
             'relay_point_address' => 'nullable|string|max:500',
+            'relay_network'       => 'nullable|string|max:50',
             'coupon_code'         => 'nullable|string|max:50',
             'gift_wrap'           => 'nullable|boolean',
             'gift_type'           => 'nullable|required_if:gift_wrap,1|in:boite,sac',

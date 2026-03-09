@@ -51,6 +51,7 @@
               relayPointCode: '{{ old('relay_point_code') }}',
               relayPointName: '{{ old('relay_point_name') }}',
               relayPointAddress: '{{ old('relay_point_address') }}',
+              relayPointNetwork: '{{ old('relay_network') }}',
               relayPoints: [],
               relayLoading: false,
               relaySearched: false,
@@ -84,6 +85,7 @@
                   this.relayPointCode = point.code;
                   this.relayPointName = point.name;
                   this.relayPointAddress = [point.street, point.zipCode, point.city].filter(Boolean).join(', ');
+                  this.relayPointNetwork = point.network;
                   window.__relayMap.highlight(point);
               },
 
@@ -92,6 +94,7 @@
                   this.relayPointCode = '';
                   this.relayPointName = '';
                   this.relayPointAddress = '';
+                  this.relayPointNetwork = '';
                   this.relaySearched = false;
                   window.__relayMap.destroy();
               },
@@ -409,6 +412,7 @@
                     <input type="hidden" name="relay_point_code" :value="relayPointCode">
                     <input type="hidden" name="relay_point_name" :value="relayPointName">
                     <input type="hidden" name="relay_point_address" :value="relayPointAddress">
+                    <input type="hidden" name="relay_network" :value="relayPointNetwork">
                 </section>
 
                 {{-- Emballage cadeau --}}
