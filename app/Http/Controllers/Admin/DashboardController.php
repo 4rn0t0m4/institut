@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Page;
+use App\Models\Setting;
 use Spatie\Analytics\Facades\Analytics;
 use Spatie\Analytics\Period;
 
@@ -24,9 +25,11 @@ class DashboardController extends Controller
 
         // Google Analytics data
         $analyticsData = null;
-        $analyticsConfigured = config('analytics.property_id') && file_exists(storage_path('app/analytics/service-account-credentials.json'));
+        $propertyId = Setting::get('analytics_property_id') ?: config('analytics.property_id');
+        $analyticsConfigured = $propertyId && file_exists(storage_path('app/analytics/service-account-credentials.json'));
 
         if ($analyticsConfigured) {
+            config(['analytics.property_id' => $propertyId]);
             try {
                 $analyticsData = [
                     'visitors_today' => Analytics::fetchTotalVisitorsAndPageViews(Period::days(1)),
