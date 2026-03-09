@@ -411,6 +411,11 @@
                style="background-color: #276e44;">
                 Prendre rendez-vous
             </a>
+            <a href="{{ route('bilan-minceur.show') }}"
+               class="block mt-2 text-center font-semibold py-2.5 rounded-lg"
+               style="background-color: #e8fae8; color: #276e44; border: 1px solid #b0f1b9;">
+                Votre bilan minceur
+            </a>
         </div>
     </div>
 </header>
