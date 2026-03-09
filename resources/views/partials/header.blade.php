@@ -251,33 +251,35 @@
          class="absolute left-0 right-0 bg-white shadow-lg border-t z-50"
          style="border-color: #b0f1b9;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div style="display: grid; grid-template-columns: repeat({{ min($boutiqueCategories->count(), 4) }}, 1fr) {{ $featuredProduct ? '280px' : '' }}; gap: 2rem;">
+            <div style="display: grid; grid-template-columns: 1fr {{ $featuredProduct ? '220px' : '' }}; gap: 2rem; align-items: start;">
 
-                {{-- Catégories avec sous-catégories --}}
-                @foreach($boutiqueCategories as $cat)
-                    <div>
-                        <a href="{{ $cat->url() }}"
-                           class="text-xs font-bold uppercase tracking-wider hover:opacity-70 transition-opacity"
-                           style="color: #276e44; letter-spacing: 0.1em;">
-                            {{ $cat->name }}
-                        </a>
-                        @if($cat->children->isNotEmpty())
-                            <ul class="mt-4" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                @foreach($cat->children as $sub)
-                                    <li>
-                                        <a href="{{ $sub->url() }}"
-                                           class="text-sm hover:opacity-70 transition-opacity"
-                                           style="color: #60916a;">
-                                            {{ $sub->name }}
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </div>
-                @endforeach
+                {{-- Grille de catégories (toujours à gauche) --}}
+                <div style="display: grid; grid-template-columns: repeat({{ min($boutiqueCategories->count(), 5) }}, 1fr); gap: 1.5rem;">
+                    @foreach($boutiqueCategories as $cat)
+                        <div>
+                            <a href="{{ $cat->url() }}"
+                               class="text-xs font-bold uppercase tracking-wider hover:opacity-70 transition-opacity"
+                               style="color: #276e44; letter-spacing: 0.1em;">
+                                {{ $cat->name }}
+                            </a>
+                            @if($cat->children->isNotEmpty())
+                                <ul class="mt-4" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    @foreach($cat->children as $sub)
+                                        <li>
+                                            <a href="{{ $sub->url() }}"
+                                               class="text-sm hover:opacity-70 transition-opacity"
+                                               style="color: #60916a;">
+                                                {{ $sub->name }}
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
 
-                {{-- Encart produit mis en avant --}}
+                {{-- Encart produit mis en avant (toujours à droite) --}}
                 @if($featuredProduct)
                     <div style="background: linear-gradient(135deg, #e8fae8 0%, #f0fdf4 100%); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column;">
                         <a href="{{ $featuredProduct->url() }}" class="block" style="flex: 1;">
