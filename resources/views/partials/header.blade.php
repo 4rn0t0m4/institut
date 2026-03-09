@@ -224,17 +224,30 @@
 
             </div>
 
-            {{-- Encart CTA --}}
-            <div class="mt-6" style="background: linear-gradient(135deg, #e8fae8 0%, #f0fdf4 100%); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between;">
-                <div>
-                    <p class="text-sm font-semibold" style="color: #276e44;">Envie de prendre soin de vous ?</p>
-                    <p class="text-xs mt-0.5" style="color: #60916a;">Réservez votre créneau en ligne en quelques clics</p>
+            {{-- Encarts CTA --}}
+            <div class="mt-6" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div style="background: linear-gradient(135deg, #e8fae8 0%, #f0fdf4 100%); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <p class="text-sm font-semibold" style="color: #276e44;">Envie de prendre soin de vous ?</p>
+                        <p class="text-xs mt-0.5" style="color: #60916a;">Réservez votre créneau en ligne en quelques clics</p>
+                    </div>
+                    <a href="https://www.planity.com/institut-corps-a-coeur-14270-mezidon-vallee-dauge" target="_blank" rel="noopener"
+                       class="text-xs font-semibold px-5 py-2.5 rounded-lg text-white transition hover:opacity-90 ml-4"
+                       style="background-color: #276e44; white-space: nowrap;">
+                        Prendre rendez-vous →
+                    </a>
                 </div>
-                <a href="https://www.planity.com/institut-corps-a-coeur-14270-mezidon-vallee-dauge" target="_blank" rel="noopener"
-                   class="text-xs font-semibold px-5 py-2.5 rounded-lg text-white transition hover:opacity-90"
-                   style="background-color: #276e44; white-space: nowrap;">
-                    Prendre rendez-vous →
-                </a>
+                <div style="background: linear-gradient(135deg, #e8fae8 0%, #f0fdf4 100%); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <p class="text-sm font-semibold" style="color: #276e44;">Votre bilan minceur personnalisé</p>
+                        <p class="text-xs mt-0.5" style="color: #60916a;">Faites le point sur vos objectifs avec notre équipe</p>
+                    </div>
+                    <a href="{{ route('bilan-minceur.show') }}"
+                       class="text-xs font-semibold px-5 py-2.5 rounded-lg text-white transition hover:opacity-90 ml-4"
+                       style="background-color: #276e44; white-space: nowrap;">
+                        Commencer →
+                    </a>
+                </div>
             </div>
         </div>
     </div>
