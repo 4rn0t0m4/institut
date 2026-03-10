@@ -12,10 +12,14 @@ use App\Http\Controllers\BoxtalController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\BilanMinceurController;
+use App\Http\Controllers\GoogleMerchantFeedController;
 use Illuminate\Support\Facades\Route;
 
 // Sitemap
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Flux Google Shopping (produits hors bijoux)
+Route::get('/flux-google-shopping.xml', [GoogleMerchantFeedController::class, 'index'])->name('google.merchant.feed');
 
 // Accueil
 Route::get('/', [HomeController::class, 'index'])->name('home');
