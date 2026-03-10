@@ -71,10 +71,6 @@ class ProductController extends Controller
             'brand_id' => 'nullable|exists:brands,id',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
-            'featured_image' => 'nullable|image|max:10240',
-            'gallery_images.*' => 'nullable|image|max:10240',
-            'gallery_remove' => 'nullable|array',
-            'gallery_remove.*' => 'nullable|integer',
         ]);
 
         if (empty($validated['slug'])) {
@@ -86,17 +82,17 @@ class ProductController extends Controller
 
         $product = Product::create($validated);
 
-        if ($request->hasFile('featured_image')) {
+        if ($request->hasFile('featured_image') && $request->file('featured_image')->isValid()) {
             $media = $this->storeMedia($request->file('featured_image'));
             $product->featured_image_id = $media->id;
             $product->save();
         }
 
-        if ($request->hasFile('gallery_images')) {
+        $validGallery = array_filter((array) $request->file('gallery_images', []), fn ($f) => $f && $f->isValid());
+        if (!empty($validGallery)) {
             $galleryIds = [];
-            foreach ($request->file('gallery_images') as $file) {
-                $media = $this->storeMedia($file);
-                $galleryIds[] = $media->id;
+            foreach ($validGallery as $file) {
+                $galleryIds[] = $this->storeMedia($file)->id;
             }
             $product->gallery_image_ids = $galleryIds;
             $product->save();
@@ -129,10 +125,6 @@ class ProductController extends Controller
             'brand_id' => 'nullable|exists:brands,id',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
-            'featured_image' => 'nullable|image|max:10240',
-            'gallery_images.*' => 'nullable|image|max:10240',
-            'gallery_remove' => 'nullable|array',
-            'gallery_remove.*' => 'nullable|integer',
         ]);
 
         if (empty($validated['slug'])) {
@@ -148,7 +140,7 @@ class ProductController extends Controller
         if ($request->input('remove_featured_image') == '1') {
             $product->featured_image_id = null;
             $product->save();
-        } elseif ($request->hasFile('featured_image')) {
+        } elseif ($request->hasFile('featured_image') && $request->file('featured_image')->isValid()) {
             $media = $this->storeMedia($request->file('featured_image'));
             $product->featured_image_id = $media->id;
             $product->save();
@@ -162,14 +154,12 @@ class ProductController extends Controller
             $galleryIds = array_values(array_diff($galleryIds, $toRemove));
         }
 
-        if ($request->hasFile('gallery_images')) {
-            foreach ($request->file('gallery_images') as $file) {
-                $media = $this->storeMedia($file);
-                $galleryIds[] = $media->id;
-            }
+        $validGallery = array_filter((array) $request->file('gallery_images', []), fn ($f) => $f && $f->isValid());
+        foreach ($validGallery as $file) {
+            $galleryIds[] = $this->storeMedia($file)->id;
         }
 
-        if ($request->filled('gallery_remove') || $request->hasFile('gallery_images')) {
+        if ($request->filled('gallery_remove') || !empty($validGallery)) {
             $product->gallery_image_ids = array_values($galleryIds);
             $product->save();
         }
