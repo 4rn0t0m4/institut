@@ -7,6 +7,8 @@
         const isDark = document.documentElement.classList.contains('dark');
         tinymce.init({
             selector: '.tinymce-full',
+            width: '100%',
+            min_width: 600,
             height: 500,
             menubar: true,
             plugins: 'lists link image table code fullscreen media hr wordcount',
