@@ -10,16 +10,26 @@ class EditorUploadController extends Controller
 {
     public function upload(Request $request)
     {
-        $request->validate([
-            'file' => 'required|image|max:5120', // 5 Mo max
-        ]);
+        if (!$request->hasFile('file') || !$request->file('file')->isValid()) {
+            return response()->json(['error' => 'Fichier invalide ou trop volumineux (max 8 Mo)'], 422);
+        }
 
         $file = $request->file('file');
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+
+        // Vérification manuelle du type MIME réel
+        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+        $mime = $file->getMimeType();
+        if (!in_array($mime, $allowed)) {
+            return response()->json(['error' => "Type de fichier non autorisé ($mime)"], 422);
+        }
+
+        $extensions = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp', 'image/svg+xml' => 'svg'];
+        $ext = $extensions[$mime] ?? $file->getClientOriginalExtension() ?: 'jpg';
+        $filename = Str::uuid() . '.' . $ext;
         $file->storeAs('public/editor-uploads', $filename);
 
         return response()->json([
-            'location' => asset('storage/editor-uploads/' . $filename),
+            'location' => '/storage/editor-uploads/' . $filename,
         ]);
     }
 }
