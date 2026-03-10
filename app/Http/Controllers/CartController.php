@@ -13,9 +13,23 @@ class CartController extends Controller
 
     public function index()
     {
+        $items = $this->cart->itemsWithProducts();
+
+        $cartProductIds = array_column(array_values($items), 'product_id');
+
+        $suggestions = Product::with('featuredImage')
+            ->where('is_active', true)
+            ->where('stock_status', '!=', 'outofstock')
+            ->when(!empty($cartProductIds), fn ($q) => $q->whereNotIn('id', $cartProductIds))
+            ->orderByDesc('is_featured')
+            ->orderByDesc('id')
+            ->take(4)
+            ->get();
+
         return view('cart.index', [
-            'items'    => $this->cart->itemsWithProducts(),
-            'subtotal' => $this->cart->subtotal(),
+            'items'       => $items,
+            'subtotal'    => $this->cart->subtotal(),
+            'suggestions' => $suggestions,
         ]);
     }
 
