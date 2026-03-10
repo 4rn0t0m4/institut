@@ -161,6 +161,63 @@ document.addEventListener('DOMContentLoaded', function () {
             @error('brand_id') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
         </div>
 
+        {{-- Photo principale --}}
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">Photo principale</h3>
+
+            @if(isset($product) && $product->featuredImage)
+                <div class="mb-4">
+                    <img src="{{ $product->featuredImage->url }}" alt="{{ $product->featuredImage->alt }}"
+                        class="mb-2 h-24 w-24 rounded-lg object-cover" style="max-width:100px;max-height:100px;" />
+                    @if($product->featuredImage->alt)
+                        <p class="mb-2 text-xs text-gray-500 dark:text-gray-400">{{ $product->featuredImage->alt }}</p>
+                    @endif
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="remove_featured_image" value="1"
+                            class="h-4 w-4 rounded border-gray-300 text-error-500 focus:ring-error-500 dark:border-gray-700" />
+                        <span class="text-sm text-error-600 dark:text-error-400">Supprimer</span>
+                    </label>
+                </div>
+            @endif
+
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ isset($product) && $product->featuredImage ? 'Choisir une nouvelle photo' : 'Ajouter une photo' }}
+                </label>
+                <input type="file" name="featured_image" accept="image/*"
+                    class="w-full rounded-lg border border-gray-200 bg-transparent px-3 py-2 text-sm text-gray-800 file:mr-3 file:rounded file:border-0 file:bg-brand-50 file:px-3 file:py-1 file:text-sm file:font-medium file:text-brand-600 hover:file:bg-brand-100 dark:border-gray-800 dark:text-white/90 dark:file:bg-brand-900/20 dark:file:text-brand-400" />
+                @error('featured_image') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        {{-- Galerie --}}
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">Galerie</h3>
+
+            @if(isset($product) && $product->galleryImages()->isNotEmpty())
+                <div class="mb-4 flex flex-wrap gap-3">
+                    @foreach($product->galleryImages() as $img)
+                        <div class="flex flex-col items-center gap-1">
+                            <img src="{{ $img->url }}" alt="{{ $img->alt }}"
+                                class="h-16 w-16 rounded-lg object-cover" style="max-width:60px;max-height:60px;" />
+                            <label class="flex items-center gap-1">
+                                <input type="checkbox" name="gallery_remove[]" value="{{ $img->id }}"
+                                    class="h-3.5 w-3.5 rounded border-gray-300 text-error-500 focus:ring-error-500 dark:border-gray-700" />
+                                <span class="text-xs text-error-600 dark:text-error-400">Retirer</span>
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Ajouter des photos</label>
+                <input type="file" name="gallery_images[]" accept="image/*" multiple
+                    class="w-full rounded-lg border border-gray-200 bg-transparent px-3 py-2 text-sm text-gray-800 file:mr-3 file:rounded file:border-0 file:bg-brand-50 file:px-3 file:py-1 file:text-sm file:font-medium file:text-brand-600 hover:file:bg-brand-100 dark:border-gray-800 dark:text-white/90 dark:file:bg-brand-900/20 dark:file:text-brand-400" />
+                @error('gallery_images.*') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
         {{-- Alertes stock --}}
         @if(isset($product) && $product->exists)
             @php $pendingAlerts = $product->stockNotifications()->whereNull('notified_at')->count(); @endphp

@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
+use App\Models\Media;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -69,6 +71,10 @@ class ProductController extends Controller
             'brand_id' => 'nullable|exists:brands,id',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'featured_image' => 'nullable|image|max:10240',
+            'gallery_images.*' => 'nullable|image|max:10240',
+            'gallery_remove' => 'nullable|array',
+            'gallery_remove.*' => 'nullable|integer',
         ]);
 
         if (empty($validated['slug'])) {
@@ -78,7 +84,23 @@ class ProductController extends Controller
         $validated['is_active'] = $request->boolean('is_active');
         $validated['is_featured'] = $request->boolean('is_featured');
 
-        Product::create($validated);
+        $product = Product::create($validated);
+
+        if ($request->hasFile('featured_image')) {
+            $media = $this->storeMedia($request->file('featured_image'));
+            $product->featured_image_id = $media->id;
+            $product->save();
+        }
+
+        if ($request->hasFile('gallery_images')) {
+            $galleryIds = [];
+            foreach ($request->file('gallery_images') as $file) {
+                $media = $this->storeMedia($file);
+                $galleryIds[] = $media->id;
+            }
+            $product->gallery_image_ids = $galleryIds;
+            $product->save();
+        }
 
         return redirect()->route('admin.products.index')->with('success', 'Produit cree avec succes.');
     }
@@ -107,6 +129,10 @@ class ProductController extends Controller
             'brand_id' => 'nullable|exists:brands,id',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'featured_image' => 'nullable|image|max:10240',
+            'gallery_images.*' => 'nullable|image|max:10240',
+            'gallery_remove' => 'nullable|array',
+            'gallery_remove.*' => 'nullable|integer',
         ]);
 
         if (empty($validated['slug'])) {
@@ -118,6 +144,36 @@ class ProductController extends Controller
 
         $product->update($validated);
 
+        // Handle featured image removal
+        if ($request->input('remove_featured_image') == '1') {
+            $product->featured_image_id = null;
+            $product->save();
+        } elseif ($request->hasFile('featured_image')) {
+            $media = $this->storeMedia($request->file('featured_image'));
+            $product->featured_image_id = $media->id;
+            $product->save();
+        }
+
+        // Handle gallery removal and additions
+        $galleryIds = $product->gallery_image_ids ?? [];
+
+        if ($request->filled('gallery_remove')) {
+            $toRemove = array_map('intval', $request->input('gallery_remove'));
+            $galleryIds = array_values(array_diff($galleryIds, $toRemove));
+        }
+
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $file) {
+                $media = $this->storeMedia($file);
+                $galleryIds[] = $media->id;
+            }
+        }
+
+        if ($request->filled('gallery_remove') || $request->hasFile('gallery_images')) {
+            $product->gallery_image_ids = array_values($galleryIds);
+            $product->save();
+        }
+
         return redirect()->route('admin.products.index')->with('success', 'Produit mis a jour.');
     }
 
@@ -126,5 +182,30 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', 'Produit supprime.');
+    }
+
+    private function storeMedia(UploadedFile $file): Media
+    {
+        $extension = $file->getClientOriginalExtension();
+        $filename = Str::uuid() . '.' . $extension;
+
+        $file->storeAs('public/media', $filename);
+
+        $fullPath = storage_path('app/public/media/' . $filename);
+        [$width, $height] = getimagesize($fullPath) ?: [null, null];
+
+        return Media::create([
+            'filename'          => $filename,
+            'original_filename' => $file->getClientOriginalName(),
+            'disk'              => 'public',
+            'path'              => 'media/' . $filename,
+            'url'               => '/storage/media/' . $filename,
+            'mime_type'         => $file->getMimeType(),
+            'size'              => $file->getSize(),
+            'width'             => $width,
+            'height'            => $height,
+            'alt'               => '',
+            'title'             => '',
+        ]);
     }
 }
