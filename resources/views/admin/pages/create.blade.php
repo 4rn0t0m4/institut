@@ -16,6 +16,35 @@
             branding: false,
             promotion: false,
             language: 'fr_FR',
+            images_upload_url: '{{ route('admin.editor.upload') }}',
+            images_upload_credentials: true,
+            automatic_uploads: true,
+            images_reuse_filename: false,
+            setup: function (editor) {
+                editor.on('init', function () {
+                    var meta = document.querySelector('meta[name="csrf-token"]');
+                    if (meta) {
+                        tinymce.activeEditor.uploadImages();
+                    }
+                });
+            },
+            images_upload_handler: function (blobInfo, progress) {
+                return new Promise(function (resolve, reject) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', '{{ route('admin.editor.upload') }}');
+                    xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]').content);
+                    xhr.upload.onprogress = function (e) { progress(e.loaded / e.total * 100); };
+                    xhr.onload = function () {
+                        if (xhr.status !== 200) { reject('Erreur upload: ' + xhr.status); return; }
+                        var json = JSON.parse(xhr.responseText);
+                        resolve(json.location);
+                    };
+                    xhr.onerror = function () { reject('Erreur réseau'); };
+                    var fd = new FormData();
+                    fd.append('file', blobInfo.blob(), blobInfo.filename());
+                    xhr.send(fd);
+                });
+            },
         });
     });
 </script>

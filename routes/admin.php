@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ProductTagController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShippingController;
+use App\Http\Controllers\Admin\EditorUploadController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -35,3 +36,5 @@ Route::put('shipping', [ShippingController::class, 'update'])->name('admin.shipp
 
 Route::get('settings', [SettingController::class, 'index'])->name('admin.settings.index');
 Route::put('settings', [SettingController::class, 'update'])->name('admin.settings.update');
+
+Route::post('editor-upload', [EditorUploadController::class, 'upload'])->name('admin.editor.upload');
