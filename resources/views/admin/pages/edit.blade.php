@@ -16,6 +16,7 @@
             branding: false,
             promotion: false,
             language: 'fr_FR',
+            language_url: 'https://cdn.jsdelivr.net/npm/tinymce-i18n@latest/langs7/fr_FR.js',
             automatic_uploads: true,
             images_reuse_filename: false,
             images_upload_handler: function (blobInfo, progress) {

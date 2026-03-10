@@ -16,6 +16,7 @@
             branding: false,
             promotion: false,
             language: 'fr_FR',
+            language_url: 'https://cdn.jsdelivr.net/npm/tinymce-i18n@latest/langs7/fr_FR.js',
             images_upload_url: '{{ route('admin.editor.upload') }}',
             images_upload_credentials: true,
             automatic_uploads: true,
