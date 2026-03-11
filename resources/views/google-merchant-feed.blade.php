@@ -12,8 +12,23 @@
         $rawImage = $product->featuredImage?->url ?? '';
         $imageUrl = $rawImage ? (str_starts_with($rawImage, 'http') ? $rawImage : rtrim(config('app.url'), '/') . $rawImage) : '';
         $brand = $product->brand?->name ?? 'Institut Corps & Cœur';
-        $description = strip_tags($product->short_description ?: $product->description ?: $product->name);
-        $description = html_entity_decode($description, ENT_QUOTES, 'UTF-8');
+        // Description longue en priorité, puis courte, puis nom
+        $fullDesc = html_entity_decode(strip_tags($product->description ?? ''), ENT_QUOTES, 'UTF-8');
+        $shortDesc = html_entity_decode(strip_tags($product->short_description ?? ''), ENT_QUOTES, 'UTF-8');
+        // Combiner les deux si la longue seule est insuffisante (<500 chars)
+        if (strlen($fullDesc) >= 500) {
+            $description = $fullDesc;
+        } elseif ($fullDesc && $shortDesc) {
+            $description = $shortDesc . ' ' . $fullDesc;
+        } elseif ($fullDesc) {
+            $description = $fullDesc;
+        } elseif ($shortDesc) {
+            $description = $shortDesc;
+        } else {
+            $description = $product->name;
+        }
+        // Nettoyer les espaces multiples et retours à la ligne
+        $description = trim(preg_replace('/\s+/', ' ', $description));
         $url = $product->url();
         $cat = $product->category;
         $productType = $cat?->parent ? ($cat->parent->name . ' > ' . $cat->name) : $cat?->name;
