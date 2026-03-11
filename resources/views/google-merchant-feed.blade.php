@@ -27,7 +27,8 @@
         } else {
             $description = $product->name;
         }
-        // Nettoyer les espaces multiples et retours à la ligne
+        // Supprimer les emojis et nettoyer les espaces multiples
+        $description = preg_replace('/[\x{1F000}-\x{1FFFF}]|[\x{2600}-\x{27FF}]|[\x{2B00}-\x{2BFF}]|[\x{FE00}-\x{FE0F}]/u', '', $description);
         $description = trim(preg_replace('/\s+/', ' ', $description));
         $url = $product->url();
         $cat = $product->category;
