@@ -27,14 +27,20 @@
                 return $ids->intersect($activeCatIds)->isNotEmpty();
             });
 
-            // Un produit mis en avant pour l'encart boutique
+            // Un produit mis en avant pour l'encart boutique (hors bijoux)
+            $bijouIds = \App\Models\ProductCategory::where('slug', 'bijoux')
+                ->orWhere('parent_id', \App\Models\ProductCategory::where('slug', 'bijoux')->value('id'))
+                ->pluck('id')->toArray();
+
             $featuredProduct = \App\Models\Product::whereNotNull('featured_image_id')
                 ->where('is_active', true)
                 ->where('is_featured', true)
+                ->whereNotIn('category_id', $bijouIds)
                 ->with('featuredImage')
                 ->first()
                 ?? \App\Models\Product::whereNotNull('featured_image_id')
                     ->where('is_active', true)
+                    ->whereNotIn('category_id', $bijouIds)
                     ->with('featuredImage')
                     ->inRandomOrder()
                     ->first();
