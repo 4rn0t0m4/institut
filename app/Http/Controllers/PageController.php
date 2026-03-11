@@ -16,6 +16,11 @@ class PageController extends Controller
             ->where('status', 'published')
             ->firstOrFail();
 
+        // URL WP imbriquée mais page sans parent → redirection 301 vers URL plate
+        if (count($segments) > 1 && !$page->parent_id) {
+            return redirect('/' . $lastSlug, 301);
+        }
+
         // Verify the full path matches the parent hierarchy
         if (count($segments) > 1 && $page->parent) {
             $expectedParentSlug = $segments[0];

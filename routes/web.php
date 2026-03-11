@@ -13,7 +13,13 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\BilanMinceurController;
 use App\Http\Controllers\GoogleMerchantFeedController;
+use App\Http\Controllers\LegacyRedirectController;
 use Illuminate\Support\Facades\Route;
+
+// Redirections legacy WordPress (301)
+Route::get('/produit/{slug}', [LegacyRedirectController::class, 'product']);
+Route::get('/categorie-produit/{slug}', [LegacyRedirectController::class, 'category']);
+Route::redirect('/remboursements_retours', '/remboursements-retours', 301);
 
 // Sitemap
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
