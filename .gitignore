@@ -6,6 +6,7 @@
 /storage/app/analytics/
 /vendor
 .env
+.env.local
 .env.backup
 .env.production
 .phpunit.result.cache

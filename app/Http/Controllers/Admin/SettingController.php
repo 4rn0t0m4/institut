@@ -25,8 +25,8 @@ class SettingController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'google_analytics_id' => 'nullable|string|max:50',
-            'google_ads_id' => 'nullable|string|max:50',
+            'google_analytics_id'   => 'nullable|string|max:50',
+            'google_ads_id'         => 'nullable|string|max:50',
             'analytics_property_id' => 'nullable|string|max:50',
         ]);
 
