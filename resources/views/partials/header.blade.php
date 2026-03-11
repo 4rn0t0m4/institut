@@ -46,6 +46,9 @@
         $boutiqueCategories = $headerData['boutiqueCategories'];
         $featuredProduct    = $headerData['featuredProduct'];
 
+        $coffretCategory = $boutiqueCategories->firstWhere('slug', 'coffrets-cadeaux');
+        $boutiqueGrid    = $boutiqueCategories->reject(fn($c) => $c->slug === 'coffrets-cadeaux');
+
         $soinsWithChildren = $soinsItems->filter(fn($i) => $i->children->isNotEmpty());
         $soinsSolo = $soinsItems->filter(fn($i) => $i->children->isEmpty());
     @endphp
@@ -267,8 +270,8 @@
             <div style="display: grid; grid-template-columns: 1fr {{ $featuredProduct ? '220px' : '' }}; gap: 2rem; align-items: start;">
 
                 {{-- Grille de catégories (toujours à gauche) --}}
-                <div style="display: grid; grid-template-columns: repeat({{ min($boutiqueCategories->count(), 5) }}, 1fr); gap: 1.5rem;">
-                    @foreach($boutiqueCategories as $cat)
+                <div style="display: grid; grid-template-columns: repeat({{ min($boutiqueGrid->count(), 5) }}, 1fr); gap: 1.5rem;">
+                    @foreach($boutiqueGrid as $cat)
                         <div>
                             <a href="{{ $cat->url() }}"
                                class="text-xs font-bold uppercase tracking-wider hover:opacity-70 transition-opacity"
@@ -313,6 +316,27 @@
                 @endif
 
             </div>
+
+                {{-- Encart Coffrets Cadeaux --}}
+                @if($coffretCategory)
+                <div style="margin-top: 1.5rem; background: linear-gradient(135deg, #fff8e6 0%, #fffbf0 100%); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid #fde68a;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <svg style="width: 2rem; height: 2rem; color: #d97706; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7m0 0a2 2 0 01-2-2c0-1.5 2-4 2-4s2 2.5 2 4a2 2 0 01-2 2zm-5-5a2 2 0 01-2-2c0-1.5 2-3 2-3s2 1.5 2 3a2 2 0 01-2 2zm10 0a2 2 0 01-2-2c0-1.5 2-3 2-3s2 1.5 2 3a2 2 0 01-2 2z"/>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-semibold" style="color: #92400e;">Une idée cadeau qui fait plaisir</p>
+                            <p class="text-xs mt-0.5" style="color: #b45309;">Nos coffrets beauté soigneusement composés pour toutes les occasions</p>
+                        </div>
+                    </div>
+                    <a href="{{ $coffretCategory->url() }}"
+                       class="text-xs font-semibold px-5 py-2.5 rounded-lg text-white transition hover:opacity-90 ml-4"
+                       style="background-color: #d97706; white-space: nowrap;">
+                        Voir les coffrets →
+                    </a>
+                </div>
+                @endif
+
         </div>
     </div>
 
