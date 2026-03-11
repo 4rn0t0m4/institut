@@ -12,24 +12,21 @@
         $rawImage = $product->featuredImage?->url ?? '';
         $imageUrl = $rawImage ? (str_starts_with($rawImage, 'http') ? $rawImage : rtrim(url('/'), '/') . $rawImage) : '';
         $brand = $product->brand?->name ?? 'Institut Corps & Cœur';
-        // Description longue en priorité, puis courte, puis nom
-        $fullDesc = html_entity_decode(strip_tags($product->description ?? ''), ENT_QUOTES, 'UTF-8');
-        $shortDesc = html_entity_decode(strip_tags($product->short_description ?? ''), ENT_QUOTES, 'UTF-8');
-        // Combiner les deux si la longue seule est insuffisante (<500 chars)
-        if (strlen($fullDesc) >= 500) {
-            $description = $fullDesc;
-        } elseif ($fullDesc && $shortDesc) {
-            $description = $shortDesc . ' ' . $fullDesc;
-        } elseif ($fullDesc) {
-            $description = $fullDesc;
-        } elseif ($shortDesc) {
-            $description = $shortDesc;
-        } else {
-            $description = $product->name;
-        }
-        // Supprimer les emojis et nettoyer les espaces multiples
-        $description = preg_replace('/[\x{1F000}-\x{1FFFF}]|[\x{2600}-\x{27FF}]|[\x{2B00}-\x{2BFF}]|[\x{FE00}-\x{FE0F}]/u', '', $description);
-        $description = trim(preg_replace('/\s+/', ' ', $description));
+        $clean = fn(?string $s) => trim(preg_replace('/\s+/', ' ',
+            preg_replace('/[\x{1F000}-\x{1FFFF}]|[\x{2600}-\x{27FF}]|[\x{2B00}-\x{2BFF}]|[\x{FE00}-\x{FE0F}]/u', '',
+                html_entity_decode(strip_tags($s ?? ''), ENT_QUOTES, 'UTF-8')
+            )
+        ));
+
+        $parts = array_filter([
+            $clean($product->short_description),
+            $clean($product->description),
+            $clean($product->benefits),
+            $clean($product->usage_instructions),
+            $clean($product->composition),
+            $clean($product->team_recommendation),
+        ]);
+        $description = implode(' ', $parts) ?: $product->name;
         $url = $product->url();
         $cat = $product->category;
         $productType = $cat?->parent ? ($cat->parent->name . ' > ' . $cat->name) : $cat?->name;
