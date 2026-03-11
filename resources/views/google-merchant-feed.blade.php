@@ -10,7 +10,7 @@
         $salePrice = $product->sale_price ? number_format($product->sale_price, 2, '.', '') : null;
         $availability = $product->stock_status === 'outofstock' ? 'out_of_stock' : 'in_stock';
         $rawImage = $product->featuredImage?->url ?? '';
-        $imageUrl = $rawImage ? (str_starts_with($rawImage, 'http') ? $rawImage : rtrim(config('app.url'), '/') . $rawImage) : '';
+        $imageUrl = $rawImage ? (str_starts_with($rawImage, 'http') ? $rawImage : rtrim(url('/'), '/') . $rawImage) : '';
         $brand = $product->brand?->name ?? 'Institut Corps & Cœur';
         // Description longue en priorité, puis courte, puis nom
         $fullDesc = html_entity_decode(strip_tags($product->description ?? ''), ENT_QUOTES, 'UTF-8');
