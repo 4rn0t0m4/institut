@@ -75,6 +75,44 @@ document.addEventListener('DOMContentLoaded', function () {
                     <textarea id="description" name="description" class="tinymce-full">{{ old('description', $product->description ?? '') }}</textarea>
                     @error('description') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
                 </div>
+
+                {{-- Recommandation équipe --}}
+                <div>
+                    <label for="team_recommendation" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Notre conseil <span class="font-normal text-gray-400">(encart doré sur la fiche produit)</span>
+                    </label>
+                    <textarea id="team_recommendation" name="team_recommendation" rows="3" maxlength="1000"
+                        placeholder="Ex : Idéal après une séance de massage, à appliquer sur peau encore humide..."
+                        class="w-full rounded-lg border border-gray-200 bg-transparent px-4 py-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90 dark:placeholder:text-white/30">{{ old('team_recommendation', $product->team_recommendation ?? '') }}</textarea>
+                    @error('team_recommendation') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                </div>
+
+                {{-- Bienfaits --}}
+                <div>
+                    <label for="benefits" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Bienfaits <span class="font-normal text-gray-400">(accordéon fiche produit)</span>
+                    </label>
+                    <textarea id="benefits" name="benefits" class="tinymce-light">{{ old('benefits', $product->benefits ?? '') }}</textarea>
+                    @error('benefits') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                </div>
+
+                {{-- Utilisation --}}
+                <div>
+                    <label for="usage_instructions" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Utilisation <span class="font-normal text-gray-400">(accordéon fiche produit)</span>
+                    </label>
+                    <textarea id="usage_instructions" name="usage_instructions" class="tinymce-light">{{ old('usage_instructions', $product->usage_instructions ?? '') }}</textarea>
+                    @error('usage_instructions') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                </div>
+
+                {{-- Composition --}}
+                <div>
+                    <label for="composition" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Composition / Ingrédients <span class="font-normal text-gray-400">(accordéon fiche produit)</span>
+                    </label>
+                    <textarea id="composition" name="composition" class="tinymce-light">{{ old('composition', $product->composition ?? '') }}</textarea>
+                    @error('composition') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                </div>
             </div>
         </div>
 

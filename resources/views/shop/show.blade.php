@@ -90,16 +90,25 @@ $breadcrumbJsonLd = json_encode([
             if ($product->featuredImage) $allImages->push($product->featuredImage);
             $allImages = $allImages->merge($galleryImages);
         @endphp
-        <div x-data="{ active: 0 }">
+        <div x-data="{ active: 0, lightbox: false, images: {{ $allImages->pluck('url')->toJson() }} }">
             {{-- Image principale --}}
-            <div class="aspect-square rounded-3xl overflow-hidden mb-3" style="background-color: #f0fdf4;">
+            <div class="aspect-square rounded-3xl overflow-hidden mb-3 relative group"
+                 style="background-color: #f0fdf4;">
                 @if($allImages->isNotEmpty())
                     @foreach($allImages as $i => $img)
                         <img src="{{ $img->url }}"
                              alt="{{ $img->alt ?: $product->name }}"
                              x-show="active === {{ $i }}"
-                             class="w-full h-full object-cover">
+                             class="w-full h-full object-cover cursor-zoom-in"
+                             @click="lightbox = true">
                     @endforeach
+                    {{-- Icône zoom --}}
+                    <div class="absolute bottom-3 right-3 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition pointer-events-none"
+                         style="background-color: rgba(0,0,0,0.4);">
+                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16zm3-8H8m3-3v6"/>
+                        </svg>
+                    </div>
                 @else
                     <div class="w-full h-full flex items-center justify-center" style="color: #b0f1b9;">
                         <svg class="w-24 h-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -121,6 +130,22 @@ $breadcrumbJsonLd = json_encode([
                                  class="w-full h-full object-cover">
                         </button>
                     @endforeach
+                </div>
+            @endif
+
+            {{-- Lightbox --}}
+            @if($allImages->isNotEmpty())
+                <div x-show="lightbox" x-cloak
+                     class="fixed inset-0 z-50 flex items-center justify-center p-4"
+                     style="background-color: rgba(0,0,0,0.88);"
+                     @click.self="lightbox = false"
+                     @keydown.escape.window="lightbox = false">
+                    <button @click="lightbox = false"
+                            class="absolute top-4 right-5 text-white opacity-60 hover:opacity-100 transition text-4xl leading-none font-light"
+                            aria-label="Fermer">×</button>
+                    <img :src="images[active]"
+                         alt="{{ $product->name }}"
+                         class="max-h-[90vh] max-w-[90vw] object-contain rounded-2xl shadow-2xl">
                 </div>
             @endif
         </div>
@@ -197,6 +222,22 @@ $breadcrumbJsonLd = json_encode([
                 </div>
             @endif
 
+            {{-- Recommandation équipe --}}
+            @if($product->team_recommendation)
+                <div class="mb-6 rounded-xl p-4 flex gap-3"
+                     style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1px solid #fde68a;">
+                    <div class="shrink-0 mt-0.5">
+                        <svg class="w-5 h-5" style="color: #d97706;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: #92400e;">Notre conseil</p>
+                        <p class="text-sm leading-relaxed" style="color: #78350f;">{{ $product->team_recommendation }}</p>
+                    </div>
+                </div>
+            @endif
+
             {{-- Stock --}}
             @if($product->stock_status !== 'instock')
                 <div class="mb-6 rounded-xl p-4" style="background-color: #fef2f2; border: 1px solid #fecaca;">
@@ -264,6 +305,31 @@ $breadcrumbJsonLd = json_encode([
                 </div>
             </form>
 
+            {{-- Informations livraison --}}
+            @if($product->stock_status === 'instock')
+                <div class="mt-5 pt-5 space-y-2.5" style="border-top: 1px solid #e5e7eb;">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-4 h-4 shrink-0" style="color: #276e44;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                        </svg>
+                        <span class="text-xs" style="color: #374151;">Livraison en point relais <strong>offerte dès 60&nbsp;€</strong> — sinon 5,00&nbsp;€</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <svg class="w-4 h-4 shrink-0" style="color: #276e44;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h15M9 5v14M5 19h10a2 2 0 002-2V7a2 2 0 00-2-2"/>
+                        </svg>
+                        <span class="text-xs" style="color: #374151;">Livraison à domicile Colissimo — 7,90&nbsp;€</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <svg class="w-4 h-4 shrink-0" style="color: #276e44;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span class="text-xs" style="color: #374151;">Retrait gratuit à l'institut</span>
+                    </div>
+                </div>
+            @endif
+
         </div>
     </div>
 </div>
@@ -278,6 +344,39 @@ $breadcrumbJsonLd = json_encode([
             </h2>
             <div class="product-description max-w-3xl">
                 {!! $product->description !!}
+            </div>
+        </div>
+    </section>
+@endif
+
+{{-- Sections (bienfaits, utilisation, composition) --}}
+@php
+    $sections = [
+        ['key' => 'benefits',           'label' => 'Bienfaits',          'icon' => 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'],
+        ['key' => 'usage_instructions', 'label' => 'Comment l\'utiliser', 'icon' => 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01'],
+        ['key' => 'composition',        'label' => 'Composition',         'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
+    ];
+    $hasSections = collect($sections)->some(fn($s) => !empty($product->{$s['key']}));
+@endphp
+@if($hasSections)
+    <section class="py-12 bg-white border-b" style="border-color: #e5e7eb;">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-{{ collect($sections)->filter(fn($s) => !empty($product->{$s['key']}))->count() === 1 ? '1' : (collect($sections)->filter(fn($s) => !empty($product->{$s['key']}))->count() === 2 ? '2' : '3') }} max-w-5xl">
+                @foreach($sections as $section)
+                    @if(!empty($product->{$section['key']}))
+                        <div>
+                            <div class="flex items-center gap-2 mb-3">
+                                <svg class="w-5 h-5 shrink-0" style="color: #276e44;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $section['icon'] }}"/>
+                                </svg>
+                                <h3 class="font-semibold text-base" style="color: #276e44;">{{ $section['label'] }}</h3>
+                            </div>
+                            <div class="product-description leading-relaxed" style="color: #374151; font-size: 0.9375rem;">
+                                {!! $product->{$section['key']} !!}
+                            </div>
+                        </div>
+                    @endif
+                @endforeach
             </div>
         </div>
     </section>

@@ -14,6 +14,7 @@ class Product extends Model
     }
     protected $fillable = [
         'category_id','brand_id','name','slug','short_description','description',
+        'team_recommendation','benefits','usage_instructions','composition',
         'price','sale_price','sku','stock_quantity','manage_stock','stock_status',
         'weight','unit_measure','dimensions','is_virtual','is_downloadable','is_featured','is_active',
         'meta_title','meta_description','featured_image_id','gallery_image_ids',
