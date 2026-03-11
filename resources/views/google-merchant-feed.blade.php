@@ -55,6 +55,10 @@
         @if ($productType)
         <g:product_type><![CDATA[{!! $productType !!}]]></g:product_type>
         @endif
+        @if ($product->unit_measure)
+        <g:unit_pricing_measure>{{ $product->unit_measure }}</g:unit_pricing_measure>
+        <g:unit_pricing_base_measure>100 {{ Str::contains($product->unit_measure, 'ml') ? 'ml' : 'g' }}</g:unit_pricing_base_measure>
+        @endif
     </item>
     @endif
     @endforeach

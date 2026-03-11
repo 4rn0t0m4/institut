@@ -103,6 +103,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90" />
                     @error('sku') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
                 </div>
+                <div>
+                    <label for="unit_measure" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Contenu net</label>
+                    <input type="text" id="unit_measure" name="unit_measure" value="{{ old('unit_measure', $product->unit_measure ?? '') }}" placeholder="ex : 100 ml, 50 g"
+                        class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90 dark:placeholder:text-white/30" />
+                    <p class="mt-1 text-xs text-gray-400">Google Shopping (obligatoire EU)</p>
+                    @error('unit_measure') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                </div>
             </div>
         </div>
     </div>
