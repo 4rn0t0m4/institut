@@ -29,6 +29,8 @@ class ShopController extends Controller
             ->get();
 
         $query = Product::with(['category', 'featuredImage', 'brand'])
+            ->withCount(['approvedReviews as reviews_count'])
+            ->withAvg('approvedReviews as reviews_avg', 'rating')
             ->visibleTo(auth()->user())
             ->orderBy('name');
 
@@ -130,6 +132,8 @@ class ShopController extends Controller
 
         // Produits similaires (même catégorie)
         $related = Product::with(['featuredImage', 'brand', 'category'])
+            ->withCount(['approvedReviews as reviews_count'])
+            ->withAvg('approvedReviews as reviews_avg', 'rating')
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->active()
@@ -152,6 +156,8 @@ class ShopController extends Controller
             ->get();
 
         $query = Product::with(['category', 'featuredImage', 'brand'])
+            ->withCount(['approvedReviews as reviews_count'])
+            ->withAvg('approvedReviews as reviews_avg', 'rating')
             ->visibleTo(auth()->user())
             ->orderBy('name');
 

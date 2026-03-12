@@ -13,12 +13,16 @@ class HomeController extends Controller
         $featuredProducts = Product::where('is_featured', true)
             ->where('is_active', true)
             ->with(['category', 'featuredImage', 'brand'])
+            ->withCount(['approvedReviews as reviews_count'])
+            ->withAvg('approvedReviews as reviews_avg', 'rating')
             ->limit(8)
             ->get();
 
         if ($featuredProducts->isEmpty()) {
             $featuredProducts = Product::where('is_active', true)
                 ->with(['category', 'featuredImage', 'brand'])
+                ->withCount(['approvedReviews as reviews_count'])
+                ->withAvg('approvedReviews as reviews_avg', 'rating')
                 ->limit(8)
                 ->get();
         }
