@@ -8,7 +8,7 @@ $productSchema = [
     'name' => $product->name,
     'description' => strip_tags($product->short_description ?? $product->description ?? ''),
     'image' => $product->featuredImage?->url ? [url($product->featuredImage->url)] : [],
-    'sku' => (string) $product->id,
+    'sku' => $product->sku ?: 'prod-' . $product->id,
     'brand' => [
         '@type' => 'Brand',
         'name' => $product->brand?->name ?? 'Institut Corps à Coeur',
@@ -32,6 +32,19 @@ if ($reviews->count() > 0) {
         'bestRating' => 5,
         'worstRating' => 1,
     ];
+    $productSchema['review'] = $reviews->map(fn($r) => array_filter([
+        '@type'         => 'Review',
+        'name'          => $r->title ?: null,
+        'reviewBody'    => $r->body,
+        'datePublished' => \Carbon\Carbon::parse($r->created_at)->toDateString(),
+        'author'        => ['@type' => 'Person', 'name' => $r->author_name],
+        'reviewRating'  => [
+            '@type'       => 'Rating',
+            'ratingValue' => $r->rating,
+            'bestRating'  => 5,
+            'worstRating' => 1,
+        ],
+    ]))->values()->all();
 }
 $productJsonLd = json_encode($productSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
