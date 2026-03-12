@@ -93,9 +93,9 @@ class EnrichProductFields extends Command
                     if ($this->option('force')) {
                         $product->update($result);
                     } else {
-                        // Ne remplir que les champs vides
+                        // Ne remplir que les champs vides, SAUF description qu'on nettoie toujours
                         $toUpdate = array_filter($result, fn($v) => !empty($v));
-                        $toUpdate = array_filter($toUpdate, fn($k) => empty($product->{$k}), ARRAY_FILTER_USE_KEY);
+                        $toUpdate = array_filter($toUpdate, fn($k) => $k === 'description' || empty($product->{$k}), ARRAY_FILTER_USE_KEY);
                         if (!empty($toUpdate)) {
                             $product->update($toUpdate);
                         }
