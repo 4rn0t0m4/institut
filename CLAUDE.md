@@ -25,6 +25,15 @@ php artisan cache:clear && php artisan view:clear && php artisan route:clear
 
 # Code formatting
 ./vendor/bin/pint
+
+# Product enrichment (requires ANTHROPIC_API_KEY)
+php artisan products:enrich              # Enrich all products via Claude AI
+php artisan products:enrich --product=5  # Single product
+php artisan products:enrich --dry-run    # Preview without saving
+php artisan products:export-enriched     # Export enriched fields as SQL for production
+
+# Review request emails
+php artisan orders:send-review-requests  # Send review emails 7 days after shipping
 ```
 
 ## Architecture
@@ -37,7 +46,7 @@ php artisan cache:clear && php artisan view:clear && php artisan route:clear
 
 **Email**: Brevo (Sendinblue) via `symfony/brevo-mailer` transport. Config: `MAIL_MAILER=brevo` + `BREVO_API_KEY`.
 
-**Shipping**: 3 modes (Colissimo 7.90€, Boxtal relay 5€, Pickup free). Free relay shipping above 60€ (`config/shipping.php` → `free_shipping_threshold`). Boxtal parcel point map widget via `@boxtal/parcel-point-map` loaded from CDN.
+**Shipping**: Zone-based (`config/shipping.php`). FR zone: Colissimo 7.90€, Boxtal relay 5€ (free above 60€), Pickup free. International zone (BE, ES, IT): 80€ free threshold. `OrderService` handles zone detection and method availability. Boxtal parcel point map widget via `@boxtal/parcel-point-map` loaded from CDN.
 
 ### Route groups
 
@@ -49,13 +58,13 @@ php artisan cache:clear && php artisan view:clear && php artisan route:clear
 
 ### Key directories
 
-- `app/Http/Controllers/Admin/` — Admin CRUD controllers (Dashboard, Product, Category, Order, Page, Brand, Discount, Tag, Customer, Setting)
-- `app/Models/` — 24 Eloquent models. Key: Product, ProductCategory (hierarchical), Order, OrderItem, User, DiscountRule, Quiz*, Media, Page, Setting
-- `app/Services/` — CartService (session cart), DiscountEngine (coupon/discount rules), AddonPriceCalculator
-- `app/Mail/` — OrderConfirmation, NewOrderAdmin, OrderShipped, PaymentFailed
+- `app/Http/Controllers/Admin/` — Admin CRUD controllers (Dashboard, Product, Category, Order, Page, Brand, Discount, Tag, Customer, Setting, Review, Announcement, Shipping)
+- `app/Models/` — Eloquent models. Key: Product, ProductCategory (hierarchical), Order, OrderItem, User, DiscountRule, ProductReview, StockNotification, Quiz*, Media, Page, Setting
+- `app/Services/` — CartService, DiscountEngine, AddonPriceCalculator, OrderService, BoxtalConnectService
+- `app/Mail/` — OrderConfirmation, NewOrderAdmin, OrderShipped, PaymentFailed, BackInStock, ReviewRequest, BilanMinceurRappel
+- `app/Console/Commands/` — `Migrate/` (WP legacy import), `EnrichProductFields`, `ExportEnrichedProducts`, `SendReviewRequests`
 - `resources/views/admin/` — Admin panel views (TailAdmin-based, dark mode, Alpine.js sidebar)
 - `resources/views/layouts/` — Frontend layout
-- `app/Console/Commands/Migrate/` — WP legacy import commands (`migrate:wp-orders`, `migrate:wp-customers`, etc.)
 
 ### Vite entry points
 
@@ -79,7 +88,11 @@ resources/js/admin.js    → Admin JS (Alpine only, no Turbo)
 
 **AddonPriceCalculator**: Computes addon totals from DB only (never frontend input). Price types: `fixed` or `percentage` (of base product price).
 
+**OrderService**: Transactional order creation. Validates cart stock against DB, calculates zone-based shipping costs, builds customer notes with relay point info. Methods: `validateCartStock()`, `calculateShipping()`, `getShippingZone()`, `availableMethodsForCountry()`, `createOrder()`.
+
 **BoxtalController**: Caches map token for 50 min (token TTL is 1 hour). Auth via base64(`BOXTAL_ACCESS_KEY:BOXTAL_SECRET_KEY`). Networks: Mondial Relay (`MONR_NETWORK`), Chronopost (`CHRP_NETWORK`).
+
+**BoxtalConnectService**: Pushes orders to Boxtal Connect API (`POST https://api.boxtal.com/v2/orders`) with relay point and network info. Silent logging on failure (no exceptions thrown).
 
 **StripeWebhookController**: Uses `DB::transaction` + `lockForUpdate()` for idempotency on `payment_intent.succeeded` / `payment_intent.payment_failed` events.
 
@@ -89,11 +102,27 @@ resources/js/admin.js    → Admin JS (Alpine only, no Turbo)
 
 **Product addons**: Products support configurable add-ons grouped by `ProductAddonFieldGroup`. Addons have `required` flag, `options` array, and `price_type` (fixed or percentage). Addon pricing is always server-side validated.
 
+**Product reviews**: `ProductReview` model with approval workflow (`is_approved`). Admin ReviewController for approve/reject/delete. Route: `POST /boutique/{product}/avis`. Automated review request emails sent 7 days after shipping via `orders:send-review-requests` command.
+
+**Stock notifications**: `StockNotification` model. Users subscribe via `POST /boutique/{product}/alerte-stock`. `BackInStock` mail sent when product is restocked.
+
+**Product enrichment**: AI-powered enrichment of product fields (`team_recommendation`, `benefits`, `usage_instructions`, `composition`, `unit_measure`) using Claude API. Data used in Google Shopping feed.
+
+**Google Shopping feed**: XML feed at `GET /flux-google-shopping.xml` (`GoogleMerchantFeedController`). Excludes Bijoux category (ID 5) and subcategories. Uses enriched product fields.
+
+**Announcement banner**: Sticky banner managed via `Setting` model (key `sticky_banner`). Admin UI at `/admin/announcement`. Stores active status, text, link, and link_label as JSON.
+
+**Bilan Minceur**: Personalized assessment form at `/amincissement/bilan-minceur-personnalise`. Redirects to Planity booking or sends reminder email.
+
 **Discount rules**: `DiscountRule` supports coupon codes, cart value/quantity conditions, product/category targeting, percentage or fixed amounts, date ranges, and stackable combining.
 
 **Media library**: Centralized `Media` model for all assets (filename, path, url, mime_type, width, height, alt, title).
 
+**Sitemap**: Auto-generated at `GET /sitemap.xml` via `SitemapController` using `spatie/laravel-sitemap`.
+
 **Google Analytics**: Spatie analytics package. Credentials at `storage/app/analytics/service-account-credentials.json`. Property ID via `ANALYTICS_PROPERTY_ID` env var.
+
+**Legacy redirects**: `LegacyRedirectController` handles 301 redirects from old WordPress URLs (`/produit/{slug}`, `/categorie-produit/{slug}`).
 
 ## Conventions
 
@@ -107,5 +136,6 @@ resources/js/admin.js    → Admin JS (Alpine only, no Turbo)
 - Products have `is_active` boolean — non-admins see only active products; admins see all (useful for previewing)
 - `Product::currentPrice()` returns `sale_price` if set, otherwise `price`
 - Order numbers auto-generated as `CMD-{uniqid}` on creation
+- Order model tracks: `relay_point_code`, `relay_network`, `tracking_number`, `tracking_carrier`, `shipped_at`, `gift_wrap`, `gift_type`, `gift_message`
 - CartController and QuizController use Turbo Streams for partial page updates
 - `/api/boxtal/*` and `/stripe/webhook` are public API routes defined in `routes/web.php` (not `routes/api.php`)

@@ -352,24 +352,32 @@ $breadcrumbJsonLd = json_encode([
 {{-- Sections (bienfaits, utilisation, composition) --}}
 @php
     $sections = [
-        ['key' => 'benefits',           'label' => 'Bienfaits',          'icon' => 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'],
-        ['key' => 'usage_instructions', 'label' => 'Comment l\'utiliser', 'icon' => 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01'],
-        ['key' => 'composition',        'label' => 'Composition',         'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
+        ['key' => 'benefits',           'label' => 'Bienfaits',            'icon' => 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',                                                                      'gradient' => 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', 'border' => '#a7f3d0', 'iconBg' => '#d1fae5', 'iconColor' => '#059669'],
+        ['key' => 'usage_instructions', 'label' => 'Comment l\'utiliser',  'icon' => 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01', 'gradient' => 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',  'border' => '#93c5fd', 'iconBg' => '#dbeafe', 'iconColor' => '#2563eb'],
+        ['key' => 'composition',        'label' => 'Composition',          'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',                                                                  'gradient' => 'linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%)',  'border' => '#d8b4fe', 'iconBg' => '#f3e8ff', 'iconColor' => '#7c3aed'],
     ];
-    $hasSections = collect($sections)->some(fn($s) => !empty($product->{$s['key']}));
+    $activeSections = collect($sections)->filter(fn($s) => !empty($product->{$s['key']}));
 @endphp
-@if($hasSections)
-    <section class="py-12 bg-white border-b" style="border-color: #e5e7eb;">
+@if($activeSections->isNotEmpty())
+    <section class="py-14 bg-white border-b" style="border-color: #e5e7eb;">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 gap-10 md:grid-cols-{{ collect($sections)->filter(fn($s) => !empty($product->{$s['key']}))->count() === 1 ? '1' : (collect($sections)->filter(fn($s) => !empty($product->{$s['key']}))->count() === 2 ? '2' : '3') }} max-w-5xl">
+            <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #60916a;">En détail</p>
+            <h2 class="text-2xl font-semibold mb-8" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
+                Les essentiels à retenir
+            </h2>
+            <div class="grid grid-cols-1 gap-6 {{ $activeSections->count() === 1 ? 'max-w-xl' : ($activeSections->count() === 2 ? 'md:grid-cols-2 max-w-4xl' : 'md:grid-cols-3') }}">
                 @foreach($sections as $section)
                     @if(!empty($product->{$section['key']}))
-                        <div>
-                            <div class="flex items-center gap-2 mb-3">
-                                <svg class="w-5 h-5 shrink-0" style="color: #276e44;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $section['icon'] }}"/>
-                                </svg>
-                                <h3 class="font-semibold text-base" style="color: #276e44;">{{ $section['label'] }}</h3>
+                        <div class="rounded-2xl p-6 transition-shadow hover:shadow-md"
+                             style="background: {{ $section['gradient'] }}; border: 1px solid {{ $section['border'] }};">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                                     style="background-color: {{ $section['iconBg'] }};">
+                                    <svg class="w-5 h-5" style="color: {{ $section['iconColor'] }};" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="{{ $section['icon'] }}"/>
+                                    </svg>
+                                </div>
+                                <h3 class="font-semibold text-base" style="color: #1f2937;">{{ $section['label'] }}</h3>
                             </div>
                             <div class="product-description leading-relaxed" style="color: #374151; font-size: 0.9375rem;">
                                 {!! $product->{$section['key']} !!}
