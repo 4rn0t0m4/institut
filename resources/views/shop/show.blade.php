@@ -406,88 +406,146 @@ $breadcrumbJsonLd = json_encode([
 {{-- Avis clients --}}
 <section id="avis" class="py-16 bg-white">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #60916a;">Retours d'experience</p>
-        <h2 class="text-2xl font-semibold mb-8" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
-            Avis clients
-            @if($reviews->isNotEmpty())
-                <span class="text-base font-normal" style="color: #60916a;">({{ $reviews->count() }})</span>
-            @endif
-        </h2>
 
-        {{-- Résumé note moyenne --}}
-        @if($reviews->isNotEmpty())
-            @php $avgRating = round($reviews->avg('rating'), 1); @endphp
-            <div class="flex items-center gap-3 mb-8">
-                <div class="flex items-center gap-0.5">
-                    @for($i = 1; $i <= 5; $i++)
-                        <svg class="w-5 h-5" fill="{{ $i <= round($avgRating) ? '#f59e0b' : '#e5e7eb' }}" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                    @endfor
-                </div>
-                <span class="text-lg font-semibold" style="color: #276e44;">{{ number_format($avgRating, 1, ',', '') }}</span>
-                <span class="text-sm" style="color: #6b7280;">sur 5</span>
+        @php
+            $starPath = 'M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z';
+        @endphp
+
+        {{-- En-tête + résumé --}}
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
+            <div>
+                <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #60916a;">Retours d'expérience</p>
+                <h2 class="text-2xl font-semibold" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
+                    Avis clients
+                    @if($reviews->isNotEmpty())
+                        <span class="text-base font-normal" style="color: #60916a;">({{ $reviews->count() }})</span>
+                    @endif
+                </h2>
             </div>
-        @endif
+
+            @if($reviews->isNotEmpty())
+                @php
+                    $avgRating = round($reviews->avg('rating'), 1);
+                    $distrib = [];
+                    for ($s = 5; $s >= 1; $s--) {
+                        $distrib[$s] = $reviews->where('rating', $s)->count();
+                    }
+                @endphp
+                {{-- Bloc note + distribution --}}
+                <div class="flex items-center gap-6 shrink-0">
+                    <div class="text-center">
+                        <div class="text-4xl font-bold" style="color: #276e44;">{{ number_format($avgRating, 1, ',', '') }}</div>
+                        <div class="flex justify-center gap-0.5 my-1">
+                            @for($i = 1; $i <= 5; $i++)
+                                <svg class="w-4 h-4" fill="{{ $i <= round($avgRating) ? '#f59e0b' : '#e5e7eb' }}" viewBox="0 0 20 20"><path d="{{ $starPath }}"/></svg>
+                            @endfor
+                        </div>
+                        <div class="text-xs" style="color: #9ca3af;">sur 5</div>
+                    </div>
+                    <div class="space-y-1 min-w-[140px]">
+                        @foreach($distrib as $stars => $count)
+                            @php $pct = $reviews->count() > 0 ? round($count / $reviews->count() * 100) : 0; @endphp
+                            <div class="flex items-center gap-2 text-xs" style="color: #6b7280;">
+                                <span class="w-3 text-right">{{ $stars }}</span>
+                                <svg class="w-3 h-3 shrink-0" fill="#f59e0b" viewBox="0 0 20 20"><path d="{{ $starPath }}"/></svg>
+                                <div class="flex-1 h-1.5 rounded-full overflow-hidden" style="background-color: #e5e7eb;">
+                                    <div class="h-full rounded-full" style="width: {{ $pct }}%; background-color: #f59e0b;"></div>
+                                </div>
+                                <span class="w-7 text-right">{{ $pct }}%</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </div>
 
         {{-- Liste des avis --}}
         @if($reviews->isNotEmpty())
-            <div class="space-y-6 mb-10">
-                @foreach($reviews as $review)
-                    <div class="rounded-xl p-5" style="background-color: #f0fdf4; border: 1px solid #b0f1b9;">
-                        <div class="flex items-start justify-between gap-4 mb-2">
-                            <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="font-semibold text-sm" style="color: #276e44;">{{ $review->author_name }}</span>
-                                    @if($review->is_verified_buyer)
-                                        <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium" style="background-color: #ecfdf5; color: #276e44; border: 1px solid #b0f1b9;">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                                            Achat verifie
-                                        </span>
-                                    @endif
-                                </div>
-                                <div class="flex items-center gap-0.5">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <svg class="w-4 h-4" fill="{{ $i <= $review->rating ? '#f59e0b' : '#d1d5db' }}" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                        </svg>
-                                    @endfor
+            <div x-data="{ showAll: false }">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+                    @foreach($reviews as $index => $review)
+                        @php $initial = mb_strtoupper(mb_substr($review->author_name, 0, 1)); @endphp
+                        <div x-show="{{ $index }} < 6 || showAll"
+                             x-transition:enter="transition ease-out duration-300"
+                             x-transition:enter-start="opacity-0 translate-y-2"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             class="bg-white rounded-xl p-5 flex flex-col gap-3"
+                             style="border: 1px solid #e5e7eb; border-left: 3px solid #276e44;">
+                            <div class="flex items-start gap-3">
+                                {{-- Avatar initiale --}}
+                                <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-white text-sm font-bold"
+                                     style="background-color: #276e44;">{{ $initial }}</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-sm" style="color: #1f2937;">{{ $review->author_name }}</span>
+                                            @if($review->is_verified_buyer)
+                                                <span class="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full font-medium" style="background-color: #ecfdf5; color: #276e44;">
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                                    Achat vérifié
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <span class="text-xs shrink-0" style="color: #9ca3af;">{{ $review->created_at->diffForHumans() }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-0.5 mt-0.5">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <svg class="w-3.5 h-3.5" fill="{{ $i <= $review->rating ? '#f59e0b' : '#d1d5db' }}" viewBox="0 0 20 20"><path d="{{ $starPath }}"/></svg>
+                                        @endfor
+                                    </div>
                                 </div>
                             </div>
-                            <span class="text-xs shrink-0" style="color: #9ca3af;">{{ $review->created_at->diffForHumans() }}</span>
+                            @if($review->title)
+                                <p class="font-semibold text-sm" style="color: #374151;">{{ $review->title }}</p>
+                            @endif
+                            <p class="text-sm leading-relaxed" style="color: #6b7280;">{{ $review->body }}</p>
                         </div>
-                        <h4 class="font-semibold text-sm mb-1" style="color: #374151;">{{ $review->title }}</h4>
-                        <p class="text-sm leading-relaxed" style="color: #6b7280;">{{ $review->body }}</p>
+                    @endforeach
+                </div>
+
+                @if($reviews->count() > 6)
+                    <div class="text-center mt-6">
+                        <button @click="showAll = !showAll"
+                                class="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-xl border transition"
+                                style="color: #276e44; border-color: #276e44;"
+                                onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">
+                            <span x-text="showAll ? 'Voir moins' : 'Voir tous les avis ({{ $reviews->count() }})'"></span>
+                            <svg class="w-4 h-4 transition-transform" :class="showAll ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
                     </div>
-                @endforeach
+                @endif
             </div>
         @else
-            <p class="text-sm mb-8" style="color: #6b7280;">Aucun avis pour le moment. Soyez le premier a donner votre avis !</p>
+            <p class="text-sm mb-8" style="color: #6b7280;">Aucun avis pour le moment. Soyez le premier à donner votre avis !</p>
         @endif
 
-        {{-- Formulaire d'avis --}}
-        <div class="max-w-xl rounded-2xl p-6" style="background-color: #f0fdf4; border: 1px solid #b0f1b9;" x-data="{ rating: 0 }">
-            <h3 class="text-lg font-semibold mb-5" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
+        {{-- Séparateur formulaire --}}
+        <div class="mt-14 pt-10" style="border-top: 1px solid #e5e7eb;">
+            <p class="text-xs uppercase tracking-widest font-medium mb-1" style="color: #60916a;">Votre expérience</p>
+            <h3 class="text-xl font-semibold mb-6" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
                 Laisser un avis
             </h3>
 
             @if(session('review_success'))
-                <div class="rounded-xl p-4" style="background-color: #ecfdf5; border: 1px solid #b0f1b9; color: #276e44;">
+                <div class="max-w-xl rounded-xl p-4 mb-6" style="background-color: #ecfdf5; border: 1px solid #b0f1b9; color: #276e44;">
                     <p class="text-sm font-medium">{{ session('review_success') }}</p>
                 </div>
             @else
-                <form action="{{ route('shop.review.store', $product) }}" method="POST" class="space-y-4" data-turbo="false">
+                <form action="{{ route('shop.review.store', $product) }}" method="POST"
+                      class="max-w-xl space-y-5" data-turbo="false" x-data="{ rating: 0 }">
                     @csrf
 
                     {{-- Note --}}
                     <div>
-                        <label class="mb-1.5 block text-sm font-medium" style="color: #374151;">Votre note *</label>
-                        <div class="flex gap-1">
+                        <label class="mb-2 block text-sm font-medium" style="color: #374151;">Votre note *</label>
+                        <div class="flex gap-1.5">
                             @for($i = 1; $i <= 5; $i++)
                                 <button type="button" @click="rating = {{ $i }}"
                                         class="focus:outline-none transition-transform hover:scale-110">
-                                    <svg class="w-8 h-8 transition-colors" :fill="rating >= {{ $i }} ? '#f59e0b' : '#d1d5db'" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    <svg class="w-9 h-9" :fill="rating >= {{ $i }} ? '#f59e0b' : '#d1d5db'" viewBox="0 0 20 20">
+                                        <path d="{{ $starPath }}"/>
                                     </svg>
                                 </button>
                             @endfor
@@ -497,58 +555,54 @@ $breadcrumbJsonLd = json_encode([
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {{-- Nom --}}
                         <div>
                             <label for="author_name" class="mb-1.5 block text-sm font-medium" style="color: #374151;">Votre nom *</label>
                             <input type="text" id="author_name" name="author_name" required
                                    value="{{ old('author_name', auth()->user()?->name) }}"
-                                   class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-600"
-                                   style="border-color: #b0f1b9; background-color: #ffffff;">
+                                   class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-700"
+                                   style="border-color: #d1d5db; background-color: #ffffff;">
                             @error('author_name') <p class="text-xs mt-1" style="color: #dc2626;">{{ $message }}</p> @enderror
                         </div>
-
-                        {{-- Email --}}
                         <div>
                             <label for="author_email" class="mb-1.5 block text-sm font-medium" style="color: #374151;">Votre email *</label>
                             <input type="email" id="author_email" name="author_email" required
                                    value="{{ old('author_email', auth()->user()?->email) }}"
-                                   class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-600"
-                                   style="border-color: #b0f1b9; background-color: #ffffff;">
-                            <p class="text-xs mt-1" style="color: #9ca3af;">Ne sera pas affiche publiquement</p>
+                                   class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-700"
+                                   style="border-color: #d1d5db; background-color: #ffffff;">
+                            <p class="text-xs mt-1" style="color: #9ca3af;">Non affiché publiquement</p>
                             @error('author_email') <p class="text-xs mt-1" style="color: #dc2626;">{{ $message }}</p> @enderror
                         </div>
                     </div>
 
-                    {{-- Titre --}}
                     <div>
-                        <label for="review_title" class="mb-1.5 block text-sm font-medium" style="color: #374151;">Titre de l'avis *</label>
-                        <input type="text" id="review_title" name="title" required
+                        <label for="review_title" class="mb-1.5 block text-sm font-medium" style="color: #374151;">Titre <span style="color: #9ca3af;">(optionnel)</span></label>
+                        <input type="text" id="review_title" name="title"
                                value="{{ old('title') }}"
-                               placeholder="Resumez votre experience"
-                               class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-600"
-                               style="border-color: #b0f1b9; background-color: #ffffff;">
+                               placeholder="Résumez votre expérience"
+                               class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-700"
+                               style="border-color: #d1d5db; background-color: #ffffff;">
                         @error('title') <p class="text-xs mt-1" style="color: #dc2626;">{{ $message }}</p> @enderror
                     </div>
 
-                    {{-- Corps --}}
                     <div>
                         <label for="review_body" class="mb-1.5 block text-sm font-medium" style="color: #374151;">Votre avis *</label>
                         <textarea id="review_body" name="body" required rows="4"
-                                  placeholder="Partagez votre experience avec ce produit..."
-                                  class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-600 resize-y"
-                                  style="border-color: #b0f1b9; background-color: #ffffff;">{{ old('body') }}</textarea>
+                                  placeholder="Partagez votre expérience avec ce produit..."
+                                  class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-700 resize-y"
+                                  style="border-color: #d1d5db; background-color: #ffffff;">{{ old('body') }}</textarea>
                         @error('body') <p class="text-xs mt-1" style="color: #dc2626;">{{ $message }}</p> @enderror
                     </div>
 
                     <button type="submit"
-                            class="text-white py-3 px-6 rounded-xl font-semibold text-sm transition"
+                            class="text-white py-2.5 px-6 rounded-xl font-semibold text-sm transition"
                             style="background-color: #276e44;"
-                            onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">
+                            onmouseover="this.style.backgroundColor='#1e5435'" onmouseout="this.style.backgroundColor='#276e44'">
                         Publier mon avis
                     </button>
                 </form>
             @endif
         </div>
+
     </div>
 </section>
 
