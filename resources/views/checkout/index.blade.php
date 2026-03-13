@@ -546,11 +546,11 @@
                     <button type="submit"
                             class="mt-6 w-full bg-green-700 text-white py-3 px-6 rounded font-medium hover:bg-green-800 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             :disabled="shippingMethod === 'boxtal' && !relayPointCode">
-                        Payer avec Stripe →
+                        Passer au règlement →
                     </button>
 
                     <p class="mt-3 text-xs text-gray-400 text-center">
-                        Paiement sécurisé via Stripe
+                        Paiement sécurisé par carte bancaire
                     </p>
                 </div>
             </aside>
