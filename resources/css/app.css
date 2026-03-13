@@ -1,4 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap');
+@import "@fontsource/source-serif-pro/300.css";
+@import "@fontsource/source-serif-pro/300-italic.css";
+@import "@fontsource/source-serif-pro/400.css";
+@import "@fontsource/source-serif-pro/400-italic.css";
+@import "@fontsource/source-serif-pro/600.css";
+@import "@fontsource/source-serif-pro/700.css";
 @import "tailwindcss";
 
 /* Charte graphique Institut Corps à Coeur */

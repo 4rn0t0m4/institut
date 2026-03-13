@@ -3,13 +3,301 @@
     "file": "assets/module.esm-CwKKyv8g.js",
     "name": "module.esm"
   },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-300-italic.woff": {
+    "file": "assets/source-serif-pro-cyrillic-300-italic-DM_de9uk.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-300-italic.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-300-italic.woff2": {
+    "file": "assets/source-serif-pro-cyrillic-300-italic-cO1a5rn2.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-300-italic.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-300-normal.woff": {
+    "file": "assets/source-serif-pro-cyrillic-300-normal-BT1i6_Xr.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-300-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-300-normal.woff2": {
+    "file": "assets/source-serif-pro-cyrillic-300-normal-D2MYtgSs.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-300-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-400-italic.woff": {
+    "file": "assets/source-serif-pro-cyrillic-400-italic-Ti5Ol9IL.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-400-italic.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-400-italic.woff2": {
+    "file": "assets/source-serif-pro-cyrillic-400-italic-Ddq8xOcI.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-400-italic.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-400-normal.woff": {
+    "file": "assets/source-serif-pro-cyrillic-400-normal-23c9XcZ9.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-400-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-400-normal.woff2": {
+    "file": "assets/source-serif-pro-cyrillic-400-normal-KDUmws6P.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-600-normal.woff": {
+    "file": "assets/source-serif-pro-cyrillic-600-normal-Bq5LpRUQ.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-600-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-600-normal.woff2": {
+    "file": "assets/source-serif-pro-cyrillic-600-normal-Cl9I1KM7.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-600-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-700-normal.woff": {
+    "file": "assets/source-serif-pro-cyrillic-700-normal-DMQgC_hU.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-700-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-700-normal.woff2": {
+    "file": "assets/source-serif-pro-cyrillic-700-normal-Ck7i7olP.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-700-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-300-italic.woff": {
+    "file": "assets/source-serif-pro-cyrillic-ext-300-italic-B0oO_ELt.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-300-italic.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-300-italic.woff2": {
+    "file": "assets/source-serif-pro-cyrillic-ext-300-italic-7SMbYh2x.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-300-italic.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-300-normal.woff": {
+    "file": "assets/source-serif-pro-cyrillic-ext-300-normal-N9bv1cMV.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-300-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-300-normal.woff2": {
+    "file": "assets/source-serif-pro-cyrillic-ext-300-normal-DW4DtYV1.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-300-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-400-italic.woff": {
+    "file": "assets/source-serif-pro-cyrillic-ext-400-italic-ebRC47j5.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-400-italic.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-400-italic.woff2": {
+    "file": "assets/source-serif-pro-cyrillic-ext-400-italic-Dh9SX4No.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-400-italic.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-400-normal.woff": {
+    "file": "assets/source-serif-pro-cyrillic-ext-400-normal-2ydvPDRD.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-400-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-400-normal.woff2": {
+    "file": "assets/source-serif-pro-cyrillic-ext-400-normal-Bu9Y9EsI.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-600-normal.woff": {
+    "file": "assets/source-serif-pro-cyrillic-ext-600-normal-BglGh7qn.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-600-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-600-normal.woff2": {
+    "file": "assets/source-serif-pro-cyrillic-ext-600-normal-BHx7Hl_X.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-600-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-700-normal.woff": {
+    "file": "assets/source-serif-pro-cyrillic-ext-700-normal-ClNsyjG-.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-700-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-700-normal.woff2": {
+    "file": "assets/source-serif-pro-cyrillic-ext-700-normal-FzDaSlJg.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-cyrillic-ext-700-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-300-italic.woff": {
+    "file": "assets/source-serif-pro-greek-300-italic-Dn4RLhwx.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-300-italic.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-300-italic.woff2": {
+    "file": "assets/source-serif-pro-greek-300-italic-D3PNS2rq.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-300-italic.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-300-normal.woff": {
+    "file": "assets/source-serif-pro-greek-300-normal-C24lt5to.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-300-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-300-normal.woff2": {
+    "file": "assets/source-serif-pro-greek-300-normal-C0lhsFR1.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-300-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-400-italic.woff": {
+    "file": "assets/source-serif-pro-greek-400-italic-CZ_-4uze.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-400-italic.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-400-italic.woff2": {
+    "file": "assets/source-serif-pro-greek-400-italic-BCwCnB4l.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-400-italic.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-400-normal.woff": {
+    "file": "assets/source-serif-pro-greek-400-normal-Lj7LgoZd.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-400-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-400-normal.woff2": {
+    "file": "assets/source-serif-pro-greek-400-normal-CnNeOVe_.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-600-normal.woff": {
+    "file": "assets/source-serif-pro-greek-600-normal-BZ8sRCAf.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-600-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-600-normal.woff2": {
+    "file": "assets/source-serif-pro-greek-600-normal-CUvmvcAO.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-600-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-700-normal.woff": {
+    "file": "assets/source-serif-pro-greek-700-normal-RIkV3xGE.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-700-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-700-normal.woff2": {
+    "file": "assets/source-serif-pro-greek-700-normal-CG94k4nK.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-greek-700-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-300-italic.woff": {
+    "file": "assets/source-serif-pro-latin-300-italic-JgbNq1ki.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-300-italic.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-300-italic.woff2": {
+    "file": "assets/source-serif-pro-latin-300-italic-4WQAvkcG.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-300-italic.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-300-normal.woff": {
+    "file": "assets/source-serif-pro-latin-300-normal-BTFO4QCu.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-300-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-300-normal.woff2": {
+    "file": "assets/source-serif-pro-latin-300-normal-xsnVDpqs.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-300-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-400-italic.woff": {
+    "file": "assets/source-serif-pro-latin-400-italic-DyZxMqez.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-400-italic.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-400-italic.woff2": {
+    "file": "assets/source-serif-pro-latin-400-italic-CjxGHcSv.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-400-italic.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-400-normal.woff": {
+    "file": "assets/source-serif-pro-latin-400-normal-CtaTzvhf.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-400-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-400-normal.woff2": {
+    "file": "assets/source-serif-pro-latin-400-normal-unTwOnjS.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-600-normal.woff": {
+    "file": "assets/source-serif-pro-latin-600-normal-CYiwJpl1.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-600-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-600-normal.woff2": {
+    "file": "assets/source-serif-pro-latin-600-normal-mNqi07Zy.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-600-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-700-normal.woff": {
+    "file": "assets/source-serif-pro-latin-700-normal-CIzruIyO.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-700-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-700-normal.woff2": {
+    "file": "assets/source-serif-pro-latin-700-normal-6fJNPKQF.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-700-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-300-italic.woff": {
+    "file": "assets/source-serif-pro-latin-ext-300-italic-Qll_9uRC.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-300-italic.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-300-italic.woff2": {
+    "file": "assets/source-serif-pro-latin-ext-300-italic-BMJUgqgO.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-300-italic.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-300-normal.woff": {
+    "file": "assets/source-serif-pro-latin-ext-300-normal-DEUYG8ub.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-300-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-300-normal.woff2": {
+    "file": "assets/source-serif-pro-latin-ext-300-normal-evgN4Bef.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-300-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-400-italic.woff": {
+    "file": "assets/source-serif-pro-latin-ext-400-italic-DaXaDRDp.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-400-italic.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-400-italic.woff2": {
+    "file": "assets/source-serif-pro-latin-ext-400-italic-DWZaWhGD.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-400-italic.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-400-normal.woff": {
+    "file": "assets/source-serif-pro-latin-ext-400-normal-Cbi_pmIN.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-400-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-400-normal.woff2": {
+    "file": "assets/source-serif-pro-latin-ext-400-normal-S2aRHAtc.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-600-normal.woff": {
+    "file": "assets/source-serif-pro-latin-ext-600-normal-BOh7M_La.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-600-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-600-normal.woff2": {
+    "file": "assets/source-serif-pro-latin-ext-600-normal-4BUutYs7.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-600-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-700-normal.woff": {
+    "file": "assets/source-serif-pro-latin-ext-700-normal-OmegKSd7.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-700-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-700-normal.woff2": {
+    "file": "assets/source-serif-pro-latin-ext-700-normal-B81tbgzv.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-latin-ext-700-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-300-italic.woff": {
+    "file": "assets/source-serif-pro-vietnamese-300-italic-BXa-OSLq.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-300-italic.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-300-italic.woff2": {
+    "file": "assets/source-serif-pro-vietnamese-300-italic-CSJSZqtD.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-300-italic.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-300-normal.woff": {
+    "file": "assets/source-serif-pro-vietnamese-300-normal-BqfgympF.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-300-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-300-normal.woff2": {
+    "file": "assets/source-serif-pro-vietnamese-300-normal-6gQRHBjY.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-300-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-400-italic.woff": {
+    "file": "assets/source-serif-pro-vietnamese-400-italic-DOoLvJ3P.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-400-italic.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-400-italic.woff2": {
+    "file": "assets/source-serif-pro-vietnamese-400-italic-C_Nv79yj.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-400-italic.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-400-normal.woff": {
+    "file": "assets/source-serif-pro-vietnamese-400-normal-BnlVvZF5.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-400-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-400-normal.woff2": {
+    "file": "assets/source-serif-pro-vietnamese-400-normal-CfuOscx8.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-600-normal.woff": {
+    "file": "assets/source-serif-pro-vietnamese-600-normal-Df5ouX1A.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-600-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-600-normal.woff2": {
+    "file": "assets/source-serif-pro-vietnamese-600-normal-Do96p01O.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-600-normal.woff2"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-700-normal.woff": {
+    "file": "assets/source-serif-pro-vietnamese-700-normal-BrSEyyzA.woff",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-700-normal.woff"
+  },
+  "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-700-normal.woff2": {
+    "file": "assets/source-serif-pro-vietnamese-700-normal-BJmgeVHQ.woff2",
+    "src": "node_modules/@fontsource/source-serif-pro/files/source-serif-pro-vietnamese-700-normal.woff2"
+  },
   "resources/css/admin.css": {
-    "file": "assets/admin-CkoteBpy.css",
+    "file": "assets/admin-BpSgE_Uu.css",
     "src": "resources/css/admin.css",
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-BygUoLK6.css",
+    "file": "assets/app-Bvtqxy00.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
