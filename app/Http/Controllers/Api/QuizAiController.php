@@ -28,7 +28,7 @@ class QuizAiController extends Controller
                 'price'       => $p->currentPrice(),
                 'category'    => $p->category?->name,
                 'description' => trim(strip_tags($p->short_description ?? '')),
-                'url'         => $p->url(),
+                'url'         => '/' . ltrim(parse_url($p->url(), PHP_URL_PATH), '/'),
             ]);
 
         // Réponses du quiz formatées

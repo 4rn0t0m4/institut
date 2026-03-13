@@ -30,6 +30,7 @@ export default async function handler(req, res) {
   }
 
   const { skinType, answers, products } = req.body;
+  const siteUrl = req.headers.origin || "https://institutcorpsacoeur.fr";
 
   if (!skinType || !answers || !products) {
     res.writeHead(400, cors);
@@ -61,7 +62,7 @@ Réponses au quiz :
 ${answers.map((a) => `- ${a.question}: ${a.answer}`).join("\n")}
 
 Produits disponibles (catégorie Produits Visage) :
-${products.map((p) => `- ${p.name} (${p.price}€) [${p.category}] URL: ${p.url} — ${p.description || "Pas de description"}`).join("\n")}`;
+${products.map((p) => `- ${p.name} (${p.price}€) [${p.category}] URL: ${siteUrl}${p.url} — ${p.description || "Pas de description"}`).join("\n")}`;
 
   try {
     res.writeHead(200, {
