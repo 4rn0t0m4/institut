@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
 Route::resource('products', ProductController::class)->names('admin.products');
+Route::patch('products/{product}/toggle-featured', [ProductController::class, 'toggleFeatured'])->name('admin.products.toggle-featured');
 Route::resource('categories', ProductCategoryController::class)->names('admin.categories');
 Route::resource('brands', BrandController::class)->except(['show'])->names('admin.brands');
 Route::resource('orders', OrderController::class)->only(['index', 'show', 'edit', 'update', 'destroy'])->names('admin.orders');

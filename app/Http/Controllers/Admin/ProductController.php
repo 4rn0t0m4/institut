@@ -178,6 +178,13 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Produit mis a jour.');
     }
 
+    public function toggleFeatured(Product $product)
+    {
+        $product->update(['is_featured' => !$product->is_featured]);
+
+        return response()->json(['is_featured' => $product->is_featured]);
+    }
+
     public function destroy(Product $product)
     {
         $product->delete();
