@@ -11,10 +11,17 @@ use Illuminate\Http\Request;
 
 class DiagnostiqueController extends Controller
 {
-    /** Page d'entrée : affiche la première question */
-    public function show(string $slug)
+    private const QUIZ_SLUG = 'diagnostic-de-peau';
+
+    private function quiz(): Quiz
     {
-        $quiz = Quiz::where('slug', $slug)->firstOrFail();
+        return Quiz::where('slug', self::QUIZ_SLUG)->firstOrFail();
+    }
+
+    /** Page d'entrée : affiche la première question */
+    public function show()
+    {
+        $quiz = $this->quiz();
         $firstQuestion = $quiz->questions()->with('choices')->orderBy('sort_order')->first();
 
         if (!$firstQuestion) {
@@ -27,10 +34,10 @@ class DiagnostiqueController extends Controller
         return view('quiz.show', compact('quiz', 'firstQuestion'));
     }
 
-    /** Affiche une question (Turbo Frame) */
-    public function question(string $slug, string $question)
+    /** Affiche une question */
+    public function question(string $question)
     {
-        $quiz     = Quiz::where('slug', $slug)->firstOrFail();
+        $quiz     = $this->quiz();
         $question = QuizQuestion::where('quiz_id', $quiz->id)->findOrFail($question);
         $question->load('choices');
 
@@ -38,13 +45,18 @@ class DiagnostiqueController extends Controller
         $answered = count($answers);
         $total    = $quiz->questions()->count();
 
-        return view('quiz.partials.question', compact('quiz', 'question', 'answered', 'total'));
+        return view('quiz.show', [
+            'quiz'          => $quiz,
+            'firstQuestion' => $question,
+            'answered'      => $answered,
+            'total'         => $total,
+        ]);
     }
 
     /** Traite la réponse et détermine la prochaine question ou le résultat */
-    public function answer(Request $request, string $slug, string $question)
+    public function answer(Request $request, string $question)
     {
-        $quiz     = Quiz::where('slug', $slug)->firstOrFail();
+        $quiz     = $this->quiz();
         $question = QuizQuestion::where('quiz_id', $quiz->id)
             ->with('choices')
             ->findOrFail($question);
@@ -81,9 +93,9 @@ class DiagnostiqueController extends Controller
     }
 
     /** Affiche le résultat */
-    public function result(string $slug, string $completion)
+    public function result(string $completion)
     {
-        $quiz       = Quiz::where('slug', $slug)->firstOrFail();
+        $quiz       = $this->quiz();
         $completion = QuizCompletion::where('quiz_id', $quiz->id)
             ->with('result')
             ->findOrFail($completion);

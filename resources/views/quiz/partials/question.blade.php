@@ -1,4 +1,3 @@
-<turbo-frame id="quiz-question">
 <div x-data class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm">
 
     {{-- Progression --}}
@@ -20,7 +19,7 @@
         <p class="text-gray-600 text-sm mb-6">{{ $question->question }}</p>
     @endif
 
-    <form action="{{ route('quiz.answer', ['question' => $question->id]) }}" method="POST" data-turbo-frame="_top">
+    <form action="{{ route('quiz.answer', ['question' => $question->id]) }}" method="POST" data-turbo="false">
         @csrf
 
         <div class="space-y-3 mb-6">
@@ -49,4 +48,3 @@
         </button>
     </form>
 </div>
-</turbo-frame>

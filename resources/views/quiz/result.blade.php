@@ -143,6 +143,7 @@ function aiRecommendation(completionId) {
 
         renderMarkdown(md) {
             return md
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-green-700 underline hover:text-green-900">$1</a>')
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>')
                 .replace(/^### (.+)$/gm, '<h4 class="font-semibold text-gray-900 mt-4 mb-1">$1</h4>')

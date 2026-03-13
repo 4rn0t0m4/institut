@@ -8,13 +8,10 @@
         @endif
     </div>
 
-    {{-- La frame qui contient la question courante --}}
-    <turbo-frame id="quiz-question">
-        @include('quiz.partials.question', [
-            'question' => $firstQuestion,
-            'answered' => 0,
-            'total'    => $quiz->questions()->count(),
-        ])
-    </turbo-frame>
+    @include('quiz.partials.question', [
+        'question' => $firstQuestion,
+        'answered' => $answered ?? 0,
+        'total'    => $total ?? $quiz->questions()->count(),
+    ])
 </div>
 </x-layouts.app>

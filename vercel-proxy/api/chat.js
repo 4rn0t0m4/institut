@@ -48,7 +48,8 @@ Règles :
 - Recommande 2 à 4 produits individuels ET le coffret le plus adapté s'il existe
 - Pour chaque produit, explique POURQUOI il convient à ce type de peau
 - Utilise le format Markdown pour structurer ta réponse
-- Pour chaque produit recommandé, mets le nom en gras et indique le prix
+- Pour chaque produit recommandé, crée un lien Markdown avec le nom en gras : [**Nom du produit**](url) — prix€
+- L'URL de chaque produit est fournie dans la liste, utilise-la telle quelle
 - Ne recommande QUE des produits présents dans la liste fournie
 - Si un coffret correspond au type de peau, mets-le en avant comme meilleure option
 - Termine par un conseil personnalisé de routine
@@ -60,7 +61,7 @@ Réponses au quiz :
 ${answers.map((a) => `- ${a.question}: ${a.answer}`).join("\n")}
 
 Produits disponibles (catégorie Produits Visage) :
-${products.map((p) => `- ${p.name} (${p.price}€) [${p.category}] : ${p.description || "Pas de description"}`).join("\n")}`;
+${products.map((p) => `- ${p.name} (${p.price}€) [${p.category}] URL: ${p.url} — ${p.description || "Pas de description"}`).join("\n")}`;
 
   try {
     res.writeHead(200, {

@@ -50,10 +50,10 @@ Route::post('/commande', [CheckoutController::class, 'store'])->name('checkout.s
 Route::get('/commande/succes', [CheckoutController::class, 'success'])->name('checkout.success');
 
 // Diagnostic de peau
-Route::get('/diagnostic-de-peau', [DiagnostiqueController::class, 'show'])->name('quiz.show')->defaults('slug', 'diagnostic-de-peau');
-Route::get('/diagnostic-de-peau/question/{question}', [DiagnostiqueController::class, 'question'])->name('quiz.question')->defaults('slug', 'diagnostic-de-peau');
-Route::post('/diagnostic-de-peau/question/{question}', [DiagnostiqueController::class, 'answer'])->name('quiz.answer')->defaults('slug', 'diagnostic-de-peau');
-Route::get('/diagnostic-de-peau/resultat/{completion}', [DiagnostiqueController::class, 'result'])->name('quiz.result')->defaults('slug', 'diagnostic-de-peau');
+Route::get('/diagnostic-de-peau', [DiagnostiqueController::class, 'show'])->name('quiz.show');
+Route::get('/diagnostic-de-peau/question/{question}', [DiagnostiqueController::class, 'question'])->name('quiz.question');
+Route::post('/diagnostic-de-peau/question/{question}', [DiagnostiqueController::class, 'answer'])->name('quiz.answer');
+Route::get('/diagnostic-de-peau/resultat/{completion}', [DiagnostiqueController::class, 'result'])->name('quiz.result');
 
 // Redirections 301 anciennes URLs quiz
 Route::redirect('/quiz/type-de-peau', '/diagnostic-de-peau', 301);
