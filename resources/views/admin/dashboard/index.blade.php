@@ -3,76 +3,6 @@
 @section('content')
     <x-admin.page-breadcrumb title="Tableau de bord" :breadcrumbs="['Tableau de bord' => null]" />
 
-    {{-- Recent orders (moved to top) --}}
-    <div class="mb-6">
-        <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-800 md:px-6">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Commandes recentes</h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="border-b border-gray-200 dark:border-gray-800">
-                            <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">ID</th>
-                            <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Client</th>
-                            <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Statut</th>
-                            <th class="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Total</th>
-                            <th class="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Date</th>
-                            <th class="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($recentOrders as $order)
-                            <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0">
-                                <td class="px-5 py-4">
-                                    <a href="{{ route('admin.orders.show', $order) }}" class="text-sm font-medium text-brand-500 hover:underline">{{ $order->number }}</a>
-                                </td>
-                                <td class="px-5 py-4">
-                                    @if($order->user_id)
-                                        <a href="{{ route('admin.customers.show', $order->user_id) }}" class="text-sm font-medium text-gray-700 hover:underline dark:text-gray-300">{{ $order->billing_first_name }} {{ $order->billing_last_name }}</a>
-                                    @else
-                                        <div class="text-sm text-gray-700 dark:text-gray-300">{{ $order->billing_first_name }} {{ $order->billing_last_name }}</div>
-                                    @endif
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ $order->billing_email }}</div>
-                                </td>
-                                <td class="px-5 py-4">
-                                    <x-admin.badge :status="$order->status" />
-                                </td>
-                                <td class="px-5 py-4 text-sm text-right text-gray-700 dark:text-gray-300">
-                                    {{ number_format($order->total, 2, ',', ' ') }} &euro;
-                                </td>
-                                <td class="px-5 py-4 text-sm text-right text-gray-500 dark:text-gray-400">
-                                    {{ $order->created_at->format('d/m/Y') }}
-                                </td>
-                                <td class="px-5 py-4 text-right">
-                                    <div class="flex items-center justify-end gap-2">
-                                        <a href="{{ route('admin.orders.show', $order) }}" class="text-gray-500 hover:text-brand-500 dark:text-gray-400" title="Voir">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                            </svg>
-                                        </a>
-                                        <a href="{{ route('admin.orders.edit', $order) }}" class="text-gray-500 hover:text-brand-500 dark:text-gray-400" title="Modifier">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                            </svg>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                                    Aucune commande pour le moment.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
     {{-- Metric cards --}}
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 md:gap-6">
         {{-- Orders --}}
@@ -144,6 +74,76 @@
         </div>
     </div>
 
+    {{-- Recent orders --}}
+    <div class="mt-6">
+        <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-800 md:px-6">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Commandes recentes</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-800">
+                            <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">ID</th>
+                            <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Client</th>
+                            <th class="px-5 py-3 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Statut</th>
+                            <th class="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Total</th>
+                            <th class="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Date</th>
+                            <th class="px-5 py-3 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($recentOrders as $order)
+                            <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0">
+                                <td class="px-5 py-4">
+                                    <a href="{{ route('admin.orders.show', $order) }}" class="text-sm font-medium text-brand-500 hover:underline">{{ $order->number }}</a>
+                                </td>
+                                <td class="px-5 py-4">
+                                    @if($order->user_id)
+                                        <a href="{{ route('admin.customers.show', $order->user_id) }}" class="text-sm font-medium text-gray-700 hover:underline dark:text-gray-300">{{ $order->billing_first_name }} {{ $order->billing_last_name }}</a>
+                                    @else
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">{{ $order->billing_first_name }} {{ $order->billing_last_name }}</div>
+                                    @endif
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ $order->billing_email }}</div>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <x-admin.badge :status="$order->status" />
+                                </td>
+                                <td class="px-5 py-4 text-sm text-right text-gray-700 dark:text-gray-300">
+                                    {{ number_format($order->total, 2, ',', ' ') }} &euro;
+                                </td>
+                                <td class="px-5 py-4 text-sm text-right text-gray-500 dark:text-gray-400">
+                                    {{ $order->created_at->format('d/m/Y') }}
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{{ route('admin.orders.show', $order) }}" class="text-gray-500 hover:text-brand-500 dark:text-gray-400" title="Voir">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                        </a>
+                                        <a href="{{ route('admin.orders.edit', $order) }}" class="text-gray-500 hover:text-brand-500 dark:text-gray-400" title="Modifier">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                                    Aucune commande pour le moment.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     {{-- Google Analytics --}}
     @if ($analyticsConfigured && $analyticsData)
         {{-- Analytics metric cards --}}
@@ -193,14 +193,16 @@
 
         {{-- Visitors chart (90 days) --}}
         @php
-            $dailyData = $analyticsData['daily_visitors_90days'];
-            $chartLabels = $dailyData->pluck('date')->map(fn($d) => $d->format('d/m'))->toJson();
-            $chartValues = $dailyData->pluck('activeUsers')->toJson();
+            $dailyData = $analyticsData['daily_visitors_90days']->sortBy('date');
+            $chartLabels = $dailyData->pluck('date')->map(fn($d) => $d->format('d/m'))->values()->toJson();
+            $chartValues = $dailyData->pluck('activeUsers')->values()->toJson();
         @endphp
         <div class="mt-6">
-            <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6" style="overflow: hidden;">
                 <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Visiteurs <span class="font-normal text-sm text-gray-400">(90 derniers jours)</span></h3>
-                <canvas id="visitorsChart" height="80"></canvas>
+                <div style="position: relative; width: 100%; max-width: 100%;">
+                    <canvas id="visitorsChart"></canvas>
+                </div>
             </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
@@ -226,6 +228,8 @@
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 3,
                         plugins: {
                             legend: { display: false },
                             tooltip: {
@@ -241,7 +245,7 @@
                             x: {
                                 grid: { display: false },
                                 ticks: {
-                                    maxTicksLimit: 12,
+                                    maxTicksLimit: 10,
                                     font: { size: 11 },
                                     color: '#9ca3af'
                                 }
