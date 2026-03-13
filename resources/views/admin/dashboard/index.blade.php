@@ -191,15 +191,15 @@
             </div>
         </div>
 
-        {{-- Visitors chart (90 days) --}}
+        {{-- Visitors chart (30 days) --}}
         @php
-            $dailyData = $analyticsData['daily_visitors_90days']->sortBy('date');
+            $dailyData = $analyticsData['visitors_30days']->sortBy('date');
             $chartLabels = $dailyData->pluck('date')->map(fn($d) => $d->format('d/m'))->values()->toJson();
             $chartValues = $dailyData->pluck('activeUsers')->values()->toJson();
         @endphp
         <div class="mt-6">
             <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6" style="overflow: hidden;">
-                <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Visiteurs <span class="font-normal text-sm text-gray-400">(90 derniers jours)</span></h3>
+                <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Visiteurs <span class="font-normal text-sm text-gray-400">(30 derniers jours)</span></h3>
                 <div style="position: relative; width: 100%; max-width: 100%;">
                     <canvas id="visitorsChart"></canvas>
                 </div>

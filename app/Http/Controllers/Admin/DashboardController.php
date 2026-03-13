@@ -31,14 +31,12 @@ class DashboardController extends Controller
         if ($analyticsConfigured) {
             config(['analytics.property_id' => $propertyId]);
             try {
-                $dailyVisitors = Analytics::fetchTotalVisitorsAndPageViews(Period::days(90));
                 $analyticsData = [
                     'visitors_today' => Analytics::fetchTotalVisitorsAndPageViews(Period::days(1)),
                     'visitors_7days' => Analytics::fetchTotalVisitorsAndPageViews(Period::days(7)),
                     'visitors_30days' => Analytics::fetchTotalVisitorsAndPageViews(Period::days(30)),
                     'top_pages' => Analytics::fetchMostVisitedPages(Period::days(30), maxResults: 10),
                     'top_referrers' => Analytics::fetchTopReferrers(Period::days(30), maxResults: 10),
-                    'daily_visitors_90days' => $dailyVisitors,
                 ];
             } catch (\Exception $e) {
                 $analyticsError = $e->getMessage();
