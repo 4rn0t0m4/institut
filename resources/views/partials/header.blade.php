@@ -348,6 +348,24 @@
                 </div>
                 @endif
 
+                {{-- Encart Diagnostic de peau --}}
+                <div style="margin-top: 1.5rem; background: linear-gradient(135deg, #e8fae8 0%, #f0fdf4 100%); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid #bbf7d0;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <svg style="width: 2rem; height: 2rem; color: #276e44; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-semibold" style="color: #276e44;">Diagnostic de peau personnalisé</p>
+                            <p class="text-xs mt-0.5" style="color: #60916a;">Découvrez votre type de peau et les produits adaptés grâce à notre questionnaire</p>
+                        </div>
+                    </div>
+                    <a href="{{ route('quiz.show') }}"
+                       class="text-xs font-semibold px-5 py-2.5 rounded-lg text-white transition hover:opacity-90 ml-4"
+                       style="background-color: #276e44; white-space: nowrap;">
+                        Faire le diagnostic →
+                    </a>
+                </div>
+
         </div>
     </div>
 

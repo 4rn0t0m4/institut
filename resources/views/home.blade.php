@@ -30,9 +30,13 @@
                     </a>
                 </div>
             </div>
-            <div class="hidden lg:block">
+            <div class="hidden lg:block"
+                 x-data="{ offset: 0 }"
+                 x-on:scroll.window.throttle.16ms="offset = window.scrollY">
                 <div class="aspect-square rounded-3xl overflow-hidden">
-                    <img src="{{ asset('images/hero.jpg') }}" alt="Institut Corps à Coeur — Espace bien-être" class="w-full h-full object-cover">
+                    <img src="{{ asset('images/hero.jpg') }}" alt="Institut Corps à Coeur — Espace bien-être"
+                         class="w-full object-cover"
+                         :style="'height: 120%; transform: translateY(-' + (offset * 0.15) + 'px)'">
                 </div>
             </div>
         </div>
