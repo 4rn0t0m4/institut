@@ -64,7 +64,10 @@
 
             {{-- Logo --}}
             <a href="{{ route('home') }}" class="shrink-0">
-                <img src="{{ asset('images/logo.png') }}" alt="Institut Corps à Coeur" style="height: 48px; width: auto;">
+                <picture>
+                    <source srcset="{{ asset('images/logo.webp') }}" type="image/webp">
+                    <img src="{{ asset('images/logo.png') }}" alt="Institut Corps à Coeur" width="200" height="188" style="height: 48px; width: auto;" fetchpriority="high">
+                </picture>
             </a>
 
             {{-- Nav desktop --}}
