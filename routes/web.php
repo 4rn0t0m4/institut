@@ -68,6 +68,9 @@ Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
 Route::get('/api/boxtal/map-token', [BoxtalController::class, 'mapToken'])->name('boxtal.map-token');
 Route::post('/api/boxtal/parcel-points', [BoxtalController::class, 'searchParcelPoints'])->name('boxtal.parcel-points');
 
+// Quiz AI recommendation
+Route::get('/api/quiz/{completion}/ai-data', [\App\Http\Controllers\Api\QuizAiController::class, 'products'])->name('quiz.ai-data');
+
 // Webhook Stripe (exclure CSRF)
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
 

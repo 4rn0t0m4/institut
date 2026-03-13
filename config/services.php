@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'claude_proxy' => [
+        'url' => env('CLAUDE_PROXY_URL', 'https://icc-claude-proxy.vercel.app'),
+    ],
+
 ];
