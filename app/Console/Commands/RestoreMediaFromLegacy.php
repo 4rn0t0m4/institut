@@ -5,15 +5,12 @@ namespace App\Console\Commands;
 use App\Models\Media;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Intervention\Image\Facades\Image;
 
 class RestoreMediaFromLegacy extends Command
 {
-    protected $signature = 'media:restore-from-legacy {--dry-run} {--product=}';
-    protected $description = 'Re-télécharge les images originales depuis le WP legacy et les reconvertit en WebP (source JPEG → WebP)';
-
-    private const WP_BASE_URL = 'https://institutcorpsacoeur.fr';
+    protected $signature = 'media:restore-from-legacy {--dry-run} {--product=} {--wp-path=/home/instiqh/www/wp-content/uploads}';
+    protected $description = 'Lit les images originales depuis le dossier WP local et les reconvertit en WebP (source JPEG → WebP)';
 
     public function handle(): int
     {
@@ -63,38 +60,32 @@ class RestoreMediaFromLegacy extends Command
                 continue;
             }
 
-            $wpUrl = self::WP_BASE_URL . '/wp-content/uploads/' . $wpFile;
+            $wpPath = rtrim($this->option('wp-path'), '/') . '/' . $wpFile;
+
+            if (!file_exists($wpPath)) {
+                $this->newLine();
+                $this->warn("Fichier introuvable: {$wpPath}");
+                $errors++;
+                continue;
+            }
 
             if ($this->option('dry-run')) {
                 $this->newLine();
-                $this->line("{$media->filename} ← {$wpUrl}");
+                $this->line("{$media->filename} ← {$wpPath}");
                 $restored++;
                 continue;
             }
 
             try {
-                $response = Http::timeout(30)->get($wpUrl);
-                if (!$response->successful()) {
-                    $this->newLine();
-                    $this->warn("HTTP {$response->status()} pour {$wpUrl}");
-                    $errors++;
-                    continue;
-                }
-
-                $tmpFile = tempnam(sys_get_temp_dir(), 'wp_img_');
-                file_put_contents($tmpFile, $response->body());
-
                 $newFullPath = storage_path('app/public/' . $media->path);
 
-                Image::make($tmpFile)
+                Image::make($wpPath)
                     ->resize(900, 900, function ($constraint) {
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     })
                     ->encode('webp', 78)
                     ->save($newFullPath);
-
-                @unlink($tmpFile);
 
                 [$width, $height] = getimagesize($newFullPath) ?: [null, null];
 
