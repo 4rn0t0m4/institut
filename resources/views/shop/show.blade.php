@@ -1,5 +1,11 @@
 <x-layouts.app :title="$product->meta_title ?: $product->name" :meta-description="$product->meta_description ?: $product->short_description" og-type="product">
 
+@if($product->featuredImage?->url)
+@push('head')
+<link rel="preload" as="image" href="{{ $product->featuredImage->url }}">
+@endpush
+@endif
+
 {{-- Schema.org Product + BreadcrumbList --}}
 @php
 $productSchema = [
@@ -111,7 +117,9 @@ $breadcrumbJsonLd = json_encode([
                     @foreach($allImages as $i => $img)
                         <img src="{{ $img->url }}"
                              alt="{{ $img->alt ?: $product->name }}"
+                             @if($img->width && $img->height) width="{{ $img->width }}" height="{{ $img->height }}" @endif
                              x-show="active === {{ $i }}"
+                             @if($i === 0) fetchpriority="high" @else loading="lazy" @endif
                              class="w-full h-full object-cover cursor-zoom-in"
                              @click="lightbox = true">
                     @endforeach
@@ -140,7 +148,7 @@ $breadcrumbJsonLd = json_encode([
                                 class="flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition"
                                 :class="active === {{ $i }} ? 'border-[#276e44]' : 'border-transparent'">
                             <img src="{{ $img->url }}" alt="{{ $img->alt ?: $product->name }}"
-                                 class="w-full h-full object-cover">
+                                 loading="lazy" class="w-full h-full object-cover">
                         </button>
                     @endforeach
                 </div>

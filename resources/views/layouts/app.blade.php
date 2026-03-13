@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    {{-- Preconnect tiers --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+
+    {{-- Google Fonts non-bloquant --}}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap"></noscript>
+
+    @stack('head')
+
     @php
         $pageTitle = ($title ?? config('app.name')) . ' — Institut Corps à Coeur';
         $pageDesc  = $metaDescription ?? 'Institut de beauté et bien-être à Mézidon Canon, près de Caen. Soins visage, massages, balnéothérapie, boutique cosmétiques.';
