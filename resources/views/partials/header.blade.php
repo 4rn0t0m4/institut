@@ -99,11 +99,11 @@
                     </button>
                 </div>
 
-                {{-- QUIZ PEAU --}}
-                <a href="{{ route('quiz.show', 'type-de-peau') }}"
+                {{-- DIAGNOSTIC PEAU --}}
+                <a href="{{ route('quiz.show') }}"
                    class="hover:opacity-70 transition-opacity pb-0.5 border-b-2 {{ request()->routeIs('quiz.*') ? 'border-current' : 'border-transparent' }}"
                    style="color: #276e44;">
-                    Quiz Peau
+                    Diagnostic de peau
                 </a>
 
             </nav>
@@ -426,10 +426,10 @@
         </div>
 
         {{-- Liens directs --}}
-        <a href="{{ route('quiz.show', 'type-de-peau') }}"
+        <a href="{{ route('quiz.show') }}"
            class="block py-2.5 text-sm font-semibold border-b"
            style="color: #276e44; border-color: #c9fad9;">
-            Quiz Peau
+            Diagnostic de peau
         </a>
 
         {{-- Compte + RDV --}}

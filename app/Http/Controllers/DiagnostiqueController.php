@@ -28,10 +28,10 @@ class DiagnostiqueController extends Controller
     }
 
     /** Affiche une question (Turbo Frame) */
-    public function question(string $slug, int $questionId)
+    public function question(string $slug, string $question)
     {
         $quiz     = Quiz::where('slug', $slug)->firstOrFail();
-        $question = QuizQuestion::where('quiz_id', $quiz->id)->findOrFail($questionId);
+        $question = QuizQuestion::where('quiz_id', $quiz->id)->findOrFail($question);
         $question->load('choices');
 
         $answers  = session("quiz.{$quiz->id}.answers", []);
@@ -42,12 +42,12 @@ class DiagnostiqueController extends Controller
     }
 
     /** Traite la réponse et détermine la prochaine question ou le résultat */
-    public function answer(Request $request, string $slug, int $questionId)
+    public function answer(Request $request, string $slug, string $question)
     {
         $quiz     = Quiz::where('slug', $slug)->firstOrFail();
         $question = QuizQuestion::where('quiz_id', $quiz->id)
             ->with('choices')
-            ->findOrFail($questionId);
+            ->findOrFail($question);
 
         $choiceId = $request->input('choice_id');
         $comment  = $request->input('comment');
@@ -81,12 +81,12 @@ class DiagnostiqueController extends Controller
     }
 
     /** Affiche le résultat */
-    public function result(string $slug, int $completionId)
+    public function result(string $slug, string $completion)
     {
         $quiz       = Quiz::where('slug', $slug)->firstOrFail();
         $completion = QuizCompletion::where('quiz_id', $quiz->id)
             ->with('result')
-            ->findOrFail($completionId);
+            ->findOrFail($completion);
 
         return view('quiz.result', compact('quiz', 'completion'));
     }
