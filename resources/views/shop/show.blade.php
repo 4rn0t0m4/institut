@@ -84,7 +84,7 @@ $breadcrumbJsonLd = json_encode([
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     {{-- Fil d'ariane --}}
-    <nav class="text-xs mb-8 flex items-center gap-2" style="color: #60916a;">
+    <nav class="text-xs mb-8 flex items-center gap-2" style="color: #4d7c5a;">
         <a href="{{ route('shop.index') }}" class="hover:underline">Boutique</a>
         @if($product->category)
             @if($product->category->parent)
@@ -180,7 +180,7 @@ $breadcrumbJsonLd = json_encode([
                     </a>
                 </p>
             @endif
-            <p class="text-xs uppercase tracking-widest mb-2 font-medium" style="color: #60916a;">
+            <p class="text-xs uppercase tracking-widest mb-2 font-medium" style="color: #4d7c5a;">
                 {{ $product->category?->name }}
             </p>
             <h1 class="text-3xl md:text-4xl font-semibold leading-tight mb-3" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
@@ -198,7 +198,7 @@ $breadcrumbJsonLd = json_encode([
                             </svg>
                         @endfor
                     </div>
-                    <a href="#avis" class="text-xs hover:underline" style="color: #60916a;">{{ $reviews->count() }} avis</a>
+                    <a href="#avis" class="text-xs hover:underline" style="color: #4d7c5a;">{{ $reviews->count() }} avis</a>
                 @else
                     <div class="flex items-center gap-0.5">
                         @for($i = 1; $i <= 5; $i++)
@@ -207,7 +207,7 @@ $breadcrumbJsonLd = json_encode([
                             </svg>
                         @endfor
                     </div>
-                    <a href="#avis" class="text-xs hover:underline" style="color: #60916a;">Donner mon avis</a>
+                    <a href="#avis" class="text-xs hover:underline" style="color: #4d7c5a;">Donner mon avis</a>
                 @endif
             </div>
 
@@ -227,7 +227,7 @@ $breadcrumbJsonLd = json_encode([
             <div class="flex items-baseline gap-3 mb-6">
                 <span class="text-3xl font-bold" style="color: #276e44;" x-text="formatPrice(total)"></span>
                 @if($product->sale_price)
-                    <span class="text-base line-through" style="color: #60916a;">
+                    <span class="text-base line-through" style="color: #4d7c5a;">
                         {{ number_format($product->price, 2, ',', ' ') }} €
                     </span>
                 @endif
@@ -273,6 +273,7 @@ $breadcrumbJsonLd = json_encode([
                             <input type="email" name="email" required
                                    value="{{ auth()->user()?->email }}"
                                    placeholder="votre@email.fr"
+                                   aria-label="Adresse email pour alerte stock"
                                    class="flex-1 text-sm px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-600"
                                    style="border-color: #d1d5db;">
                             <button type="submit"
@@ -308,12 +309,14 @@ $breadcrumbJsonLd = json_encode([
                     <div class="flex items-center rounded-xl overflow-hidden" style="border: 1px solid #b0f1b9;">
                         <button type="button"
                                 @click="qty = Math.max(1, qty - 1)"
+                                aria-label="Diminuer la quantité"
                                 class="px-3.5 py-2.5 transition" style="color: #276e44;" onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">−</button>
                         <input type="number" name="quantity" x-model="qty"
-                               min="1" max="99"
+                               min="1" max="99" aria-label="Quantité"
                                class="w-12 text-center py-2.5 border-0 text-sm focus:outline-none" style="color: #276e44;">
                         <button type="button"
                                 @click="qty = Math.min(99, qty + 1)"
+                                aria-label="Augmenter la quantité"
                                 class="px-3.5 py-2.5 transition" style="color: #276e44;" onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">+</button>
                     </div>
                     <button type="submit"
@@ -359,7 +362,7 @@ $breadcrumbJsonLd = json_encode([
 @if($product->description)
     <section class="py-16" style="background-color: #c9fad9;">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #60916a;">Tout savoir</p>
+            <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #4d7c5a;">Tout savoir</p>
             <h2 class="text-2xl font-semibold mb-6" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
                 Description
             </h2>
@@ -382,7 +385,7 @@ $breadcrumbJsonLd = json_encode([
 @if($activeSections->isNotEmpty())
     <section class="py-14 bg-white border-b" style="border-color: #e5e7eb;">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #60916a;">En détail</p>
+            <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #4d7c5a;">En détail</p>
             <h2 class="text-2xl font-semibold mb-8" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
                 Les essentiels à retenir
             </h2>
@@ -422,11 +425,11 @@ $breadcrumbJsonLd = json_encode([
         {{-- En-tête + résumé --}}
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
             <div>
-                <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #60916a;">Retours d'expérience</p>
+                <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #4d7c5a;">Retours d'expérience</p>
                 <h2 class="text-2xl font-semibold" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
                     Avis clients
                     @if($reviews->isNotEmpty())
-                        <span class="text-base font-normal" style="color: #60916a;">({{ $reviews->count() }})</span>
+                        <span class="text-base font-normal" style="color: #4d7c5a;">({{ $reviews->count() }})</span>
                     @endif
                 </h2>
             </div>
@@ -531,7 +534,7 @@ $breadcrumbJsonLd = json_encode([
 
         {{-- Séparateur formulaire --}}
         <div class="mt-14 pt-10" style="border-top: 1px solid #e5e7eb;">
-            <p class="text-xs uppercase tracking-widest font-medium mb-1" style="color: #60916a;">Votre expérience</p>
+            <p class="text-xs uppercase tracking-widest font-medium mb-1" style="color: #4d7c5a;">Votre expérience</p>
             <h3 class="text-xl font-semibold mb-6" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
                 Laisser un avis
             </h3>
@@ -551,6 +554,7 @@ $breadcrumbJsonLd = json_encode([
                         <div class="flex gap-1.5">
                             @for($i = 1; $i <= 5; $i++)
                                 <button type="button" @click="rating = {{ $i }}"
+                                        aria-label="{{ $i }} étoile{{ $i > 1 ? 's' : '' }}"
                                         class="focus:outline-none transition-transform hover:scale-110">
                                     <svg class="w-9 h-9" :fill="rating >= {{ $i }} ? '#f59e0b' : '#d1d5db'" viewBox="0 0 20 20">
                                         <path d="{{ $starPath }}"/>
@@ -618,7 +622,7 @@ $breadcrumbJsonLd = json_encode([
 @if($related->isNotEmpty())
     <section class="py-16" style="background-color: #c9fad9;">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #60916a;">Boutique</p>
+            <p class="text-xs uppercase tracking-widest font-medium mb-2" style="color: #4d7c5a;">Boutique</p>
             <h2 class="text-2xl font-semibold mb-8" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
                 Vous aimerez aussi
             </h2>
