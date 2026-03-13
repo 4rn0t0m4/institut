@@ -119,7 +119,7 @@ $breadcrumbJsonLd = json_encode([
                              alt="{{ $img->alt ?: $product->name }}"
                              @if($img->width && $img->height) width="{{ $img->width }}" height="{{ $img->height }}" @endif
                              x-show="active === {{ $i }}"
-                             @if($i === 0) fetchpriority="high" @else loading="lazy" @endif
+                             @if($i === 0) fetchpriority="high" style="display: block" @else loading="lazy" @endif
                              class="w-full h-full object-cover cursor-zoom-in"
                              @click="lightbox = true">
                     @endforeach

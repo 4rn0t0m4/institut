@@ -192,11 +192,11 @@ class ProductController extends Controller
 
         // Redimensionne (max 1200px) et convertit en WebP
         Image::make($file->getRealPath())
-            ->resize(1200, 1200, function ($constraint) {
+            ->resize(900, 900, function ($constraint) {
                 $constraint->aspectRatio();
                 $constraint->upsize();
             })
-            ->encode('webp', 85)
+            ->encode('webp', 78)
             ->save($finalPath);
 
         [$width, $height] = getimagesize($finalPath) ?: [null, null];

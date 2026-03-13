@@ -9,7 +9,7 @@ use Intervention\Image\Facades\Image;
 class OptimizeMedia extends Command
 {
     protected $signature = 'media:optimize {--dry-run}';
-    protected $description = 'Convertit les images locales en WebP et les redimensionne (max 1200px)';
+    protected $description = 'Convertit les images locales en WebP et les redimensionne (max 900px, qualité 78)';
 
     public function handle(): int
     {
@@ -45,11 +45,11 @@ class OptimizeMedia extends Command
                     $this->line("{$media->filename} ({$this->formatBytes(filesize($sourcePath))}) → {$newFilename}");
                 } else {
                     Image::make($sourcePath)
-                        ->resize(1200, 1200, function ($constraint) {
+                        ->resize(900, 900, function ($constraint) {
                             $constraint->aspectRatio();
                             $constraint->upsize();
                         })
-                        ->encode('webp', 85)
+                        ->encode('webp', 78)
                         ->save($newFullPath);
 
                     [$width, $height] = getimagesize($newFullPath) ?: [null, null];
