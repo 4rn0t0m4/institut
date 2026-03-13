@@ -8,15 +8,19 @@ use Intervention\Image\Facades\Image;
 
 class OptimizeMedia extends Command
 {
-    protected $signature = 'media:optimize {--dry-run}';
+    protected $signature = 'media:optimize {--dry-run} {--reprocess}';
     protected $description = 'Convertit les images locales en WebP et les redimensionne (max 900px, qualité 78)';
 
     public function handle(): int
     {
-        $medias = Media::where('disk', 'public')
-            ->where('mime_type', 'like', 'image/%')
-            ->where('mime_type', '!=', 'image/webp')
-            ->get();
+        $query = Media::where('disk', 'public')
+            ->where('mime_type', 'like', 'image/%');
+
+        if (!$this->option('reprocess')) {
+            $query->where('mime_type', '!=', 'image/webp');
+        }
+
+        $medias = $query->get();
 
         $this->info("Traitement de {$medias->count()} images...\n");
         $bar = $this->output->createProgressBar($medias->count());
@@ -39,6 +43,7 @@ class OptimizeMedia extends Command
                 $newFilename = pathinfo($media->filename, PATHINFO_FILENAME) . '.webp';
                 $newPath     = 'media/' . $newFilename;
                 $newFullPath = storage_path('app/public/' . $newPath);
+                $sameFile    = realpath($sourcePath) === realpath($newFullPath) || $sourcePath === $newFullPath;
 
                 if ($this->option('dry-run')) {
                     $this->newLine();
@@ -64,7 +69,9 @@ class OptimizeMedia extends Command
                         'height'    => $height,
                     ]);
 
-                    @unlink($sourcePath);
+                    if (!$sameFile) {
+                        @unlink($sourcePath);
+                    }
                 }
 
                 $converted++;
