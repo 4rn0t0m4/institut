@@ -327,35 +327,39 @@
                         </div>
                     @endif
 
-                    {{-- Encart Coffrets Cadeaux --}}
-                    @if($coffretCategory)
-                        <a href="{{ $coffretCategory->url() }}"
-                           style="background: linear-gradient(135deg, #fff8e6 0%, #fffbf0 100%); border-radius: 12px; padding: 1rem; display: flex; align-items: center; gap: 0.75rem; border: 1px solid #fde68a; text-decoration: none; transition: opacity 0.15s;"
-                           class="hover:opacity-80">
-                            <svg style="width: 1.5rem; height: 1.5rem; color: #d97706; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7m0 0a2 2 0 01-2-2c0-1.5 2-4 2-4s2 2.5 2 4a2 2 0 01-2 2zm-5-5a2 2 0 01-2-2c0-1.5 2-3 2-3s2 1.5 2 3a2 2 0 01-2 2zm10 0a2 2 0 01-2-2c0-1.5 2-3 2-3s2 1.5 2 3a2 2 0 01-2 2z"/>
-                            </svg>
-                            <div>
-                                <p class="text-xs font-semibold" style="color: #92400e;">Coffrets cadeaux</p>
-                                <p class="text-xs mt-0.5" style="color: #b45309;">Nos coffrets beauté →</p>
-                            </div>
-                        </a>
-                    @endif
-
-                    {{-- Encart Diagnostic de peau --}}
-                    <a href="{{ route('quiz.show') }}"
-                       style="background: linear-gradient(135deg, #f0fdf4 0%, #e8fae8 100%); border-radius: 12px; padding: 1rem; display: flex; align-items: center; gap: 0.75rem; border: 1px solid #bbf7d0; text-decoration: none; transition: opacity 0.15s;"
-                       class="hover:opacity-80">
-                        <svg style="width: 1.5rem; height: 1.5rem; color: #276e44; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                        </svg>
-                        <div>
-                            <p class="text-xs font-semibold" style="color: #276e44;">Diagnostic de peau</p>
-                            <p class="text-xs mt-0.5" style="color: #60916a;">Trouvez vos soins idéaux →</p>
-                        </div>
-                    </a>
                 </div>
 
+            </div>
+
+            {{-- Encarts Coffrets + Diagnostic côte à côte --}}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+                {{-- Encart Coffrets Cadeaux --}}
+                @if($coffretCategory)
+                    <a href="{{ $coffretCategory->url() }}"
+                       style="background: linear-gradient(135deg, #fff8e6 0%, #fffbf0 100%); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; border: 1px solid #fde68a; text-decoration: none; transition: opacity 0.15s;"
+                       class="hover:opacity-80">
+                        <svg style="width: 1.5rem; height: 1.5rem; color: #d97706; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7m0 0a2 2 0 01-2-2c0-1.5 2-4 2-4s2 2.5 2 4a2 2 0 01-2 2zm-5-5a2 2 0 01-2-2c0-1.5 2-3 2-3s2 1.5 2 3a2 2 0 01-2 2zm10 0a2 2 0 01-2-2c0-1.5 2-3 2-3s2 1.5 2 3a2 2 0 01-2 2z"/>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-semibold" style="color: #92400e;">Une idée cadeau qui fait plaisir</p>
+                            <p class="text-xs mt-0.5" style="color: #b45309;">Nos coffrets beauté pour toutes les occasions →</p>
+                        </div>
+                    </a>
+                @endif
+
+                {{-- Encart Diagnostic de peau --}}
+                <a href="{{ route('quiz.show') }}"
+                   style="background: linear-gradient(135deg, #f0fdf4 0%, #e8fae8 100%); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; border: 1px solid #bbf7d0; text-decoration: none; transition: opacity 0.15s;"
+                   class="hover:opacity-80">
+                    <svg style="width: 1.5rem; height: 1.5rem; color: #276e44; flex-shrink: 0;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                    <div>
+                        <p class="text-sm font-semibold" style="color: #276e44;">Diagnostic de peau</p>
+                        <p class="text-xs mt-0.5" style="color: #60916a;">Trouvez vos soins idéaux →</p>
+                    </div>
+                </a>
             </div>
 
         </div>
