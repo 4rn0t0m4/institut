@@ -7,6 +7,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $title ?? 'Tableau de bord' }} | Admin ICC</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
 
     @vite(['resources/css/admin.css', 'resources/js/admin.js'])
     @stack('head-scripts')
