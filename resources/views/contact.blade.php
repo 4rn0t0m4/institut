@@ -9,7 +9,11 @@
             Une question sur nos soins, nos produits ou une commande ? N'hésitez pas à nous écrire.
         </p>
 
-        <div style="display: grid; grid-template-columns: 1fr 320px; gap: 4rem; align-items: start;">
+        <div class="contact-grid" style="display: grid; gap: 2.5rem; align-items: start;">
+            <style>
+                .contact-grid { grid-template-columns: 1fr; }
+                @media (min-width: 1024px) { .contact-grid { grid-template-columns: 1fr 320px; gap: 4rem !important; } }
+            </style>
 
             {{-- Formulaire --}}
             <div>
