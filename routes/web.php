@@ -7,7 +7,7 @@ use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\PageController;
-use App\Http\Controllers\QuizController;
+use App\Http\Controllers\DiagnostiqueController;
 use App\Http\Controllers\BoxtalController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SitemapController;
@@ -49,11 +49,15 @@ Route::get('/commande', [CheckoutController::class, 'index'])->name('checkout.in
 Route::post('/commande', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/commande/succes', [CheckoutController::class, 'success'])->name('checkout.success');
 
-// Quiz
-Route::get('/quiz/{slug}', [QuizController::class, 'show'])->name('quiz.show');
-Route::get('/quiz/{slug}/question/{question}', [QuizController::class, 'question'])->name('quiz.question');
-Route::post('/quiz/{slug}/question/{question}', [QuizController::class, 'answer'])->name('quiz.answer');
-Route::get('/quiz/{slug}/resultat/{completion}', [QuizController::class, 'result'])->name('quiz.result');
+// Diagnostic de peau
+Route::get('/diagnostic-de-peau', [DiagnostiqueController::class, 'show'])->name('quiz.show')->defaults('slug', 'diagnostic-de-peau');
+Route::get('/diagnostic-de-peau/question/{question}', [DiagnostiqueController::class, 'question'])->name('quiz.question')->defaults('slug', 'diagnostic-de-peau');
+Route::post('/diagnostic-de-peau/question/{question}', [DiagnostiqueController::class, 'answer'])->name('quiz.answer')->defaults('slug', 'diagnostic-de-peau');
+Route::get('/diagnostic-de-peau/resultat/{completion}', [DiagnostiqueController::class, 'result'])->name('quiz.result')->defaults('slug', 'diagnostic-de-peau');
+
+// Redirections 301 anciennes URLs quiz
+Route::redirect('/quiz/type-de-peau', '/diagnostic-de-peau', 301);
+Route::redirect('/quiz/diagnostic-de-peau', '/diagnostic-de-peau', 301);
 
 // Bilan Minceur (avant le wildcard pages)
 Route::get('/amincissement/bilan-minceur-personnalise', [BilanMinceurController::class, 'show'])->name('bilan-minceur.show');

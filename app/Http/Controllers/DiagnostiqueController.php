@@ -9,7 +9,7 @@ use App\Models\QuizAnswer;
 use App\Models\QuizResult;
 use Illuminate\Http\Request;
 
-class QuizController extends Controller
+class DiagnostiqueController extends Controller
 {
     /** Page d'entrée : affiche la première question */
     public function show(string $slug)
@@ -68,7 +68,7 @@ class QuizController extends Controller
         $nextQuestion = $this->resolveNextQuestion($quiz, $question, $choice);
 
         if ($nextQuestion) {
-            return redirect()->route('quiz.question', [$quiz->slug, $nextQuestion->id]);
+            return redirect()->route('quiz.question', ['question' => $nextQuestion->id]);
         }
 
         // Fin du quiz : calcule le résultat
@@ -77,7 +77,7 @@ class QuizController extends Controller
         // Enregistre la complétion en DB
         $completion = $this->saveCompletion($quiz, $result, $answers, $request);
 
-        return redirect()->route('quiz.result', [$quiz->slug, $completion->id]);
+        return redirect()->route('quiz.result', ['completion' => $completion->id]);
     }
 
     /** Affiche le résultat */
@@ -95,7 +95,6 @@ class QuizController extends Controller
 
     private function resolveNextQuestion(Quiz $quiz, QuizQuestion $current, $choice): ?QuizQuestion
     {
-        // Branchement via goto sur le choix
         if ($choice && $choice->goto && $choice->goto !== 'next') {
             if ($choice->goto === 'end') {
                 return null;
@@ -106,7 +105,6 @@ class QuizController extends Controller
                 ->first();
         }
 
-        // Suivante par sort_order
         return QuizQuestion::where('quiz_id', $quiz->id)
             ->where('sort_order', '>', $current->sort_order)
             ->orderBy('sort_order')
@@ -121,7 +119,7 @@ class QuizController extends Controller
             ->where('points_min', '<=', $totalPoints)
             ->where('points_max', '>=', $totalPoints)
             ->first()
-            ?? QuizResult::where('quiz_id', $quiz->id)->first(); // fallback
+            ?? QuizResult::where('quiz_id', $quiz->id)->first();
     }
 
     private function saveCompletion(Quiz $quiz, ?QuizResult $result, array $answers, Request $request): QuizCompletion

@@ -29,7 +29,7 @@
         @endif
 
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <a href="{{ route('quiz.show', $quiz->slug) }}"
+            <a href="{{ route('quiz.show') }}"
                class="inline-block border border-gray-200 text-gray-600 py-2.5 px-6 rounded-xl font-medium hover:bg-gray-50 transition text-sm">
                 Recommencer le quiz
             </a>
