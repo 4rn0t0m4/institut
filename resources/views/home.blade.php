@@ -93,21 +93,21 @@
 </section>
 @endif
 
-{{-- Quiz type de peau --}}
+{{-- Diagnostic de peau --}}
 @if($quiz)
 <section class="py-16 bg-white">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <p class="text-xs uppercase tracking-widest mb-3 font-medium" style="color: #60916a;">Quiz</p>
+        <p class="text-xs uppercase tracking-widest mb-3 font-medium" style="color: #60916a;">Diagnostic</p>
         <h2 class="text-3xl font-semibold mb-4" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
             Quel est votre type de peau ?
         </h2>
         <p class="mb-8 leading-relaxed" style="color: #60916a; font-style: italic;">
             Répondez à quelques questions pour découvrir votre profil de peau et les soins adaptés.
         </p>
-        <a href="{{ route('quiz.show', $quiz->slug) }}"
+        <a href="{{ route('quiz.show') }}"
            class="inline-block font-semibold px-8 py-3.5 rounded-xl text-sm text-white transition hover:opacity-90"
            style="background-color: #276e44;">
-            Faire le quiz →
+            Faire le diagnostic →
         </a>
     </div>
 </section>

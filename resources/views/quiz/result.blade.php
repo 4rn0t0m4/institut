@@ -25,13 +25,13 @@
                      class="rounded-xl mx-auto mb-6 max-h-48 object-cover">
             @endif
         @else
-            <p class="text-gray-600 mb-6">Merci d'avoir complété ce quiz !</p>
+            <p class="text-gray-600 mb-6">Merci d'avoir complété ce questionnaire !</p>
         @endif
 
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
             <a href="{{ route('quiz.show') }}"
                class="inline-block border border-gray-200 text-gray-600 py-2.5 px-6 rounded-xl font-medium hover:bg-gray-50 transition text-sm">
-                Recommencer le quiz
+                Recommencer le diagnostic
             </a>
         </div>
     </div>
