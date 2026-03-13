@@ -31,10 +31,6 @@
                     <td style="padding: 8px 12px; color: #4b5563;">{{ $data['phone'] }}</td>
                 </tr>
                 @endif
-                <tr style="background-color: #f9fafb;">
-                    <td style="padding: 8px 12px; font-weight: 600; color: #374151; vertical-align: top;">Objet</td>
-                    <td style="padding: 8px 12px; color: #4b5563;">{{ $data['subject'] }}</td>
-                </tr>
             </table>
 
             <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px;">

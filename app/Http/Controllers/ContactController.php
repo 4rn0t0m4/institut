@@ -19,7 +19,6 @@ class ContactController extends Controller
             'name' => 'required|string|max:100',
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:20',
-            'subject' => 'required|string|max:150',
             'message' => 'required|string|max:5000',
         ]);
 

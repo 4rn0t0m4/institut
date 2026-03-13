@@ -9,7 +9,7 @@
             Une question sur nos soins, nos produits ou une commande ? N'hésitez pas à nous écrire.
         </p>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-14">
 
             {{-- Formulaire --}}
             <div class="lg:col-span-2">
@@ -37,18 +37,10 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-                            <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"
-                                   class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent">
-                        </div>
-                        <div>
-                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Objet *</label>
-                            <input type="text" name="subject" id="subject" value="{{ old('subject') }}" required
-                                   class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent">
-                            @error('subject') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                        </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                        <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent">
                     </div>
 
                     <div>
@@ -81,6 +73,7 @@
                             <p class="text-sm font-semibold" style="color: #276e44;">Adresse</p>
                             <p class="text-sm mt-1" style="color: #60916a;">
                                 Institut Corps à Coeur<br>
+                                22 avenue Jean Jaurès<br>
                                 14270 Mézidon Vallée d'Auge
                             </p>
                         </div>
@@ -98,7 +91,7 @@
                         </div>
                     </div>
 
-                    <div class="flex items-start gap-3">
+                    <div class="flex items-start gap-3 mb-5">
                         <svg class="w-5 h-5 mt-0.5 flex-shrink-0" style="color: #276e44;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
@@ -110,13 +103,13 @@
                             </p>
                         </div>
                     </div>
-                </div>
 
-                <a href="https://www.planity.com/institut-corps-a-coeur-14270-mezidon-vallee-dauge" target="_blank" rel="noopener"
-                   class="block text-center font-semibold py-3 rounded-lg text-sm text-white transition hover:opacity-90"
-                   style="background-color: #276e44;">
-                    Prendre rendez-vous →
-                </a>
+                    <a href="https://www.planity.com/institut-corps-a-coeur-14270-mezidon-vallee-dauge" target="_blank" rel="noopener"
+                       class="block text-center font-semibold py-3 rounded-lg text-sm text-white transition hover:opacity-90"
+                       style="background-color: #276e44;">
+                        Prendre rendez-vous →
+                    </a>
+                </div>
             </div>
         </div>
     </div>

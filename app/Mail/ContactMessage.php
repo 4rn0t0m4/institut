@@ -17,7 +17,7 @@ class ContactMessage extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Contact — {$this->data['subject']}",
+            subject: "Contact — Message de {$this->data['name']}",
             replyTo: [$this->data['email']],
         );
     }
