@@ -36,7 +36,7 @@
                 <div class="aspect-square rounded-3xl overflow-hidden">
                     <img src="{{ asset('images/hero.jpg') }}" alt="Institut Corps à Coeur — Espace bien-être"
                          class="w-full object-cover"
-                         :style="'height: 120%; transform: translateY(-' + (offset * 0.15) + 'px)'">
+                         :style="'height: 120%; margin-top: -10%; transform: translateY(' + (offset * 0.15) + 'px)'">
                 </div>
             </div>
         </div>
