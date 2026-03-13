@@ -25,12 +25,6 @@
                     <td style="padding: 8px 12px; font-weight: 600; color: #374151; vertical-align: top;">Email</td>
                     <td style="padding: 8px 12px; color: #4b5563;"><a href="mailto:{{ $data['email'] }}" style="color: #276e44;">{{ $data['email'] }}</a></td>
                 </tr>
-                @if(!empty($data['phone']))
-                <tr>
-                    <td style="padding: 8px 12px; font-weight: 600; color: #374151; vertical-align: top;">Téléphone</td>
-                    <td style="padding: 8px 12px; color: #4b5563;">{{ $data['phone'] }}</td>
-                </tr>
-                @endif
             </table>
 
             <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px;">
