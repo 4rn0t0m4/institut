@@ -12,6 +12,7 @@ use App\Http\Controllers\BoxtalController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\BilanMinceurController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\GoogleMerchantFeedController;
 use App\Http\Controllers\LegacyRedirectController;
 use Illuminate\Support\Facades\Route;
@@ -62,6 +63,10 @@ Route::redirect('/quiz/diagnostic-de-peau', '/diagnostic-de-peau', 301);
 // Bilan Minceur (avant le wildcard pages)
 Route::get('/amincissement/bilan-minceur-personnalise', [BilanMinceurController::class, 'show'])->name('bilan-minceur.show');
 Route::post('/amincissement/bilan-minceur-personnalise', [BilanMinceurController::class, 'submit'])->name('bilan-minceur.submit');
+
+// Contact
+Route::get('/contact', [ContactController::class, 'show'])->name('contact.show');
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send')->middleware('throttle:5,1');
 
 // Pages statiques (en dernier pour ne pas capturer les autres routes)
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
