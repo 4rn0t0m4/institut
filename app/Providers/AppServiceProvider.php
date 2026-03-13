@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Page;
+use App\Models\Product;
 use App\Models\Setting;
+use App\Observers\CacheClearObserver;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
@@ -27,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
         Mail::extend('brevo', function (array $config) {
             return new BrevoApiTransport($config['key']);
         });
+
+        Product::observe(CacheClearObserver::class);
+        Page::observe(CacheClearObserver::class);
+        Setting::observe(CacheClearObserver::class);
 
         $this->loadShippingSettings();
     }

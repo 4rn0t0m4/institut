@@ -28,14 +28,14 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 Route::get('/flux-google-shopping.xml', [GoogleMerchantFeedController::class, 'index'])->name('google.merchant.feed');
 
 // Accueil
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home')->middleware('cacheResponse');
 
 // Boutique
-Route::get('/boutique', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/boutique', [ShopController::class, 'index'])->name('shop.index')->middleware('cacheResponse');
 Route::post('/boutique/{product}/alerte-stock', [ShopController::class, 'stockNotify'])->name('shop.stock-notify');
 Route::post('/boutique/{product}/avis', [ShopController::class, 'storeReview'])->name('shop.review.store');
-Route::get('/boutique/{parent}/{child}/{product}', [ShopController::class, 'show'])->name('shop.show');
-Route::get('/boutique/{parent}/{child?}', [ShopController::class, 'categoryOrProduct'])->name('shop.category');
+Route::get('/boutique/{parent}/{child}/{product}', [ShopController::class, 'show'])->name('shop.show')->middleware('cacheResponse');
+Route::get('/boutique/{parent}/{child?}', [ShopController::class, 'categoryOrProduct'])->name('shop.category')->middleware('cacheResponse');
 
 // Panier
 Route::get('/panier', [CartController::class, 'index'])->name('cart.index');
@@ -61,7 +61,8 @@ Route::post('/amincissement/bilan-minceur-personnalise', [BilanMinceurController
 
 // Pages statiques (en dernier pour ne pas capturer les autres routes)
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
-    ->where('slug', '^(?!boutique|panier|commande|connexion|inscription|deconnexion|mon-compte|stripe|admin|api|mot-de-passe-oublie|reinitialiser-mot-de-passe|sitemap\.xml)[a-z0-9-]+(/[a-z0-9-]+)*$');
+    ->where('slug', '^(?!boutique|panier|commande|connexion|inscription|deconnexion|mon-compte|stripe|admin|api|mot-de-passe-oublie|reinitialiser-mot-de-passe|sitemap\.xml)[a-z0-9-]+(/[a-z0-9-]+)*$')
+    ->middleware('cacheResponse');
 
 // Boxtal API
 Route::get('/api/boxtal/map-token', [BoxtalController::class, 'mapToken'])->name('boxtal.map-token');
