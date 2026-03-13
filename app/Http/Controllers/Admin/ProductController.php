@@ -10,6 +10,7 @@ use App\Models\ProductCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image;
 
 class ProductController extends Controller
 {
@@ -186,13 +187,19 @@ class ProductController extends Controller
 
     private function storeMedia(UploadedFile $file): Media
     {
-        $extension = $file->getClientOriginalExtension();
-        $filename = Str::uuid() . '.' . $extension;
+        $filename = Str::uuid() . '.webp';
+        $finalPath = storage_path('app/public/media/' . $filename);
 
-        $file->storeAs('public/media', $filename);
+        // Redimensionne (max 1200px) et convertit en WebP
+        Image::make($file->getRealPath())
+            ->resize(1200, 1200, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })
+            ->encode('webp', 85)
+            ->save($finalPath);
 
-        $fullPath = storage_path('app/public/media/' . $filename);
-        [$width, $height] = getimagesize($fullPath) ?: [null, null];
+        [$width, $height] = getimagesize($finalPath) ?: [null, null];
 
         return Media::create([
             'filename'          => $filename,
@@ -200,8 +207,8 @@ class ProductController extends Controller
             'disk'              => 'public',
             'path'              => 'media/' . $filename,
             'url'               => '/storage/media/' . $filename,
-            'mime_type'         => $file->getMimeType(),
-            'size'              => $file->getSize(),
+            'mime_type'         => 'image/webp',
+            'size'              => filesize($finalPath) ?: 0,
             'width'             => $width,
             'height'            => $height,
             'alt'               => '',
