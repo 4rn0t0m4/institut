@@ -311,6 +311,8 @@
                             @if($featuredProduct->featuredImage)
                                 <img src="{{ $featuredProduct->featuredImage->url }}"
                                      alt="{{ $featuredProduct->name }}"
+                                     loading="lazy"
+                                     width="329" height="140"
                                      style="width: 100%; height: 140px; object-fit: cover; border-radius: 8px;">
                             @endif
                             <p class="text-xs font-semibold mt-3" style="color: #276e44;">{{ $featuredProduct->name }}</p>
