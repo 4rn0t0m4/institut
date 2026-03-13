@@ -18,6 +18,22 @@
     </script>
     @endpush
 
+    {{-- Produits mis en avant --}}
+    @if(isset($featuredProducts) && $featuredProducts->isNotEmpty())
+    <section class="py-10" style="background-color: #f0fdf4;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-xl font-semibold mb-6" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
+                Nos coups de coeur
+            </h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+                @foreach($featuredProducts as $product)
+                    <x-product-card :product="$product"/>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {{-- Titre + recherche --}}

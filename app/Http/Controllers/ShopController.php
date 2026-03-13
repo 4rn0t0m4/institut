@@ -83,7 +83,20 @@ class ShopController extends Controller
             return view('shop.partials.grid', compact('products', 'categories', 'currentCategory'));
         }
 
-        return view('shop.index', compact('products', 'categories', 'currentCategory', 'brands', 'currentBrand', 'tags', 'currentTag', 'selectedTagSlugs'));
+        // Produits mis en avant (uniquement sur la page principale sans filtres)
+        $featuredProducts = collect();
+        if (!$currentCategory && !$currentBrand && empty($selectedTagSlugs) && !$request->filled('q')) {
+            $featuredProducts = Product::where('is_featured', true)
+                ->where('is_active', true)
+                ->with(['category', 'featuredImage', 'brand'])
+                ->withCount(['approvedReviews as reviews_count'])
+                ->withAvg('approvedReviews as reviews_avg', 'rating')
+                ->inRandomOrder()
+                ->limit(4)
+                ->get();
+        }
+
+        return view('shop.index', compact('products', 'categories', 'currentCategory', 'brands', 'currentBrand', 'tags', 'currentTag', 'selectedTagSlugs', 'featuredProducts'));
     }
 
     public function categoryOrProduct(string $parent, ?string $child = null)
