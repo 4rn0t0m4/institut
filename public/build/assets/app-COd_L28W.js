@@ -31,4 +31,4 @@ Copyright © 2026 37signals LLC
 
         ——
         Suppress this warning by adding a "data-turbo-suppress-warning" attribute to: %s
-      `,r.outerHTML);e=e.parentElement}})();window.Turbo={...Fa,StreamActions:an};fr();fr();window.Alpine=Wr;Wr.start();
+      `,r.outerHTML);e=e.parentElement}})();window.Turbo={...Fa,StreamActions:an};fr();fr();window.Alpine=Wr;Wr.start();document.addEventListener("turbo:before-stream-render",r=>{const e=r.target;e.getAttribute("target")==="cart-count"&&e.getAttribute("action")==="update"&&requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent("cart-added")))});

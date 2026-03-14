@@ -137,7 +137,8 @@
                 @endauth
 
                 {{-- Panier --}}
-                <div class="relative" x-data="{ cartOpen: false, cartHtml: '' }">
+                <div class="relative" x-data="{ cartOpen: false, cartHtml: '' }"
+                     @cart-added.window="cartOpen = true; fetch('{{ route('cart.mini') }}').then(r => r.text()).then(h => cartHtml = h)">
                     <button @click="cartOpen = !cartOpen; if(cartOpen) fetch('{{ route('cart.mini') }}').then(r => r.text()).then(h => cartHtml = h)"
                             class="relative flex items-center hover:opacity-70 transition-opacity p-1"
                             style="color: #276e44;" title="Mon panier" aria-label="Mon panier">
