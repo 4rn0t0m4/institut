@@ -18,7 +18,7 @@
 
     {{-- Détails --}}
     <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-gray-800 truncate">{{ $item['name'] }}</p>
+        <a href="{{ $item['url'] }}" class="text-sm font-medium text-gray-800 truncate block hover:underline">{{ $item['name'] }}</a>
         @if(!empty($item['addons']))
             <ul class="mt-1 space-y-0.5">
                 @foreach($item['addons'] as $addon)
