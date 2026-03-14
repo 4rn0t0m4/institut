@@ -3,11 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CheckoutStoreRequest;
+use App\Mail\NewOrderAdmin;
+use App\Mail\OrderConfirmation;
 use App\Models\Order;
+use App\Models\Product;
+use App\Services\BoxtalConnectService;
 use App\Services\CartService;
 use App\Services\DiscountEngine;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 
@@ -196,13 +203,18 @@ class CheckoutController extends Controller
         }
 
         // Vérifier côté Stripe que le paiement a bien abouti
-        // Le webhook fera le traitement complet (statut, stock, emails)
         $paymentConfirmed = in_array($order->status, ['processing', 'completed']);
 
+        // Si la commande est encore pending, vérifier auprès de Stripe et valider
+        // (sert de filet de sécurité si le webhook n'a pas encore été traité)
         if (! $paymentConfirmed && $order->status === 'pending') {
             Stripe::setApiKey(config('cashier.secret'));
             $intent = PaymentIntent::retrieve($order->stripe_payment_intent_id);
-            $paymentConfirmed = $intent->status === 'succeeded';
+
+            if ($intent->status === 'succeeded') {
+                $paymentConfirmed = true;
+                $this->confirmOrderFromSuccess($order);
+            }
         }
 
         if ($paymentConfirmed) {
@@ -213,6 +225,58 @@ class CheckoutController extends Controller
             'order' => $order,
             'paymentConfirmed' => $paymentConfirmed,
         ]);
+    }
+
+    /**
+     * Confirme la commande depuis la page success si le webhook n'a pas encore traité.
+     * Même logique que le webhook, avec lockForUpdate pour éviter les doublons.
+     */
+    private function confirmOrderFromSuccess(Order $order): void
+    {
+        DB::transaction(function () use ($order) {
+            $locked = Order::where('id', $order->id)
+                ->where('status', 'pending')
+                ->lockForUpdate()
+                ->first();
+
+            if (! $locked) {
+                return; // Déjà traité par le webhook entre-temps
+            }
+
+            $locked->update([
+                'status' => 'processing',
+                'paid_at' => now(),
+            ]);
+
+            Log::info("Commande #{$locked->number} confirmée via page success (webhook non reçu).");
+
+            // Décrémentation du stock
+            $locked->load('items');
+            foreach ($locked->items as $item) {
+                $product = Product::where('id', $item->product_id)
+                    ->where('manage_stock', true)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($product && $product->stock_quantity >= $item->quantity) {
+                    $product->decrement('stock_quantity', $item->quantity);
+                    if ($product->fresh()->stock_quantity <= 0) {
+                        $product->update(['stock_status' => 'outofstock']);
+                    }
+                }
+            }
+        });
+
+        // Emails hors transaction
+        $order->refresh();
+        if ($order->status === 'processing') {
+            Mail::to($order->billing_email)->send(new OrderConfirmation($order->load('items')));
+            Mail::to(config('mail.admin_address', config('mail.from.address')))->send(new NewOrderAdmin($order));
+
+            if ($order->shipping_key === 'boxtal') {
+                app(BoxtalConnectService::class)->pushOrder($order);
+            }
+        }
     }
 
     private function createPaymentIntent(float $total, string $email): PaymentIntent
