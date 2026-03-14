@@ -22,19 +22,20 @@ class StripeWebhookController extends Controller
     {
         Stripe::setApiKey(config('cashier.secret'));
 
-        $payload   = $request->getContent();
+        $payload = $request->getContent();
         $sigHeader = $request->header('Stripe-Signature');
-        $secret    = config('cashier.webhook.secret');
+        $secret = config('cashier.webhook.secret');
 
         try {
             $event = Webhook::constructEvent($payload, $sigHeader, $secret);
         } catch (SignatureVerificationException $e) {
             Log::warning('Stripe webhook signature invalid', ['error' => $e->getMessage()]);
+
             return response('Invalid signature', 400);
         }
 
         match ($event->type) {
-            'payment_intent.succeeded'      => $this->handlePaymentSucceeded($event->data->object),
+            'payment_intent.succeeded' => $this->handlePaymentSucceeded($event->data->object),
             'payment_intent.payment_failed' => $this->handlePaymentFailed($event->data->object),
             default => null,
         };
@@ -44,37 +45,40 @@ class StripeWebhookController extends Controller
 
     private function handlePaymentSucceeded(object $paymentIntent): void
     {
-        DB::transaction(function () use ($paymentIntent) {
+        $order = DB::transaction(function () use ($paymentIntent) {
             // Verrouiller la commande pour éviter le traitement en double
             $order = Order::where('stripe_payment_intent_id', $paymentIntent->id)
                 ->lockForUpdate()
                 ->first();
 
-            if (!$order) {
+            if (! $order) {
                 Log::error('Stripe webhook: order not found', ['payment_intent_id' => $paymentIntent->id]);
-                return;
+
+                return null;
             }
 
             // Idempotence : déjà traitée (par le webhook ou la page success)
             if ($order->status !== 'pending') {
-                return;
+                return null;
             }
 
             $order->update([
-                'status'  => 'processing',
+                'status' => 'processing',
                 'paid_at' => now(),
             ]);
 
             Log::info("Commande #{$order->number} payée via Stripe.");
 
-            // Décrémentation du stock avec verrou
+            // Décrémentation du stock dans la même transaction
             $order->load('items');
             $this->decrementStock($order);
+
+            return $order;
         });
 
         // Emails + Boxtal Connect envoyés hors transaction (pas besoin de bloquer)
-        $order = Order::where('stripe_payment_intent_id', $paymentIntent->id)->with('items')->first();
-        if ($order && $order->status === 'processing') {
+        if ($order) {
+            $order->load('items');
             Mail::to($order->billing_email)->send(new OrderConfirmation($order));
             Mail::to(config('mail.admin_address', config('mail.from.address')))->send(new NewOrderAdmin($order));
 
@@ -94,12 +98,13 @@ class StripeWebhookController extends Controller
                 ->lockForUpdate()
                 ->first();
 
-            if (!$product || $product->stock_quantity < $item->quantity) {
+            if (! $product || $product->stock_quantity < $item->quantity) {
                 Log::warning("Stock insuffisant pour produit #{$item->product_id}", [
-                    'order'     => $order->id,
+                    'order' => $order->id,
                     'requested' => $item->quantity,
                     'available' => $product?->stock_quantity,
                 ]);
+
                 continue;
             }
 
@@ -115,7 +120,7 @@ class StripeWebhookController extends Controller
     {
         $order = Order::where('stripe_payment_intent_id', $paymentIntent->id)->first();
 
-        if (!$order) {
+        if (! $order) {
             return;
         }
 

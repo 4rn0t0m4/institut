@@ -31,7 +31,7 @@ class ProductCategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:product_categories,slug',
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:product_categories,slug'],
             'parent_id' => 'nullable|exists:product_categories,id',
             'sort_order' => 'nullable|integer',
             'meta_title' => 'nullable|string|max:70',
@@ -61,7 +61,7 @@ class ProductCategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:product_categories,slug,' . $category->id,
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:product_categories,slug,'.$category->id],
             'parent_id' => 'nullable|exists:product_categories,id',
             'sort_order' => 'nullable|integer',
             'meta_title' => 'nullable|string|max:70',

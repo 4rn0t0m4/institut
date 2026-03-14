@@ -25,8 +25,8 @@ class SettingController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'google_analytics_id'   => 'nullable|string|max:50',
-            'google_ads_id'         => 'nullable|string|max:50',
+            'google_analytics_id' => 'nullable|string|max:50',
+            'google_ads_id' => 'nullable|string|max:50',
             'analytics_property_id' => 'nullable|string|max:50',
         ]);
 
@@ -42,15 +42,25 @@ class SettingController extends Controller
 
     private function updateEnv(string $key, string $value): void
     {
+        // Sanitize: only allow alphanumeric key, strip newlines from value
+        if (! preg_match('/^[A-Z_]+$/', $key)) {
+            return;
+        }
+        $value = str_replace(["\n", "\r"], '', $value);
+
         $path = base_path('.env');
         $content = file_get_contents($path);
 
-        if (preg_match("/^{$key}=.*/m", $content)) {
-            $content = preg_replace("/^{$key}=.*/m", "{$key}={$value}", $content);
+        $escapedKey = preg_quote($key, '/');
+        if (preg_match("/^{$escapedKey}=.*/m", $content)) {
+            $content = preg_replace("/^{$escapedKey}=.*/m", "{$key}={$value}", $content);
         } else {
             $content .= "\n{$key}={$value}";
         }
 
-        file_put_contents($path, $content);
+        // Atomic write: write to temp file then rename
+        $tmpPath = $path.'.tmp';
+        file_put_contents($tmpPath, $content, LOCK_EX);
+        rename($tmpPath, $path);
     }
 }

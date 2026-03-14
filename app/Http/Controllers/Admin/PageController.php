@@ -52,8 +52,8 @@ class PageController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:pages,slug',
-            'content' => 'nullable|string',
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:pages,slug'],
+            'content' => 'nullable|string|max:50000',
             'status' => 'required|string|in:published,draft',
             'parent_id' => 'nullable|exists:pages,id',
             'template' => 'nullable|string|max:100',
@@ -88,8 +88,8 @@ class PageController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:pages,slug,' . $page->id,
-            'content' => 'nullable|string',
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:pages,slug,'.$page->id],
+            'content' => 'nullable|string|max:50000',
             'status' => 'required|string|in:published,draft',
             'parent_id' => 'nullable|exists:pages,id',
             'template' => 'nullable|string|max:100',
@@ -101,7 +101,7 @@ class PageController extends Controller
             $validated['slug'] = Str::slug($validated['title']);
         }
 
-        if ($validated['status'] === 'published' && !$page->published_at) {
+        if ($validated['status'] === 'published' && ! $page->published_at) {
             $validated['published_at'] = now();
         }
 

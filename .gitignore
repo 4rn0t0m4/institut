@@ -9,6 +9,7 @@
 .env.local
 .env.backup
 .env.production
+.env_prod
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -20,3 +21,5 @@ yarn-error.log
 /.vscode
 sauvegarde.sql
 .DS_Store
+.vercel
+.env*.local

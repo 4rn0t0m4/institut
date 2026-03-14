@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\ProductCategory;
-use App\Models\ProductTag;
 use App\Models\ProductReview;
+use App\Models\ProductTag;
 use App\Models\StockNotification;
 use Illuminate\Http\Request;
 
@@ -59,7 +59,7 @@ class ShopController extends Controller
         if ($request->filled('tag')) {
             $selectedTagSlugs = [$request->tag];
         }
-        if (!empty($selectedTagSlugs)) {
+        if (! empty($selectedTagSlugs)) {
             $selectedTagIds = ProductTag::whereIn('slug', $selectedTagSlugs)->pluck('id');
             if ($selectedTagIds->isNotEmpty()) {
                 $query->whereHas('tags', fn ($q) => $q->whereIn('product_tag_id', $selectedTagIds));
@@ -72,7 +72,7 @@ class ShopController extends Controller
             $search = $request->q;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('short_description', 'like', "%{$search}%");
+                    ->orWhere('short_description', 'like', "%{$search}%");
             });
         }
 
@@ -85,7 +85,7 @@ class ShopController extends Controller
 
         // Produits mis en avant (uniquement sur la page principale sans filtres)
         $featuredProducts = collect();
-        if (!$currentCategory && !$currentBrand && empty($selectedTagSlugs) && !$request->filled('q')) {
+        if (! $currentCategory && ! $currentBrand && empty($selectedTagSlugs) && ! $request->filled('q')) {
             $featuredProducts = Product::where('is_featured', true)
                 ->where('is_active', true)
                 ->with(['category', 'featuredImage', 'brand'])
@@ -102,7 +102,7 @@ class ShopController extends Controller
     public function categoryOrProduct(string $parent, ?string $child = null)
     {
         // /boutique/{parent} — catégorie parente ou produit sans sous-catégorie
-        if (!$child) {
+        if (! $child) {
             $category = ProductCategory::where('slug', $parent)->first();
             if ($category) {
                 return $this->indexWithCategory($category);
@@ -198,7 +198,7 @@ class ShopController extends Controller
         if ($request->filled('tag')) {
             $selectedTagSlugs = [$request->tag];
         }
-        if (!empty($selectedTagSlugs)) {
+        if (! empty($selectedTagSlugs)) {
             $selectedTagIds = ProductTag::whereIn('slug', $selectedTagSlugs)->pluck('id');
             if ($selectedTagIds->isNotEmpty()) {
                 $query->whereHas('tags', fn ($q) => $q->whereIn('product_tag_id', $selectedTagIds));
@@ -210,7 +210,7 @@ class ShopController extends Controller
             $search = $request->q;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('short_description', 'like', "%{$search}%");
+                    ->orWhere('short_description', 'like', "%{$search}%");
             });
         }
 
@@ -244,6 +244,15 @@ class ShopController extends Controller
             'title' => 'required|string|max:150',
             'body' => 'required|string|max:2000',
         ]);
+
+        // Empêcher les avis en double par email sur le même produit
+        $exists = ProductReview::where('product_id', $product->id)
+            ->where('author_email', strtolower($validated['author_email']))
+            ->exists();
+
+        if ($exists) {
+            return back()->with('review_error', 'Vous avez déjà laissé un avis pour ce produit.');
+        }
 
         $user = auth()->user();
         $isVerifiedBuyer = false;

@@ -20,7 +20,7 @@ class ProductController extends Controller
             ->withSum(['orderItems as total_sold' => fn ($q) => $q->whereHas('order', fn ($o) => $o->whereIn('status', ['processing', 'completed']))], 'quantity');
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
         if ($request->filled('category')) {
@@ -60,13 +60,13 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:products,slug',
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:products,slug'],
             'short_description' => 'nullable|string|max:500',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:10000',
             'team_recommendation' => 'nullable|string|max:1000',
-            'benefits' => 'nullable|string',
-            'usage_instructions' => 'nullable|string',
-            'composition' => 'nullable|string',
+            'benefits' => 'nullable|string|max:5000',
+            'usage_instructions' => 'nullable|string|max:5000',
+            'composition' => 'nullable|string|max:5000',
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
             'sku' => 'nullable|string|max:100',
@@ -95,7 +95,7 @@ class ProductController extends Controller
         }
 
         $validGallery = array_filter((array) $request->file('gallery_images', []), fn ($f) => $f && $f->isValid());
-        if (!empty($validGallery)) {
+        if (! empty($validGallery)) {
             $galleryIds = [];
             foreach ($validGallery as $file) {
                 $galleryIds[] = $this->storeMedia($file)->id;
@@ -119,13 +119,13 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:products,slug,' . $product->id,
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:products,slug,'.$product->id],
             'short_description' => 'nullable|string|max:500',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:10000',
             'team_recommendation' => 'nullable|string|max:1000',
-            'benefits' => 'nullable|string',
-            'usage_instructions' => 'nullable|string',
-            'composition' => 'nullable|string',
+            'benefits' => 'nullable|string|max:5000',
+            'usage_instructions' => 'nullable|string|max:5000',
+            'composition' => 'nullable|string|max:5000',
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
             'sku' => 'nullable|string|max:100',
@@ -170,7 +170,7 @@ class ProductController extends Controller
             $galleryIds[] = $this->storeMedia($file)->id;
         }
 
-        if ($request->filled('gallery_remove') || !empty($validGallery)) {
+        if ($request->filled('gallery_remove') || ! empty($validGallery)) {
             $product->gallery_image_ids = array_values($galleryIds);
             $product->save();
         }
@@ -180,7 +180,7 @@ class ProductController extends Controller
 
     public function toggleFeatured(Product $product)
     {
-        $product->update(['is_featured' => !$product->is_featured]);
+        $product->update(['is_featured' => ! $product->is_featured]);
 
         return response()->json(['is_featured' => $product->is_featured]);
     }
@@ -194,8 +194,8 @@ class ProductController extends Controller
 
     private function storeMedia(UploadedFile $file): Media
     {
-        $filename = Str::uuid() . '.webp';
-        $finalPath = storage_path('app/public/media/' . $filename);
+        $filename = Str::uuid().'.webp';
+        $finalPath = storage_path('app/public/media/'.$filename);
 
         // Redimensionne (max 1200px) et convertit en WebP
         Image::make($file->getRealPath())
@@ -209,17 +209,17 @@ class ProductController extends Controller
         [$width, $height] = getimagesize($finalPath) ?: [null, null];
 
         return Media::create([
-            'filename'          => $filename,
+            'filename' => $filename,
             'original_filename' => $file->getClientOriginalName(),
-            'disk'              => 'public',
-            'path'              => 'media/' . $filename,
-            'url'               => '/storage/media/' . $filename,
-            'mime_type'         => 'image/webp',
-            'size'              => filesize($finalPath) ?: 0,
-            'width'             => $width,
-            'height'            => $height,
-            'alt'               => '',
-            'title'             => '',
+            'disk' => 'public',
+            'path' => 'media/'.$filename,
+            'url' => '/storage/media/'.$filename,
+            'mime_type' => 'image/webp',
+            'size' => filesize($finalPath) ?: 0,
+            'width' => $width,
+            'height' => $height,
+            'alt' => '',
+            'title' => '',
         ]);
     }
 }

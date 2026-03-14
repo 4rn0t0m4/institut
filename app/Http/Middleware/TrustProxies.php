@@ -9,10 +9,22 @@ class TrustProxies extends Middleware
 {
     /**
      * The trusted proxies for this application.
+     * Set TRUSTED_PROXIES=* in .env to trust all (e.g. behind OVH/Cloudflare).
+     * Or set specific IPs: TRUSTED_PROXIES=1.2.3.4,5.6.7.8
      *
      * @var array<int, string>|string|null
      */
     protected $proxies;
+
+    public function __construct()
+    {
+        $proxies = env('TRUSTED_PROXIES');
+        if ($proxies === '*') {
+            $this->proxies = '*';
+        } elseif ($proxies) {
+            $this->proxies = array_map('trim', explode(',', $proxies));
+        }
+    }
 
     /**
      * The headers that should be used to detect proxies.

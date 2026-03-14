@@ -1,20 +1,20 @@
 <?php
 
-use App\Http\Controllers\ShopController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BilanMinceurController;
+use App\Http\Controllers\BoxtalController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\StripeWebhookController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AccountController;
-use App\Http\Controllers\PageController;
-use App\Http\Controllers\DiagnostiqueController;
-use App\Http\Controllers\BoxtalController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\SitemapController;
-use App\Http\Controllers\BilanMinceurController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DiagnostiqueController;
 use App\Http\Controllers\GoogleMerchantFeedController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LegacyRedirectController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\ShopController;
+use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
 // Redirections legacy WordPress (301)
@@ -34,7 +34,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home')->middleware('cac
 // Boutique
 Route::get('/boutique', [ShopController::class, 'index'])->name('shop.index')->middleware('cacheResponse');
 Route::post('/boutique/{product}/alerte-stock', [ShopController::class, 'stockNotify'])->name('shop.stock-notify');
-Route::post('/boutique/{product}/avis', [ShopController::class, 'storeReview'])->name('shop.review.store');
+Route::post('/boutique/{product}/avis', [ShopController::class, 'storeReview'])->name('shop.review.store')->middleware('throttle:5,1');
 Route::get('/boutique/{parent}/{child}/{product}', [ShopController::class, 'show'])->name('shop.show')->middleware('cacheResponse');
 Route::get('/boutique/{parent}/{child?}', [ShopController::class, 'categoryOrProduct'])->name('shop.category')->middleware('cacheResponse');
 
@@ -47,7 +47,7 @@ Route::delete('/panier/{key}', [CartController::class, 'remove'])->name('cart.re
 
 // Commande / Checkout
 Route::get('/commande', [CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('/commande', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/commande', [CheckoutController::class, 'store'])->name('checkout.store')->middleware('throttle:10,1');
 Route::get('/commande/succes', [CheckoutController::class, 'success'])->name('checkout.success');
 
 // Diagnostic de peau

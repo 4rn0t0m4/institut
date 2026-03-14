@@ -25,7 +25,7 @@ class ProductTagController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:product_tags,slug',
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:product_tags,slug'],
         ]);
 
         if (empty($validated['slug'])) {
@@ -46,7 +46,7 @@ class ProductTagController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:product_tags,slug,' . $tag->id,
+            'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:product_tags,slug,'.$tag->id],
         ]);
 
         if (empty($validated['slug'])) {
