@@ -79,8 +79,20 @@ class StripeWebhookController extends Controller
         // Emails + Boxtal Connect envoyés hors transaction (pas besoin de bloquer)
         if ($order) {
             $order->load('items');
-            Mail::to($order->billing_email)->send(new OrderConfirmation($order));
-            Mail::to(config('mail.admin_address', config('mail.from.address')))->send(new NewOrderAdmin($order));
+
+            try {
+                Mail::to($order->billing_email)->send(new OrderConfirmation($order));
+                Log::info("Email confirmation envoyé au client pour commande #{$order->number}");
+            } catch (\Exception $e) {
+                Log::error("Échec envoi email confirmation client pour commande #{$order->number}", ['error' => $e->getMessage()]);
+            }
+
+            try {
+                Mail::to(config('mail.admin_address', config('mail.from.address')))->send(new NewOrderAdmin($order));
+                Log::info("Email notification admin envoyé pour commande #{$order->number}");
+            } catch (\Exception $e) {
+                Log::error("Échec envoi email admin pour commande #{$order->number}", ['error' => $e->getMessage()]);
+            }
 
             // Sync automatique vers le dashboard Boxtal Connect
             if ($order->shipping_key === 'boxtal') {

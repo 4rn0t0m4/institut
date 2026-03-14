@@ -23,6 +23,7 @@ Route::patch('products/{product}/toggle-featured', [ProductController::class, 't
 Route::resource('categories', ProductCategoryController::class)->names('admin.categories');
 Route::resource('brands', BrandController::class)->except(['show'])->names('admin.brands');
 Route::resource('orders', OrderController::class)->only(['index', 'show', 'edit', 'update', 'destroy'])->names('admin.orders');
+Route::post('orders/{order}/resend-emails', [OrderController::class, 'resendEmails'])->name('admin.orders.resend-emails');
 Route::resource('customers', CustomerController::class)->only(['index', 'show'])->names('admin.customers');
 Route::resource('pages', PageController::class)->names('admin.pages');
 Route::resource('discounts', DiscountController::class)->except(['show'])->names('admin.discounts');

@@ -104,6 +104,16 @@
                 <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Statut</h3>
                 <x-admin.badge :status="$order->status" />
                 <a href="{{ route('admin.orders.edit', $order) }}" class="mt-4 block text-sm text-brand-500 hover:underline">Modifier le statut</a>
+
+                <form method="POST" action="{{ route('admin.orders.resend-emails', $order) }}" class="mt-3">
+                    @csrf
+                    <button type="submit" class="text-sm text-gray-500 hover:text-brand-500 dark:text-gray-400 flex items-center gap-1.5" onclick="return confirm('Renvoyer les emails de confirmation ?')">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Renvoyer les emails
+                    </button>
+                </form>
             </div>
 
             {{-- Payment --}}

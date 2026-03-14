@@ -14,6 +14,7 @@ use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
@@ -270,8 +271,19 @@ class CheckoutController extends Controller
         // Emails hors transaction
         $order->refresh();
         if ($order->status === 'processing') {
-            Mail::to($order->billing_email)->send(new OrderConfirmation($order->load('items')));
-            Mail::to(config('mail.admin_address', config('mail.from.address')))->send(new NewOrderAdmin($order));
+            try {
+                Mail::to($order->billing_email)->send(new OrderConfirmation($order->load('items')));
+                Log::info("Email confirmation envoyé au client pour commande #{$order->number} (via success)");
+            } catch (\Exception $e) {
+                Log::error("Échec envoi email confirmation client pour commande #{$order->number} (via success)", ['error' => $e->getMessage()]);
+            }
+
+            try {
+                Mail::to(config('mail.admin_address', config('mail.from.address')))->send(new NewOrderAdmin($order));
+                Log::info("Email notification admin envoyé pour commande #{$order->number} (via success)");
+            } catch (\Exception $e) {
+                Log::error("Échec envoi email admin pour commande #{$order->number} (via success)", ['error' => $e->getMessage()]);
+            }
 
             if ($order->shipping_key === 'boxtal') {
                 app(BoxtalConnectService::class)->pushOrder($order);

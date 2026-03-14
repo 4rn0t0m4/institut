@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewOrderAdmin;
+use App\Mail\OrderConfirmation;
 use App\Mail\OrderShipped;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
@@ -77,6 +80,23 @@ class OrderController extends Controller
         }
 
         return redirect()->route('admin.orders.show', $order)->with('success', 'Commande mise à jour.');
+    }
+
+    public function resendEmails(Order $order)
+    {
+        $order->load('items');
+
+        try {
+            Mail::to($order->billing_email)->send(new OrderConfirmation($order));
+            Mail::to(config('mail.admin_address', config('mail.from.address')))->send(new NewOrderAdmin($order));
+            Log::info("Emails renvoyés manuellement pour commande #{$order->number}");
+
+            return redirect()->route('admin.orders.show', $order)->with('success', 'Emails de confirmation renvoyés avec succès.');
+        } catch (\Exception $e) {
+            Log::error("Échec renvoi emails pour commande #{$order->number}", ['error' => $e->getMessage()]);
+
+            return redirect()->route('admin.orders.show', $order)->with('error', "Erreur lors de l'envoi : {$e->getMessage()}");
+        }
     }
 
     public function destroy(Order $order)
