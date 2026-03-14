@@ -6,10 +6,14 @@ use App\Models\Page;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Observers\CacheClearObserver;
+use GuzzleHttp\Handler\StreamHandler;
+use GuzzleHttp\HandlerStack;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Stripe\ApiRequestor;
 use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoApiTransport;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,8 +31,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // OVH mutualisé bloque l'extension PHP curl sur le port 443.
+        // On force Guzzle (Laravel Http) à utiliser les stream wrappers PHP natifs.
+        Http::globalOptions([
+            'handler' => HandlerStack::create(new StreamHandler()),
+        ]);
+
+        // Stripe : utiliser un client HTTP basé sur les streams au lieu de curl.
+        ApiRequestor::setHttpClient(new \App\Http\Client\StripeStreamClient());
+
         Mail::extend('brevo', function (array $config) {
-            return new BrevoApiTransport($config['key']);
+            $httpClient = new \Symfony\Component\HttpClient\NativeHttpClient();
+
+            return new BrevoApiTransport($config['key'], $httpClient);
         });
 
         Product::observe(CacheClearObserver::class);
