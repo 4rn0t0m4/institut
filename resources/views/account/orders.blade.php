@@ -1,4 +1,4 @@
-<x-layouts.app title="Mes commandes">
+<x-layouts.app title="Mes commandes" :noindex="true">
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     <div class="flex items-center gap-3 mb-8">

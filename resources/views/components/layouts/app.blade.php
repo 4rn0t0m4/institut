@@ -1,6 +1,7 @@
 @props([
     'title'           => null,
     'metaDescription' => null,
+    'noindex'         => false,
 ])
 
 <!DOCTYPE html>
@@ -12,6 +13,9 @@
     <title>{{ $title ? $title . ' — ' : '' }}Institut Corps à Coeur</title>
     @if($metaDescription)
         <meta name="description" content="{{ $metaDescription }}">
+    @endif
+    @if($noindex)
+        <meta name="robots" content="noindex, nofollow">
     @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 

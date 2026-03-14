@@ -1,4 +1,4 @@
-<x-layouts.app :title="'Commande ' . $order->number">
+<x-layouts.app :title="'Commande ' . $order->number" :noindex="true">
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
     <div class="flex items-center gap-3 mb-8">

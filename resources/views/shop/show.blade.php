@@ -277,9 +277,8 @@ $breadcrumbJsonLd = json_encode([
                                    class="flex-1 text-sm px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-600"
                                    style="border-color: #d1d5db;">
                             <button type="submit"
-                                    class="text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
-                                    style="background-color: #276e44;"
-                                    onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">
+                                    class="text-white text-sm font-semibold px-4 py-2 rounded-lg transition hover:opacity-90"
+                                    style="background-color: #276e44;">
                                 M'alerter
                             </button>
                         </form>
@@ -310,20 +309,19 @@ $breadcrumbJsonLd = json_encode([
                         <button type="button"
                                 @click="qty = Math.max(1, qty - 1)"
                                 aria-label="Diminuer la quantité"
-                                class="px-3.5 py-2.5 transition" style="color: #276e44;" onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">−</button>
+                                class="px-3.5 py-2.5 transition hover:bg-green-50" style="color: #276e44;">−</button>
                         <input type="number" name="quantity" x-model="qty"
                                min="1" max="99" aria-label="Quantité"
                                class="w-12 text-center py-2.5 border-0 text-sm focus:outline-none" style="color: #276e44;">
                         <button type="button"
                                 @click="qty = Math.min(99, qty + 1)"
                                 aria-label="Augmenter la quantité"
-                                class="px-3.5 py-2.5 transition" style="color: #276e44;" onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">+</button>
+                                class="px-3.5 py-2.5 transition hover:bg-green-50" style="color: #276e44;">+</button>
                     </div>
                     <button type="submit"
                             {{ $product->stock_status !== 'instock' ? 'disabled' : '' }}
-                            class="flex-1 text-white py-3 px-6 rounded-xl font-semibold text-sm transition disabled:cursor-not-allowed"
-                            style="background-color: {{ $product->stock_status !== 'instock' ? '#9ca3af' : '#276e44' }};"
-                            {{ $product->stock_status === 'instock' ? 'onmouseover=this.style.opacity=0.9 onmouseout=this.style.opacity=1' : '' }}>
+                            class="flex-1 text-white py-3 px-6 rounded-xl font-semibold text-sm transition disabled:cursor-not-allowed hover:opacity-90"
+                            style="background-color: {{ $product->stock_status !== 'instock' ? '#9ca3af' : '#276e44' }};">
                         {{ $product->stock_status === 'instock' ? 'Ajouter au panier' : 'Produit épuisé' }}
                     </button>
                 </div>
@@ -517,9 +515,8 @@ $breadcrumbJsonLd = json_encode([
                 @if($reviews->count() > 6)
                     <div class="text-center mt-6">
                         <button @click="showAll = !showAll"
-                                class="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-xl border transition"
+                                class="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-xl border transition hover:bg-green-50"
                                 style="color: #276e44; border-color: #276e44;"
-                                onmouseover="this.style.backgroundColor='#f0fdf4'" onmouseout="this.style.backgroundColor='transparent'">
                             <span x-text="showAll ? 'Voir moins' : 'Voir tous les avis ({{ $reviews->count() }})'"></span>
                             <svg class="w-4 h-4 transition-transform" :class="showAll ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -606,9 +603,8 @@ $breadcrumbJsonLd = json_encode([
                     </div>
 
                     <button type="submit"
-                            class="text-white py-2.5 px-6 rounded-xl font-semibold text-sm transition"
-                            style="background-color: #276e44;"
-                            onmouseover="this.style.backgroundColor='#1e5435'" onmouseout="this.style.backgroundColor='#276e44'">
+                            class="text-white py-2.5 px-6 rounded-xl font-semibold text-sm transition hover:opacity-90"
+                            style="background-color: #276e44;">
                         Publier mon avis
                     </button>
                 </form>

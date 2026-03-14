@@ -9,8 +9,8 @@ class DiscountEngine
     /**
      * Calculate the total discount for a cart.
      *
-     * @param array $cartItems  Array from CartService::items()
-     * @param float $subtotal   Cart subtotal before discount
+     * @param  array  $cartItems  Array from CartService::items()
+     * @param  float  $subtotal  Cart subtotal before discount
      * @return array{amount: float, rules: array}
      */
     public function calculate(array $cartItems, float $subtotal, ?string $couponCode = null): array
@@ -21,7 +21,7 @@ class DiscountEngine
         $appliedRules = [];
 
         foreach ($rules as $rule) {
-            if (!$this->applies($rule, $cartItems, $subtotal, $couponCode)) {
+            if (! $this->applies($rule, $cartItems, $subtotal, $couponCode)) {
                 continue;
             }
 
@@ -33,21 +33,21 @@ class DiscountEngine
 
             $totalDiscount += $discount;
             $appliedRules[] = [
-                'name'     => $rule->name,
-                'type'     => $rule->type,
+                'name' => $rule->name,
+                'type' => $rule->type,
                 'discount' => round($discount, 2),
             ];
 
             // Stop after first non-stackable rule
-            if (!$rule->stackable) {
+            if (! $rule->stackable) {
                 break;
             }
         }
 
         return [
             'amount' => round(min($totalDiscount, $subtotal), 2),
-            'label'  => implode(', ', array_column($appliedRules, 'name')) ?: null,
-            'rules'  => $appliedRules,
+            'label' => implode(', ', array_column($appliedRules, 'name')) ?: null,
+            'rules' => $appliedRules,
         ];
     }
 
@@ -55,7 +55,7 @@ class DiscountEngine
     {
         // Coupon code condition: rules with coupon_code require the correct code
         if ($rule->coupon_code) {
-            if (!$couponCode || strtoupper(trim($couponCode)) !== strtoupper($rule->coupon_code)) {
+            if (! $couponCode || strtoupper(trim($couponCode)) !== strtoupper($rule->coupon_code)) {
                 return false;
             }
         }
@@ -71,17 +71,17 @@ class DiscountEngine
         // Quantity condition — count only targeted products when filters are set
         if ($rule->min_quantity !== null || $rule->max_quantity !== null) {
             $totalQty = 0;
-            $hasTargets = !empty($rule->target_categories) || !empty($rule->target_products);
+            $hasTargets = ! empty($rule->target_categories) || ! empty($rule->target_products);
 
             foreach ($items as $item) {
                 if ($hasTargets) {
                     $product = $item['product'] ?? null;
-                    if (!$product) {
+                    if (! $product) {
                         continue;
                     }
-                    $matches = (!empty($rule->target_products) && in_array($product->id, $rule->target_products))
-                            || (!empty($rule->target_categories) && in_array($product->category_id, $rule->target_categories));
-                    if (!$matches) {
+                    $matches = (! empty($rule->target_products) && in_array($product->id, $rule->target_products))
+                            || (! empty($rule->target_categories) && in_array($product->category_id, $rule->target_categories));
+                    if (! $matches) {
                         continue;
                     }
                 }
@@ -97,23 +97,23 @@ class DiscountEngine
         }
 
         // Target category / product restriction
-        if (!empty($rule->target_categories) || !empty($rule->target_products)) {
+        if (! empty($rule->target_categories) || ! empty($rule->target_products)) {
             $hasMatch = false;
             foreach ($items as $item) {
                 $product = $item['product'] ?? null;
-                if (!$product) {
+                if (! $product) {
                     continue;
                 }
-                if (!empty($rule->target_products) && in_array($product->id, $rule->target_products)) {
+                if (! empty($rule->target_products) && in_array($product->id, $rule->target_products)) {
                     $hasMatch = true;
                     break;
                 }
-                if (!empty($rule->target_categories) && in_array($product->category_id, $rule->target_categories)) {
+                if (! empty($rule->target_categories) && in_array($product->category_id, $rule->target_categories)) {
                     $hasMatch = true;
                     break;
                 }
             }
-            if (!$hasMatch) {
+            if (! $hasMatch) {
                 return false;
             }
         }
@@ -136,15 +136,15 @@ class DiscountEngine
         $base = $subtotal;
 
         // If rule targets specific categories/products, compute only their subtotal
-        if (!empty($rule->target_categories) || !empty($rule->target_products)) {
+        if (! empty($rule->target_categories) || ! empty($rule->target_products)) {
             $base = 0.0;
             foreach ($items as $item) {
                 $product = $item['product'] ?? null;
-                if (!$product) {
+                if (! $product) {
                     continue;
                 }
-                $matches = (!empty($rule->target_products) && in_array($product->id, $rule->target_products))
-                        || (!empty($rule->target_categories) && in_array($product->category_id, $rule->target_categories));
+                $matches = (! empty($rule->target_products) && in_array($product->id, $rule->target_products))
+                        || (! empty($rule->target_categories) && in_array($product->category_id, $rule->target_categories));
                 if ($matches) {
                     $base += ($item['unit_price'] + ($item['addon_price'] ?? 0)) * $item['quantity'];
                 }
@@ -152,10 +152,10 @@ class DiscountEngine
         }
 
         if ($rule->discount_type === 'percentage') {
-            return $base * ((float) $rule->discount_amount / 100);
+            return round($base * ((float) $rule->discount_amount / 100), 2);
         }
 
         // Fixed amount
-        return min((float) $rule->discount_amount, $base);
+        return round(min((float) $rule->discount_amount, $base), 2);
     }
 }

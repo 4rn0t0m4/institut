@@ -9,10 +9,8 @@
                 <span>{{ $b['text'] }}</span>
                 @if(!empty($b['link']) && !empty($b['link_label']))
                     <a href="{{ $b['link'] }}"
-                       class="shrink-0 rounded-full px-4 py-1 text-xs font-semibold transition"
-                       style="background-color: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4);"
-                       onmouseover="this.style.backgroundColor='rgba(255,255,255,0.3)'"
-                       onmouseout="this.style.backgroundColor='rgba(255,255,255,0.2)'">
+                       class="shrink-0 rounded-full px-4 py-1 text-xs font-semibold transition hover:brightness-125"
+                       style="background-color: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4);">
                         {{ $b['link_label'] }} →
                     </a>
                 @endif

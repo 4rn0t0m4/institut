@@ -1,4 +1,4 @@
-<x-layouts.app title="Commande confirmée">
+<x-layouts.app title="Commande confirmée" :noindex="true">
 <div class="max-w-2xl mx-auto px-4 py-16 text-center">
 
     <div class="mb-6">

@@ -1,4 +1,4 @@
-<x-layouts.app title="Mes coordonnées">
+<x-layouts.app title="Mes coordonnées" :noindex="true">
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10"
      x-data="{ shippingDifferent: {{ auth()->user()->shipping_address_1 ? 'true' : 'false' }} }">
 

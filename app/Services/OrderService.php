@@ -28,6 +28,7 @@ class OrderService
             if (! $product || ! $product->is_active) {
                 $this->cart->remove($key);
                 $errors[] = "{$item['name']} n'est plus disponible.";
+
                 continue;
             }
 
@@ -48,8 +49,8 @@ class OrderService
         }
 
         return [
-            'ok'          => empty($errors) && ! $cartUpdated,
-            'errors'      => $errors,
+            'ok' => empty($errors) && ! $cartUpdated,
+            'errors' => $errors,
             'cartUpdated' => $cartUpdated,
         ];
     }
@@ -117,7 +118,7 @@ class OrderService
             if ($relayAddress) {
                 $relayInfo .= " — {$relayAddress}";
             }
-            $customerNote = $relayInfo . ($customerNote ? "\n\n" . $customerNote : '');
+            $customerNote = $relayInfo.($customerNote ? "\n\n".$customerNote : '');
         }
 
         return $customerNote ?: null;
@@ -133,23 +134,26 @@ class OrderService
 
             foreach ($cartItems as $item) {
                 $orderItem = OrderItem::create([
-                    'order_id'     => $order->id,
-                    'product_id'   => $item['product_id'],
+                    'order_id' => $order->id,
+                    'product_id' => $item['product_id'],
                     'product_name' => $item['name'],
-                    'quantity'     => $item['quantity'],
-                    'unit_price'   => $item['price'],
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['price'],
                     'addons_price' => $item['addon_price'],
-                    'total'        => ($item['price'] + $item['addon_price']) * $item['quantity'],
-                    'tax'          => 0,
+                    'total' => ($item['price'] + $item['addon_price']) * $item['quantity'],
+                    'tax' => 0,
                 ]);
 
                 if (! empty($item['addons'])) {
-                    foreach ($item['addons'] as $addonLabel => $addonValue) {
+                    foreach ($item['addons'] as $addonId => $addonData) {
+                        $label = is_array($addonData) ? ($addonData['label'] ?? $addonId) : $addonId;
+                        $value = is_array($addonData) ? ($addonData['value'] ?? '') : (string) $addonData;
+
                         $orderItem->addons()->create([
-                            'addon_label' => $addonLabel,
-                            'addon_value' => is_array($addonValue) ? implode(', ', $addonValue) : (string) $addonValue,
+                            'addon_label' => $label,
+                            'addon_value' => is_array($value) ? implode(', ', $value) : (string) $value,
                             'addon_price' => 0,
-                            'addon_type'  => 'text',
+                            'addon_type' => 'text',
                         ]);
                     }
                 }
