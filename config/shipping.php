@@ -43,10 +43,12 @@ return [
     'free_shipping_threshold' => 60.00,
 
     'boxtal' => [
-        'access_key'     => env('BOXTAL_ACCESS_KEY'),
-        'secret_key'     => env('BOXTAL_SECRET_KEY'),
-        'token_url'      => 'https://api.boxtal.com/v2/token/maps',
-        'bootstrap_url'  => 'https://maps.boxtal.com/styles/boxtal/style.json?access_token=${access_token}',
-        'networks'       => ['MONR_NETWORK', 'CHRP_NETWORK'],
+        'access_key' => env('BOXTAL_ACCESS_KEY'),
+        'secret_key' => env('BOXTAL_SECRET_KEY'),
+        'proxy_url' => env('BOXTAL_PROXY_URL'),
+        'proxy_secret' => env('BOXTAL_PROXY_SECRET'),
+        'token_url' => 'https://api.boxtal.com/v2/token/maps',
+        'bootstrap_url' => 'https://maps.boxtal.com/styles/boxtal/style.json?access_token=${access_token}',
+        'networks' => ['MONR_NETWORK', 'CHRP_NETWORK'],
     ],
 ];

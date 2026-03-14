@@ -13,16 +13,25 @@ use Illuminate\Support\Facades\Mail;
  *
  * Doc API : https://connect.boxtal.com/api-doc
  * Endpoint : POST https://api.boxtal.com/v2/orders
+ *
+ * OVH mutualisé bloque api.boxtal.com — les appels passent par un proxy Vercel.
  */
 class BoxtalConnectService
 {
-    private string $baseUrl = 'https://api.boxtal.com';
-
     private function auth(): string
     {
         return base64_encode(
             config('shipping.boxtal.access_key').':'.config('shipping.boxtal.secret_key')
         );
+    }
+
+    private function endpoint(): string
+    {
+        $proxyUrl = config('shipping.boxtal.proxy_url');
+
+        return $proxyUrl
+            ? rtrim($proxyUrl, '/').'/api/boxtal'
+            : 'https://api.boxtal.com/v2/orders';
     }
 
     /**
@@ -40,11 +49,19 @@ class BoxtalConnectService
         $payload = $this->buildPayload($order);
 
         try {
-            $response = Http::withHeaders([
+            $headers = [
                 'Authorization' => $this->auth(),
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
-            ])->post("{$this->baseUrl}/v2/orders", $payload);
+            ];
+
+            // Ajouter le secret proxy si on passe par le proxy Vercel
+            if (config('shipping.boxtal.proxy_url')) {
+                $headers['X-Proxy-Secret'] = config('shipping.boxtal.proxy_secret');
+            }
+
+            $response = Http::withHeaders($headers)
+                ->post($this->endpoint(), $payload);
 
             if ($response->successful()) {
                 Log::info("BoxtalConnect: commande #{$order->number} envoyée.", [
