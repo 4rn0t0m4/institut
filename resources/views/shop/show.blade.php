@@ -75,8 +75,8 @@ $breadcrumbJsonLd = json_encode([
 <script type="application/ld+json">{!! $breadcrumbJsonLd !!}</script>
 
 @if(!$product->is_active && auth()->user()?->is_admin)
-    <div style="background-color: #f59e0b; color: white; font-size: 14px; font-weight: 600; text-align: center; padding: 10px 0;">
-        Ce produit est masque — visible uniquement par les administrateurs
+    <div style="background-color: #f59e0b; color: white; font-size: 14px; font-weight: 600; text-align: center; padding: 10px 0;" role="status">
+        Ce produit est masqué — visible uniquement par les administrateurs
         <a href="{{ route('admin.products.edit', $product) }}" style="color: white; text-decoration: underline; margin-left: 8px;">Modifier</a>
     </div>
 @endif

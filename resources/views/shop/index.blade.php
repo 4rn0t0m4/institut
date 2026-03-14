@@ -51,6 +51,7 @@
                 @endif
                 <input type="search" name="q" value="{{ request('q') }}"
                        placeholder="Rechercher…"
+                       aria-label="Rechercher un produit"
                        class="border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 w-44">
                 <div class="relative">
                     <button type="button" @click="tagOpen = !tagOpen"

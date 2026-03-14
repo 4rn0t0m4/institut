@@ -21,13 +21,15 @@ class GoogleMerchantFeedController extends Controller
 
         return response()
             ->view('google-merchant-feed', compact('products'))
-            ->header('Content-Type', 'application/xml; charset=utf-8');
+            ->header('Content-Type', 'application/xml; charset=utf-8')
+            ->header('Cache-Control', 'public, max-age=3600');
     }
 
     private function getBijouCategoryIds(): array
     {
         $parent = self::BIJOUX_CATEGORY_ID;
         $children = ProductCategory::where('parent_id', $parent)->pluck('id')->toArray();
+
         return array_merge([$parent], $children);
     }
 }

@@ -4,7 +4,7 @@
          style="border-color: #b0f1b9;">
     {{-- Admin badge if hidden --}}
     @if(!$product->is_active && auth()->user()?->is_admin)
-        <div style="background-color: #f59e0b; color: white; font-size: 11px; font-weight: 600; text-align: center; padding: 4px 0;">Masque — visible uniquement par les admins</div>
+        <div style="background-color: #f59e0b; color: white; font-size: 11px; font-weight: 600; text-align: center; padding: 4px 0;" role="status" aria-label="Produit masqué">Masqué — visible uniquement par les admins</div>
     @endif
     {{-- Image --}}
     <a href="{{ $product->url() }}" data-turbo-frame="_top"
