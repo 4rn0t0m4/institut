@@ -6,6 +6,15 @@
 @endpush
 @endif
 
+@if($product->personalizable)
+@push('head')
+@php $googleFonts = collect(config('personalization.fonts'))->pluck('google')->implode('&family='); @endphp
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family={{ $googleFonts }}&display=swap" rel="stylesheet">
+@endpush
+@endif
+
 {{-- Schema.org Product + BreadcrumbList --}}
 @php
 $productSchema = [
@@ -172,7 +181,7 @@ $breadcrumbJsonLd = json_encode([
         </div>
 
         {{-- Infos produit --}}
-        <div x-data="productForm({{ $product->price }}, {{ $product->sale_price ?? 'null' }})">
+        <div x-data="productForm({{ $product->price }}, {{ $product->sale_price ?? 'null' }}, {{ $product->personalizable ? ($product->personalization_price ?? 0) : 'null' }})">
             @if($product->brand)
                 <p class="text-xs uppercase tracking-widest mb-1 font-semibold">
                     <a href="{{ route('shop.index', ['marque' => $product->brand->slug]) }}" style="color: #276e44;" class="hover:underline">
@@ -300,6 +309,81 @@ $breadcrumbJsonLd = json_encode([
                         @foreach($product->addonAssignments as $assignment)
                             <x-product-addon :addon="$assignment->addon"/>
                         @endforeach
+                    </div>
+                @endif
+
+                {{-- Personnalisation --}}
+                @if($product->personalizable)
+                    @php
+                        $persoFonts = config('personalization.fonts', []);
+                        $persoColors = config('personalization.colors', []);
+                        $firstFont = array_key_first($persoFonts);
+                        $firstColor = array_key_first($persoColors);
+                    @endphp
+                    <div class="rounded-xl p-4 space-y-4" style="background-color: #f0fdf4; border: 1px solid #b0f1b9;">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-semibold" style="color: #276e44;">Personnalisation</p>
+                            @if($product->personalization_price > 0)
+                                <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background-color: #e8fae8; color: #276e44;">
+                                    +{{ number_format($product->personalization_price, 2, ',', ' ') }} €
+                                </span>
+                            @else
+                                <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background-color: #e8fae8; color: #276e44;">
+                                    Gratuit
+                                </span>
+                            @endif
+                        </div>
+
+                        {{-- Texte --}}
+                        <div>
+                            <label for="perso_text" class="mb-1.5 block text-sm font-medium" style="color: #374151;">Votre texte</label>
+                            <input type="text" id="perso_text" name="personalization[text]"
+                                   x-model="persoText" maxlength="50" placeholder="Ex : Marie, Joyeux anniversaire..."
+                                   class="w-full text-sm px-3 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-700"
+                                   style="border-color: #d1d5db; background-color: #ffffff;">
+                            <p class="text-xs mt-1" style="color: #9ca3af;">50 caractères maximum</p>
+                        </div>
+
+                        {{-- Police --}}
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium" style="color: #374151;">Police</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                @foreach($persoFonts as $fontKey => $fontData)
+                                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition"
+                                           :class="persoFont === '{{ $fontKey }}' ? 'border-[#276e44] bg-[#e8fae8]' : 'border-gray-200 bg-white hover:border-gray-300'">
+                                        <input type="radio" name="personalization[font]" value="{{ $fontKey }}"
+                                               x-model="persoFont" class="sr-only">
+                                        <span class="text-sm" style="font-family: '{{ $fontData['label'] }}', cursive;">{{ $fontData['label'] }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- Couleur --}}
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium" style="color: #374151;">Couleur</label>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($persoColors as $colorKey => $colorData)
+                                    <label class="relative cursor-pointer group" title="{{ $colorData['label'] }}">
+                                        <input type="radio" name="personalization[color]" value="{{ $colorKey }}"
+                                               x-model="persoColor" class="sr-only">
+                                        <span class="block w-8 h-8 rounded-full border-2 transition"
+                                              :class="persoColor === '{{ $colorKey }}' ? 'border-[#276e44] scale-110' : 'border-gray-200 hover:border-gray-400'"
+                                              style="background-color: {{ $colorData['hex'] }};{{ $colorData['hex'] === '#ffffff' ? ' box-shadow: inset 0 0 0 1px #d1d5db;' : '' }}"></span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- Aperçu --}}
+                        <div x-show="persoText.length > 0" x-transition>
+                            <p class="text-xs font-medium mb-2" style="color: #9ca3af;">Aperçu</p>
+                            <div class="rounded-lg p-4 text-center" style="background-color: #ffffff; border: 1px dashed #b0f1b9;">
+                                <span class="text-2xl" :style="'font-family: \'' + persoFontLabel + '\', cursive; color: ' + persoColorHex">
+                                    <span x-text="persoText"></span>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 @endif
 
@@ -632,12 +716,29 @@ $breadcrumbJsonLd = json_encode([
 @endif
 
 <script>
-function productForm(basePrice, salePrice) {
+function productForm(basePrice, salePrice, persoPrice) {
+    const fonts = @json(collect(config('personalization.fonts'))->map(fn($f, $k) => ['key' => $k, 'label' => $f['label']])->values());
+    const colors = @json(collect(config('personalization.colors'))->map(fn($c, $k) => ['key' => $k, 'hex' => $c['hex']])->values());
+
     return {
         qty: 1,
         addonTotal: 0,
+        persoText: '',
+        persoFont: fonts.length ? fonts[0].key : '',
+        persoColor: colors.length ? colors[0].key : '',
+        get persoFontLabel() {
+            const f = fonts.find(f => f.key === this.persoFont);
+            return f ? f.label : '';
+        },
+        get persoColorHex() {
+            const c = colors.find(c => c.key === this.persoColor);
+            return c ? c.hex : '#000000';
+        },
+        get persoExtra() {
+            return (persoPrice !== null && this.persoText.length > 0) ? persoPrice : 0;
+        },
         get total() {
-            return ((salePrice ?? basePrice) + this.addonTotal) * this.qty;
+            return ((salePrice ?? basePrice) + this.addonTotal + this.persoExtra) * this.qty;
         },
         formatPrice(val) {
             return val.toFixed(2).replace('.', ',') + ' €';

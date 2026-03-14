@@ -157,6 +157,17 @@ class OrderService
                         ]);
                     }
                 }
+
+                // Personnalisation
+                if (! empty($item['personalization']['text'])) {
+                    $perso = $item['personalization'];
+                    $orderItem->addons()->create([
+                        'addon_label' => 'Personnalisation',
+                        'addon_value' => "« {$perso['text']} » — Police : {$perso['font_label']}, Couleur : {$perso['color_label']}",
+                        'addon_price' => 0,
+                        'addon_type' => 'personalization',
+                    ]);
+                }
             }
 
             return $order;

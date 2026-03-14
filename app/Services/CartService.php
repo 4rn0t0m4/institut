@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\ProductAddon;
-use Illuminate\Support\Str;
 
 class CartService
 {
@@ -17,30 +16,35 @@ class CartService
     }
 
     /** Ajoute ou incrémente un article */
-    public function add(Product $product, int $quantity = 1, array $addons = []): string
+    public function add(Product $product, int $quantity = 1, array $addons = [], array $personalization = []): string
     {
         $cart = $this->all();
 
         // Sanitize addons: replace client-sent label/price with DB values
         $sanitizedAddons = $this->sanitizeAddons($addons);
 
-        // Clé unique par produit + combinaison d'addons
-        $key = $product->id . '-' . md5(serialize($sanitizedAddons));
+        // Sanitize personalization: validate against DB product flag
+        $sanitizedPerso = $this->sanitizePersonalization($personalization, $product);
+
+        // Clé unique par produit + combinaison d'addons + personnalisation
+        $key = $product->id.'-'.md5(serialize($sanitizedAddons).serialize($sanitizedPerso));
 
         if (isset($cart[$key])) {
             $cart[$key]['quantity'] += $quantity;
         } else {
             $addonPrice = app(AddonPriceCalculator::class)->calculate($sanitizedAddons, $product->currentPrice());
+            $persoPrice = ! empty($sanitizedPerso['text']) ? (float) ($product->personalization_price ?? 0) : 0.0;
             $cart[$key] = [
-                'key'         => $key,
-                'product_id'  => $product->id,
-                'name'        => $product->name,
-                'slug'        => $product->slug,
-                'price'       => $product->currentPrice(),
-                'addon_price' => $addonPrice,
-                'quantity'    => $quantity,
-                'addons'      => $sanitizedAddons,
-                'image'       => $product->featuredImage?->url,
+                'key' => $key,
+                'product_id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'price' => $product->currentPrice(),
+                'addon_price' => $addonPrice + $persoPrice,
+                'quantity' => $quantity,
+                'addons' => $sanitizedAddons,
+                'personalization' => $sanitizedPerso,
+                'image' => $product->featuredImage?->url,
             ];
         }
 
@@ -61,7 +65,7 @@ class CartService
 
         foreach ($addons as $addonId => $data) {
             $dbAddon = $dbAddons->get($addonId);
-            if (!$dbAddon) {
+            if (! $dbAddon) {
                 continue;
             }
 
@@ -72,6 +76,39 @@ class CartService
         }
 
         return $sanitized;
+    }
+
+    /** Sanitize personalization data against product config */
+    private function sanitizePersonalization(array $perso, Product $product): array
+    {
+        if (empty($perso) || ! $product->personalizable) {
+            return [];
+        }
+
+        $text = trim(mb_substr($perso['text'] ?? '', 0, 50));
+        if ($text === '') {
+            return [];
+        }
+
+        $fonts = config('personalization.fonts', []);
+        $colors = config('personalization.colors', []);
+
+        $font = isset($perso['font']) && array_key_exists($perso['font'], $fonts)
+            ? $perso['font']
+            : array_key_first($fonts);
+
+        $color = isset($perso['color']) && array_key_exists($perso['color'], $colors)
+            ? $perso['color']
+            : array_key_first($colors);
+
+        return [
+            'text' => $text,
+            'font' => $font,
+            'font_label' => $fonts[$font]['label'] ?? $font,
+            'color' => $color,
+            'color_label' => $colors[$color]['label'] ?? $color,
+            'color_hex' => $colors[$color]['hex'] ?? '#000000',
+        ];
     }
 
     /** Met à jour le prix d'un article (si le prix produit a changé) */
@@ -137,13 +174,14 @@ class CartService
         }
 
         $productIds = array_unique(array_column($cart, 'product_id'));
-        $products   = Product::with('category.parent')->whereIn('id', $productIds)->get()->keyBy('id');
+        $products = Product::with('category.parent')->whereIn('id', $productIds)->get()->keyBy('id');
 
         return array_map(function (array $item) use ($products) {
             $product = $products->get($item['product_id']);
-            $item['product']    = $product;
+            $item['product'] = $product;
             $item['unit_price'] = $item['price'];
-            $item['url']        = $product?->url() ?? url("boutique/{$item['slug']}");
+            $item['url'] = $product?->url() ?? url("boutique/{$item['slug']}");
+
             return $item;
         }, $cart);
     }

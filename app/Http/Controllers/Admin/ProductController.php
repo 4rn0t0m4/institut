@@ -77,6 +77,8 @@ class ProductController extends Controller
             'brand_id' => 'nullable|exists:brands,id',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'personalizable' => 'boolean',
+            'personalization_price' => 'nullable|numeric|min:0',
         ]);
 
         if (empty($validated['slug'])) {
@@ -85,6 +87,7 @@ class ProductController extends Controller
 
         $validated['is_active'] = $request->boolean('is_active');
         $validated['is_featured'] = $request->boolean('is_featured');
+        $validated['personalizable'] = $request->boolean('personalizable');
 
         $product = Product::create($validated);
 
@@ -136,6 +139,8 @@ class ProductController extends Controller
             'brand_id' => 'nullable|exists:brands,id',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'personalizable' => 'boolean',
+            'personalization_price' => 'nullable|numeric|min:0',
         ]);
 
         if (empty($validated['slug'])) {
@@ -144,6 +149,7 @@ class ProductController extends Controller
 
         $validated['is_active'] = $request->boolean('is_active');
         $validated['is_featured'] = $request->boolean('is_featured');
+        $validated['personalizable'] = $request->boolean('personalizable');
 
         $product->update($validated);
 

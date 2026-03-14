@@ -174,6 +174,32 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         </div>
 
+        {{-- Personnalisation --}}
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">Personnalisation</h3>
+
+            <div class="space-y-4">
+                <label class="flex items-center gap-3">
+                    <input type="hidden" name="personalizable" value="0">
+                    <input type="checkbox" name="personalizable" value="1" {{ old('personalizable', $product->personalizable ?? false) ? 'checked' : '' }}
+                        class="h-5 w-5 rounded border-gray-300 text-brand-500 focus:ring-brand-500 dark:border-gray-700" />
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Activer la personnalisation</span>
+                </label>
+                <p class="text-xs text-gray-400">Le client pourra saisir un texte, choisir une police et une couleur.</p>
+                <div>
+                    <label for="personalization_price" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Supplément personnalisation
+                    </label>
+                    <input type="number" id="personalization_price" name="personalization_price"
+                        value="{{ old('personalization_price', $product->personalization_price ?? '') }}"
+                        step="0.01" min="0" placeholder="0.00 = gratuit"
+                        class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90" />
+                    <p class="mt-1 text-xs text-gray-400">Laisser vide si la personnalisation est gratuite</p>
+                    @error('personalization_price') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                </div>
+            </div>
+        </div>
+
         {{-- Category --}}
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
             <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">Categorie</h3>

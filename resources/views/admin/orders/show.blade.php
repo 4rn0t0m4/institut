@@ -29,6 +29,11 @@
                                         @if ($item->sku)
                                             <div class="text-xs text-gray-500 dark:text-gray-400">{{ $item->sku }}</div>
                                         @endif
+                                        @foreach($item->addons as $addon)
+                                            <div class="text-xs mt-1 {{ $addon->addon_type === 'personalization' ? 'text-brand-500 dark:text-brand-400 font-medium' : 'text-gray-500 dark:text-gray-400' }}">
+                                                {{ $addon->addon_label }} : {{ $addon->addon_value }}
+                                            </div>
+                                        @endforeach
                                     </td>
                                     <td class="px-5 py-4 text-sm text-center text-gray-700 dark:text-gray-300">{{ $item->quantity }}</td>
                                     <td class="px-5 py-4 text-sm text-right text-gray-700 dark:text-gray-300">{{ number_format($item->unit_price, 2, ',', ' ') }} &euro;</td>

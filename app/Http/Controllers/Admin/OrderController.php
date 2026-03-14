@@ -23,8 +23,8 @@ class OrderController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('number', 'like', "%{$search}%")
-                  ->orWhere('billing_email', 'like', "%{$search}%")
-                  ->orWhere('billing_last_name', 'like', "%{$search}%");
+                    ->orWhere('billing_email', 'like', "%{$search}%")
+                    ->orWhere('billing_last_name', 'like', "%{$search}%");
             });
         }
 
@@ -32,12 +32,12 @@ class OrderController extends Controller
 
         $paid = Order::whereIn('status', ['processing', 'completed']);
         $metrics = [
-            'total_orders'    => $paid->count(),
-            'revenue'         => $paid->sum('total'),
-            'items_sold'      => OrderItem::whereHas('order', fn ($q) => $q->whereIn('status', ['processing', 'completed']))->sum('quantity'),
-            'average_order'   => $paid->count() > 0 ? $paid->avg('total') : 0,
-            'pending'         => Order::where('status', 'pending')->count(),
-            'processing'      => Order::where('status', 'processing')->count(),
+            'total_orders' => $paid->count(),
+            'revenue' => $paid->sum('total'),
+            'items_sold' => OrderItem::whereHas('order', fn ($q) => $q->whereIn('status', ['processing', 'completed']))->sum('quantity'),
+            'average_order' => $paid->count() > 0 ? $paid->avg('total') : 0,
+            'pending' => Order::where('status', 'pending')->count(),
+            'processing' => Order::where('status', 'processing')->count(),
         ];
 
         return view('admin.orders.index', compact('orders', 'metrics'));
@@ -45,7 +45,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['user', 'items.product']);
+        $order->load(['user', 'items.product', 'items.addons']);
 
         return view('admin.orders.show', compact('order'));
     }

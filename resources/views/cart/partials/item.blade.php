@@ -28,6 +28,14 @@
                 @endforeach
             </ul>
         @endif
+        @if(!empty($item['personalization']['text']))
+            <div class="mt-1 flex items-center gap-1.5">
+                <span class="inline-block w-3 h-3 rounded-full border border-gray-200 flex-shrink-0" style="background-color: {{ $item['personalization']['color_hex'] ?? '#000' }};"></span>
+                <span class="text-xs text-gray-400 truncate">
+                    « {{ $item['personalization']['text'] }} » — {{ $item['personalization']['font_label'] ?? '' }}, {{ $item['personalization']['color_label'] ?? '' }}
+                </span>
+            </div>
+        @endif
         <p class="text-sm text-gray-500 mt-1">
             {{ number_format($item['price'] + $item['addon_price'], 2, ',', ' ') }} € / unité
         </p>

@@ -31,6 +31,9 @@
                     <div class="flex-1 min-w-0">
                         <a href="{{ $item['url'] }}" class="text-sm text-gray-800 truncate block hover:underline">{{ $item['name'] }}</a>
                         <p class="text-xs text-gray-400">{{ $item['quantity'] }} &times; {{ number_format($item['price'] + $item['addon_price'], 2, ',', ' ') }} &euro;</p>
+                        @if(!empty($item['personalization']['text']))
+                            <p class="text-xs text-gray-400 truncate">« {{ $item['personalization']['text'] }} »</p>
+                        @endif
                     </div>
                     <p class="text-sm font-medium text-gray-900 flex-shrink-0">
                         {{ number_format(($item['price'] + $item['addon_price']) * $item['quantity'], 2, ',', ' ') }} &euro;

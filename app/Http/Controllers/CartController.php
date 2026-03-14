@@ -20,15 +20,15 @@ class CartController extends Controller
         $suggestions = Product::with('featuredImage')
             ->where('is_active', true)
             ->where('stock_status', '!=', 'outofstock')
-            ->when(!empty($cartProductIds), fn ($q) => $q->whereNotIn('id', $cartProductIds))
+            ->when(! empty($cartProductIds), fn ($q) => $q->whereNotIn('id', $cartProductIds))
             ->orderByDesc('is_featured')
             ->orderByDesc('id')
             ->take(4)
             ->get();
 
         return view('cart.index', [
-            'items'       => $items,
-            'subtotal'    => $this->cart->subtotal(),
+            'items' => $items,
+            'subtotal' => $this->cart->subtotal(),
             'suggestions' => $suggestions,
         ]);
     }
@@ -36,19 +36,20 @@ class CartController extends Controller
     public function miniCart()
     {
         return view('cart.partials.mini-cart', [
-            'items'    => $this->cart->itemsWithProducts(),
+            'items' => $this->cart->itemsWithProducts(),
             'subtotal' => $this->cart->subtotal(),
-            'count'    => $this->cart->count(),
+            'count' => $this->cart->count(),
         ]);
     }
 
     public function add(AddToCartRequest $request)
     {
-        $product  = Product::findOrFail($request->product_id);
+        $product = Product::findOrFail($request->product_id);
         $quantity = (int) $request->input('quantity', 1);
-        $addons   = $request->input('addons', []);
+        $addons = $request->input('addons', []);
+        $personalization = $request->input('personalization', []);
 
-        $this->cart->add($product, $quantity, $addons);
+        $this->cart->add($product, $quantity, $addons, $personalization);
 
         if ($request->wantsTurboStream()) {
             return response()->turboStream([
@@ -77,7 +78,7 @@ class CartController extends Controller
                 ->target("cart-item-{$key}")
                 ->action($this->cart->count() === 0 ? 'remove' : 'update')
                 ->view('cart.partials.item', [
-                    'item'     => $this->cart->all()[$key] ?? null,
+                    'item' => $this->cart->all()[$key] ?? null,
                     'subtotal' => $this->cart->subtotal(),
                 ]);
         }

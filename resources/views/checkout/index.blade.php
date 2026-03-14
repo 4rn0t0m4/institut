@@ -484,14 +484,19 @@
 
                     <ul class="space-y-3 mb-4">
                         @foreach($items as $item)
-                            <li class="flex justify-between text-sm text-gray-700">
-                                <span>
-                                    {{ $item['name'] }}
-                                    <span class="text-gray-400">× {{ $item['quantity'] }}</span>
-                                </span>
-                                <span>
-                                    {{ number_format(($item['price'] + $item['addon_price']) * $item['quantity'], 2, ',', ' ') }} €
-                                </span>
+                            <li class="text-sm text-gray-700">
+                                <div class="flex justify-between">
+                                    <span>
+                                        {{ $item['name'] }}
+                                        <span class="text-gray-400">× {{ $item['quantity'] }}</span>
+                                    </span>
+                                    <span>
+                                        {{ number_format(($item['price'] + $item['addon_price']) * $item['quantity'], 2, ',', ' ') }} €
+                                    </span>
+                                </div>
+                                @if(!empty($item['personalization']['text']))
+                                    <p class="text-xs text-gray-400 mt-0.5">Personnalisation : « {{ $item['personalization']['text'] }} »</p>
+                                @endif
                             </li>
                         @endforeach
                     </ul>
