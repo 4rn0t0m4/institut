@@ -29,11 +29,17 @@ class BoxtalConnectController extends Controller
      */
     public function pair(Request $request): JsonResponse
     {
+        Log::info('BoxtalConnect: pairing request reçu', ['uri' => $request->getRequestUri()]);
+
         $decrypted = $this->auth->authenticate($request->getContent());
 
         if (! $decrypted) {
+            Log::warning('BoxtalConnect: pairing — déchiffrement échoué');
+
             return response()->json(['message' => 'Authentication failed'], 401);
         }
+
+        Log::info('BoxtalConnect: pairing — body déchiffré', ['keys' => array_keys((array) $decrypted)]);
 
         if (! isset($decrypted->accessKey, $decrypted->secretKey)) {
             return response()->json(['message' => 'Missing credentials'], 400);
