@@ -155,7 +155,7 @@
                             </a>
                         </div>
                     @else
-                        <form method="POST" action="{{ route('admin.orders.create-shipment', $order) }}" x-data="{ open: false }">
+                        <form method="POST" action="{{ route('admin.orders.create-shipment', $order) }}">
                             @csrf
                             <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
                                 {{ $order->shipping_method ?? 'Expédition' }}
@@ -164,28 +164,24 @@
                                 @endif
                             </p>
 
-                            <button type="button" @click="open = !open" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 mb-2">
-                                <span x-text="open ? 'Masquer les options' : 'Options du colis'"></span>
-                            </button>
-
-                            <div x-show="open" x-cloak class="space-y-2 mb-3">
-                                @php $pkg = config('shipping.boxtal.default_package'); @endphp
+                            @php $pkg = config('shipping.boxtal.default_package'); @endphp
+                            <div class="space-y-2 mb-3">
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
                                         <label class="block text-xs text-gray-500 dark:text-gray-400">Poids (kg)</label>
-                                        <input type="number" name="weight" step="0.01" value="{{ $pkg['weight'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2">
+                                        <input type="number" name="weight" step="0.01" value="{{ $pkg['weight'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2" required>
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-500 dark:text-gray-400">Longueur (cm)</label>
-                                        <input type="number" name="length" value="{{ $pkg['length'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2">
+                                        <input type="number" name="length" value="{{ $pkg['length'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2" required>
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-500 dark:text-gray-400">Largeur (cm)</label>
-                                        <input type="number" name="width" value="{{ $pkg['width'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2">
+                                        <input type="number" name="width" value="{{ $pkg['width'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2" required>
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-500 dark:text-gray-400">Hauteur (cm)</label>
-                                        <input type="number" name="height" value="{{ $pkg['height'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2">
+                                        <input type="number" name="height" value="{{ $pkg['height'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2" required>
                                     </div>
                                 </div>
                             </div>
