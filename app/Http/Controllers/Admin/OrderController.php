@@ -127,6 +127,13 @@ class OrderController extends Controller
         return redirect()->route('admin.orders.show', $order)->with('error', 'Erreur Boxtal : '.$result['error']);
     }
 
+    public function resetShipment(Order $order)
+    {
+        $order->update(['boxtal_shipping_order_id' => null]);
+
+        return redirect()->route('admin.orders.show', $order)->with('success', 'Expédition Boxtal dissociée. Vous pouvez en créer une nouvelle.');
+    }
+
     public function destroy(Order $order)
     {
         if ($order->status !== 'pending') {
