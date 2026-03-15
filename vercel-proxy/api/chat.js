@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ error: "Method not allowed" }));
   }
 
-  const { skinType, answers, products } = req.body;
+  const { skinType, skinDescription, answers, goal, routine, products } = req.body;
   const siteUrl = req.headers.origin || "https://institutcorpsacoeur.fr";
 
   if (!skinType || !answers || !products) {
@@ -39,30 +39,56 @@ export default async function handler(req, res) {
 
   const client = new Anthropic();
 
-  const systemPrompt = `Tu es la conseillère beauté virtuelle de l'Institut Corps & Cœur, un institut de beauté et bien-être situé à Mézidon Canon, près de Caen.
+  const systemPrompt = `Tu es la conseillère beauté de l'Institut Corps & Cœur, un institut de beauté et bien-être situé à Mézidon Canon (Calvados).
 
-Tu viens d'analyser les réponses d'un quiz diagnostic de peau. Tu dois recommander les produits les plus adaptés au type de peau détecté.
+Tu viens d'analyser les réponses d'un diagnostic de peau. Tu dois fournir une analyse personnalisée et recommander les produits les plus adaptés.
 
-Règles :
-- Réponds en français, ton chaleureux et professionnel (tutoiement)
-- Commence par expliquer brièvement le type de peau détecté et ses caractéristiques
-- Recommande 2 à 4 produits individuels ET le coffret le plus adapté s'il existe
-- Pour chaque produit, explique POURQUOI il convient à ce type de peau
-- Utilise le format Markdown pour structurer ta réponse
-- Pour chaque produit recommandé, crée un lien Markdown avec le nom en gras : [**Nom du produit**](url) — prix€
-- L'URL de chaque produit est fournie dans la liste, utilise-la telle quelle
+Ton style :
+- Français courant, tutoiement, ton chaleureux et bienveillant
+- Comme une amie experte qui donne des conseils sincères
+- Concise mais précise (max 350 mots)
+- Pas de formules de politesse superflues, va droit au but
+
+Structure ta réponse ainsi :
+
+### Ton type de peau
+Un court paragraphe (2-3 phrases) qui explique le type de peau détecté de façon concrète et rassurante. Pas de jargon inutile. Intègre l'objectif et la routine de la personne si disponibles.
+
+### Ta routine idéale
+Recommande 2 à 4 produits en expliquant POURQUOI chacun convient à ce type de peau et QUAND l'utiliser (matin/soir). Organise par étape (nettoyage, soin, protection).
+Pour chaque produit : [**Nom du produit**](url) — prix€
+
+### Notre coup de cœur
+Si un coffret ou un produit star correspond particulièrement, mets-le en avant.
+
+### Mon conseil
+Un conseil pratique personnalisé (geste, habitude, fréquence) lié au type de peau.
+
+Règles strictes :
 - Ne recommande QUE des produits présents dans la liste fournie
-- Si un coffret correspond au type de peau, mets-le en avant comme meilleure option
-- Termine par un conseil personnalisé de routine
-- Sois concise (max 300 mots)`;
+- Utilise les URLs telles quelles (ne les modifie pas)
+- Si tu ne trouves pas de produit adapté pour une étape, ne l'invente pas
+- Privilégie les produits dont la description mentionne des bénéfices liés au type de peau`;
 
-  const userMessage = `Type de peau détecté : ${skinType}
+  // Construire le contexte utilisateur
+  let userContext = `Type de peau détecté : ${skinType}`;
+  if (skinDescription) {
+    userContext += `\nDescription : ${skinDescription}`;
+  }
+  if (goal) {
+    userContext += `\nObjectif principal : ${goal}`;
+  }
+  if (routine) {
+    userContext += `\nRoutine actuelle : ${routine}`;
+  }
 
-Réponses au quiz :
+  const userMessage = `${userContext}
+
+Réponses au diagnostic :
 ${answers.map((a) => `- ${a.question}: ${a.answer}`).join("\n")}
 
-Produits disponibles (catégorie Produits Visage) :
-${products.map((p) => `- ${p.name} (${p.price}€) [${p.category}] URL: ${siteUrl}${p.url} — ${p.description || "Pas de description"}`).join("\n")}`;
+Produits disponibles :
+${products.map((p) => `- ${p.name} (${p.price}€) [${p.category}] URL: ${siteUrl}${p.url}${p.description ? ` — ${p.description}` : ""}`).join("\n")}`;
 
   try {
     res.writeHead(200, {

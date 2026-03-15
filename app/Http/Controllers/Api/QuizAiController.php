@@ -37,8 +37,26 @@ class QuizAiController extends Controller
             'answer' => $a->question->choices->firstWhere('id', $a->answer)?->label ?? $a->answer,
         ]);
 
+        // Extraire objectif et routine des 2 premières questions contextuelles
+        $goal = null;
+        $routine = null;
+        foreach ($completion->answers as $answer) {
+            $questionTitle = $answer->question->title ?? '';
+            $choiceLabel = $answer->question->choices->firstWhere('id', $answer->answer)?->label;
+
+            if (str_contains($questionTitle, 'objectif') && $choiceLabel) {
+                $goal = $choiceLabel;
+            }
+            if (str_contains($questionTitle, 'routine') && $choiceLabel) {
+                $routine = $choiceLabel;
+            }
+        }
+
         return response()->json([
             'skinType' => $completion->result?->title ?? 'Non déterminé',
+            'skinDescription' => $completion->result?->description ? strip_tags($completion->result->description) : null,
+            'goal' => $goal,
+            'routine' => $routine,
             'answers' => $answers,
             'products' => $products,
         ]);
