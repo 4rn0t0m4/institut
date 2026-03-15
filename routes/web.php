@@ -81,12 +81,15 @@ Route::post('/api/boxtal/parcel-points', [BoxtalController::class, 'searchParcel
 Route::get('/api/quiz/{completion}/ai-data', [\App\Http\Controllers\Api\QuizAiController::class, 'products'])->name('quiz.ai-data');
 
 // Boxtal Connect (sync commandes — exclure CSRF)
-Route::prefix('boxtal-connect/v1')->group(function () {
+// Supporte les deux préfixes : direct et via /wp-json/ (compatibilité WooCommerce)
+$boxtalRoutes = function () {
     Route::post('/shop/pair', [\App\Http\Controllers\BoxtalConnectController::class, 'pair']);
     Route::post('/order', [\App\Http\Controllers\BoxtalConnectController::class, 'retrieveOrders']);
     Route::post('/order/{orderId}/shipped', [\App\Http\Controllers\BoxtalConnectController::class, 'orderShipped']);
     Route::post('/order/{orderId}/delivered', [\App\Http\Controllers\BoxtalConnectController::class, 'orderDelivered']);
-});
+};
+Route::prefix('boxtal-connect/v1')->group($boxtalRoutes);
+Route::prefix('wp-json/boxtal-connect/v1')->group($boxtalRoutes);
 
 // Webhook Stripe (exclure CSRF)
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);

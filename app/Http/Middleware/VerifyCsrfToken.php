@@ -14,5 +14,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'stripe/webhook',
         'boxtal-connect/*',
+        'wp-json/boxtal-connect/*',
     ];
 }
