@@ -222,17 +222,9 @@ class CheckoutController extends Controller
             $this->cart->clear();
         }
 
-        // Préparer le payload signé pour le push Boxtal côté client
-        $boxtalPush = null;
-        if ($paymentConfirmed && $order->shipping_key === 'boxtal') {
-            $order->load('items');
-            $boxtalPush = app(BoxtalConnectService::class)->buildSignedPayload($order);
-        }
-
         return view('checkout.success', [
             'order' => $order,
             'paymentConfirmed' => $paymentConfirmed,
-            'boxtalPush' => $boxtalPush,
         ]);
     }
 
@@ -292,7 +284,10 @@ class CheckoutController extends Controller
             } catch (\Exception $e) {
                 Log::error("Échec envoi email admin pour commande #{$order->number} (via success)", ['error' => $e->getMessage()]);
             }
-            // Le push Boxtal est géré côté client (page success) via le proxy Vercel
+
+            if ($order->shipping_key === 'boxtal') {
+                app(BoxtalConnectService::class)->pushOrder($order);
+            }
         }
     }
 

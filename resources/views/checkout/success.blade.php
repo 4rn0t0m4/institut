@@ -52,18 +52,4 @@
     </div>
 </div>
 
-@if(!empty($boxtalPush))
-<script>
-    (function() {
-        fetch('{{ $boxtalPush['url'] }}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                payload: @json($boxtalPush['payload']),
-                signature: '{{ $boxtalPush['signature'] }}'
-            })
-        }).catch(function() {});
-    })();
-</script>
-@endif
 </x-layouts.app>

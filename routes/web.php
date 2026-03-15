@@ -64,17 +64,6 @@ Route::redirect('/quiz/diagnostic-de-peau', '/diagnostic-de-peau', 301);
 Route::get('/amincissement/bilan-minceur-personnalise', [BilanMinceurController::class, 'show'])->name('bilan-minceur.show');
 Route::post('/amincissement/bilan-minceur-personnalise', [BilanMinceurController::class, 'submit'])->name('bilan-minceur.submit');
 
-// Test temporaire : vérifier si PHP web peut appeler api.boxtal.com
-Route::get('/test-boxtal-connect', function () {
-    $order = \App\Models\Order::where('number', 'CMD-69B5825F90BF6')->with('items')->first();
-    if (! $order) {
-        return response()->json(['error' => 'Order not found']);
-    }
-    app(\App\Services\BoxtalConnectService::class)->pushOrder($order);
-
-    return response()->json(['ok' => true, 'check' => 'voir storage/logs/laravel.log']);
-})->middleware('auth');
-
 // Contact
 Route::get('/contact', [ContactController::class, 'show'])->name('contact.show');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send')->middleware('throttle:5,1');
