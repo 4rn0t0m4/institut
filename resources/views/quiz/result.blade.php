@@ -114,6 +114,7 @@ function aiRecommendation(completionId) {
         response: '',
         renderedResponse: '',
         error: null,
+        products: [],
 
         async fetchRecommendation() {
             this.loading = true;
@@ -122,6 +123,9 @@ function aiRecommendation(completionId) {
                 const dataRes = await fetch('/api/quiz/' + completionId + '/ai-data');
                 if (!dataRes.ok) throw new Error('Impossible de charger les données');
                 const data = await dataRes.json();
+
+                // Stocker les produits pour enrichir les liens avec photos
+                this.products = data.products || [];
 
                 const proxyUrl = '{{ config("services.claude_proxy.url", "https://icc-claude-proxy.vercel.app") }}/api/chat';
                 const streamRes = await fetch(proxyUrl, {
@@ -169,12 +173,25 @@ function aiRecommendation(completionId) {
             }
         },
 
+        // Trouver l'image d'un produit par son URL
+        findProductImage(url) {
+            const path = url.replace(/^https?:\/\/[^/]+/, '');
+            const product = this.products.find(p => p.url === path || url.endsWith(p.url));
+            return product?.image || null;
+        },
+
         renderMarkdown(md) {
             return md
-                // Images produit : ![img](url)
-                .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="w-20 h-20 object-cover rounded-lg mt-1 mb-3" loading="lazy">')
-                // Liens produit
-                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-green-700 underline hover:text-green-900">$1</a>')
+                // Supprimer les images markdown générées par l'IA (on les remplace par les nôtres)
+                .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '')
+                // Liens produit → lien + miniature
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+                    const img = this.findProductImage(url);
+                    const imgHtml = img
+                        ? `<img src="${img}" alt="" class="w-14 h-14 object-cover rounded-lg shrink-0">`
+                        : '';
+                    return `<a href="${url}" class="flex items-center gap-3 p-2 -mx-2 rounded-xl hover:bg-green-50 transition no-underline">${imgHtml}<span class="text-green-700 underline hover:text-green-900">${text}</span></a>`;
+                })
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>')
                 .replace(/^### (.+)$/gm, '<h4 class="font-semibold text-gray-900 mt-4 mb-1">$1</h4>')

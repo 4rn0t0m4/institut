@@ -54,19 +54,17 @@ Structure ta réponse EXACTEMENT ainsi :
 ### Ton type de peau
 Un court paragraphe (2-3 phrases) qui explique le type de peau détecté de façon concrète et rassurante. Pas de jargon inutile. Intègre l'objectif et la routine de la personne si disponibles.
 
+### Mon conseil
+Un conseil pratique personnalisé (geste, habitude, fréquence) lié au type de peau.
+
 ### Notre coup de cœur
 COMMENCE par le coffret ou produit star le plus adapté. Mets-le en avant avec enthousiasme.
 Format : [**Nom du produit**](url) — prix€
-Pour chaque produit recommandé, ajoute sur la ligne suivante : ![img](imageUrl)
 
 ### Ta routine idéale
 Recommande 2 à 3 produits complémentaires en expliquant POURQUOI chacun convient et QUAND l'utiliser (matin/soir). Organise par étape.
 Format pour chaque produit :
 [**Nom du produit**](url) — prix€
-![img](imageUrl)
-
-### Mon conseil
-Un conseil pratique personnalisé (geste, habitude, fréquence) lié au type de peau.
 
 Règles strictes :
 - Ne recommande QUE des produits présents dans la liste fournie
