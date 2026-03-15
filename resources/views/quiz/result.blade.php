@@ -171,6 +171,9 @@ function aiRecommendation(completionId) {
 
         renderMarkdown(md) {
             return md
+                // Images produit : ![img](url)
+                .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="w-20 h-20 object-cover rounded-lg mt-1 mb-3" loading="lazy">')
+                // Liens produit
                 .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-green-700 underline hover:text-green-900">$1</a>')
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>')

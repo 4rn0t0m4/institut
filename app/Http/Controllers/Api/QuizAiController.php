@@ -15,8 +15,8 @@ class QuizAiController extends Controller
     {
         $completion->load(['answers.question.choices', 'result', 'quiz']);
 
-        // Produits visage actifs avec catégorie
-        $products = Product::with('category')
+        // Produits visage actifs avec catégorie et image
+        $products = Product::with(['category', 'featuredImage'])
             ->where('is_active', true)
             ->whereHas('category', function ($q) {
                 $q->where('parent_id', self::VISAGE_PARENT_CATEGORY_ID)
@@ -29,6 +29,7 @@ class QuizAiController extends Controller
                 'category' => $p->category?->name,
                 'description' => trim(strip_tags($p->short_description ?? '')),
                 'url' => '/'.ltrim(parse_url($p->url(), PHP_URL_PATH), '/'),
+                'image' => $p->featuredImage?->url,
             ]);
 
         // Réponses du quiz formatées

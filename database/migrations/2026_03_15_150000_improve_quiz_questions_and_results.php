@@ -150,7 +150,7 @@ return new class extends Migration
                     'title' => 'Comment ta peau réagit-elle après le nettoyage ?',
                     'question' => 'Pense à ce que tu ressens juste après avoir nettoyé ton visage, sans crème.',
                 ]);
-                $labels = ['Oui, elle tire et est inconfortable', 'Un peu, surtout sur les joues', 'Pas du tout, elle est confortable'];
+                $labels = ['Elle tire et est inconfortable', 'Elle tire un peu, surtout sur les joues', 'Elle est confortable, rien de particulier'];
                 foreach ($choices->values() as $i => $c) {
                     if (isset($labels[$i])) {
                         DB::table('quiz_choices')->where('id', $c->id)->update(['label' => $labels[$i]]);
@@ -162,10 +162,10 @@ return new class extends Migration
             // Q8 "boutons" : 2 choix, un finalize + un numérique
             if ($count === 2 && $hasFinalize && count($numericGotos) === 1) {
                 DB::table('quiz_questions')->where('id', $qId)->update([
-                    'title' => 'As-tu des imperfections ou boutons régulièrement ?',
-                    'question' => 'Petits boutons, points noirs ou imperfections récurrentes.',
+                    'title' => 'Parlons imperfections...',
+                    'question' => 'Petits boutons, points noirs, imperfections récurrentes ?',
                 ]);
-                $labels = ['Oui, assez souvent', 'Non, rarement ou jamais'];
+                $labels = ['J\'en ai régulièrement', 'Rarement ou jamais'];
                 foreach ($choices->values() as $i => $c) {
                     if (isset($labels[$i])) {
                         DB::table('quiz_choices')->where('id', $c->id)->update(['label' => $labels[$i]]);
@@ -189,10 +189,10 @@ return new class extends Migration
 
                 if ($dest1HasBoutons) {
                     DB::table('quiz_questions')->where('id', $qId)->update([
-                        'title' => 'As-tu les pores visiblement dilatés ?',
+                        'title' => 'Comment sont tes pores ?',
                         'question' => 'Regarde de près ta peau dans un miroir, surtout sur le nez et les joues.',
                     ]);
-                    $labels = ['Oui, mes pores sont bien visibles', 'Non, mes pores sont plutôt fins'];
+                    $labels = ['Visiblement dilatés et bien marqués', 'Plutôt fins et discrets'];
                     foreach ($choices->values() as $i => $c) {
                         if (isset($labels[$i])) {
                             DB::table('quiz_choices')->where('id', $c->id)->update(['label' => $labels[$i]]);
@@ -207,10 +207,10 @@ return new class extends Migration
 
                 if ($dest1HasFinalize && $dest2HasFinalize) {
                     DB::table('quiz_questions')->where('id', $qId)->update([
-                        'title' => 'Ta peau est-elle parfois rugueuse ou desquame-t-elle ?',
-                        'question' => 'Cela peut se manifester par des tiraillements ou de petites peaux sèches.',
+                        'title' => 'Comment est la texture de ta peau ?',
+                        'question' => 'Passe la main sur tes joues et ton front.',
                     ]);
-                    $labels = ['Oui, j\'ai souvent des zones sèches ou qui pèlent', 'Non, ma peau est lisse au toucher'];
+                    $labels = ['Rugueuse par endroits, avec des zones qui pèlent', 'Lisse et douce au toucher'];
                     foreach ($choices->values() as $i => $c) {
                         if (isset($labels[$i])) {
                             DB::table('quiz_choices')->where('id', $c->id)->update(['label' => $labels[$i]]);
@@ -221,10 +221,10 @@ return new class extends Migration
 
                 // Q2 "brille" : sinon
                 DB::table('quiz_questions')->where('id', $qId)->update([
-                    'title' => 'Ta peau a-t-elle tendance à briller en journée ?',
-                    'question' => 'Observe surtout ta zone T (front, nez, menton) en milieu de journée.',
+                    'title' => 'Comment est ta peau en milieu de journée ?',
+                    'question' => 'Observe surtout ta zone T (front, nez, menton).',
                 ]);
-                $labels = ['Non, ma peau reste mate', 'Oui, surtout sur la zone T'];
+                $labels = ['Elle reste mate, pas de brillance', 'Elle brille, surtout sur la zone T'];
                 foreach ($choices->values() as $i => $c) {
                     if (isset($labels[$i])) {
                         DB::table('quiz_choices')->where('id', $c->id)->update(['label' => $labels[$i]]);
@@ -249,18 +249,29 @@ return new class extends Migration
                     'question' => $subtitle,
                 ]);
 
-                // Mettre à jour les labels de préoccupation
+                // Mettre à jour les labels par points (les labels texte peuvent être mélangés)
+                $pointsToLabel = [
+                    // Rides : pts 1, 5, 9, 14
+                    1 => 'Les rides et ridules', 5 => 'Les rides et ridules',
+                    9 => 'Les rides et ridules', 14 => 'Les rides et ridules',
+                    // Rougeurs : pts 2, 7, 11, 15
+                    2 => 'Les rougeurs et sensibilités', 7 => 'Les rougeurs et sensibilités',
+                    11 => 'Les rougeurs et sensibilités', 15 => 'Les rougeurs et sensibilités',
+                    // Taches : pts 3, 6, 10, 16
+                    3 => 'Les taches et le teint irrégulier', 6 => 'Les taches et le teint irrégulier',
+                    10 => 'Les taches et le teint irrégulier', 16 => 'Les taches et le teint irrégulier',
+                    // Boutons : pts 8, 12
+                    8 => 'Les boutons et imperfections', 12 => 'Les boutons et imperfections',
+                    // Aucun : pts 4, 17, 18, 19
+                    4 => 'Aucune en particulier', 17 => 'Aucune en particulier',
+                    18 => 'Aucune en particulier', 19 => 'Aucune en particulier',
+                ];
+
                 foreach ($choices as $c) {
-                    $label = trim($c->label);
-                    $newLabel = match (true) {
-                        str_contains(strtolower($label), 'ride') => 'Les rides et ridules',
-                        str_contains(strtolower($label), 'rougeur') => 'Les rougeurs et sensibilités',
-                        str_contains(strtolower($label), 'tache') => 'Les taches et le teint irrégulier',
-                        str_contains(strtolower($label), 'bouton') => 'Les boutons et imperfections',
-                        str_contains(strtolower($label), 'rien'), str_contains(strtolower($label), 'aucun') => 'Aucune en particulier',
-                        default => $label,
-                    };
-                    DB::table('quiz_choices')->where('id', $c->id)->update(['label' => $newLabel]);
+                    $pts = (int) $c->points;
+                    if (isset($pointsToLabel[$pts])) {
+                        DB::table('quiz_choices')->where('id', $c->id)->update(['label' => $pointsToLabel[$pts]]);
+                    }
                 }
             }
         }

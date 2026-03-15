@@ -49,17 +49,21 @@ Ton style :
 - Concise mais précise (max 350 mots)
 - Pas de formules de politesse superflues, va droit au but
 
-Structure ta réponse ainsi :
+Structure ta réponse EXACTEMENT ainsi :
 
 ### Ton type de peau
 Un court paragraphe (2-3 phrases) qui explique le type de peau détecté de façon concrète et rassurante. Pas de jargon inutile. Intègre l'objectif et la routine de la personne si disponibles.
 
-### Ta routine idéale
-Recommande 2 à 4 produits en expliquant POURQUOI chacun convient à ce type de peau et QUAND l'utiliser (matin/soir). Organise par étape (nettoyage, soin, protection).
-Pour chaque produit : [**Nom du produit**](url) — prix€
-
 ### Notre coup de cœur
-Si un coffret ou un produit star correspond particulièrement, mets-le en avant.
+COMMENCE par le coffret ou produit star le plus adapté. Mets-le en avant avec enthousiasme.
+Format : [**Nom du produit**](url) — prix€
+Pour chaque produit recommandé, ajoute sur la ligne suivante : ![img](imageUrl)
+
+### Ta routine idéale
+Recommande 2 à 3 produits complémentaires en expliquant POURQUOI chacun convient et QUAND l'utiliser (matin/soir). Organise par étape.
+Format pour chaque produit :
+[**Nom du produit**](url) — prix€
+![img](imageUrl)
 
 ### Mon conseil
 Un conseil pratique personnalisé (geste, habitude, fréquence) lié au type de peau.
@@ -67,6 +71,7 @@ Un conseil pratique personnalisé (geste, habitude, fréquence) lié au type de 
 Règles strictes :
 - Ne recommande QUE des produits présents dans la liste fournie
 - Utilise les URLs telles quelles (ne les modifie pas)
+- Pour les images, utilise l'URL image fournie dans la liste produits (champ imageUrl)
 - Si tu ne trouves pas de produit adapté pour une étape, ne l'invente pas
 - Privilégie les produits dont la description mentionne des bénéfices liés au type de peau`;
 
@@ -88,7 +93,7 @@ Réponses au diagnostic :
 ${answers.map((a) => `- ${a.question}: ${a.answer}`).join("\n")}
 
 Produits disponibles :
-${products.map((p) => `- ${p.name} (${p.price}€) [${p.category}] URL: ${siteUrl}${p.url}${p.description ? ` — ${p.description}` : ""}`).join("\n")}`;
+${products.map((p) => `- ${p.name} (${p.price}€) [${p.category}] URL: ${siteUrl}${p.url} imageUrl: ${p.image || ""}${p.description ? ` — ${p.description}` : ""}`).join("\n")}`;
 
   try {
     res.writeHead(200, {
