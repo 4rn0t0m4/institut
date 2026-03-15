@@ -57,14 +57,14 @@ return [
 
         // Adresse expéditeur
         'from_address' => [
-            'company' => env('BOXTAL_FROM_COMPANY', 'Institut Christine Charrier'),
-            'firstName' => env('BOXTAL_FROM_FIRSTNAME', 'Christine'),
-            'lastName' => env('BOXTAL_FROM_LASTNAME', 'Charrier'),
-            'email' => env('BOXTAL_FROM_EMAIL', 'contact@institut-christine-charrier.fr'),
-            'phone' => env('BOXTAL_FROM_PHONE', ''),
-            'street' => env('BOXTAL_FROM_STREET', ''),
-            'city' => env('BOXTAL_FROM_CITY', ''),
-            'postalCode' => env('BOXTAL_FROM_POSTAL_CODE', ''),
+            'company' => env('BOXTAL_FROM_COMPANY', 'Institut Corps à Coeur'),
+            'firstName' => env('BOXTAL_FROM_FIRSTNAME', 'Angélique'),
+            'lastName' => env('BOXTAL_FROM_LASTNAME', 'CHANEL'),
+            'email' => env('BOXTAL_FROM_EMAIL', 'contact@institutcorpsacoeur.fr'),
+            'phone' => env('BOXTAL_FROM_PHONE', '0231201045'),
+            'street' => env('BOXTAL_FROM_STREET', '22 avenue Jean Jaurès'),
+            'city' => env('BOXTAL_FROM_CITY', 'Mézidon Canon'),
+            'postalCode' => env('BOXTAL_FROM_POSTAL_CODE', '14270'),
             'country' => 'FR',
         ],
 
