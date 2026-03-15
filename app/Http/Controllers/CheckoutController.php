@@ -7,13 +7,12 @@ use App\Mail\NewOrderAdmin;
 use App\Mail\OrderConfirmation;
 use App\Models\Order;
 use App\Models\Product;
-use App\Services\BoxtalConnectService;
+
 use App\Services\CartService;
 use App\Services\DiscountEngine;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Stripe\PaymentIntent;
@@ -283,10 +282,6 @@ class CheckoutController extends Controller
                 Log::info("Email notification admin envoyé pour commande #{$order->number} (via success)");
             } catch (\Exception $e) {
                 Log::error("Échec envoi email admin pour commande #{$order->number} (via success)", ['error' => $e->getMessage()]);
-            }
-
-            if ($order->shipping_key === 'boxtal') {
-                app(BoxtalConnectService::class)->pushOrder($order);
             }
         }
     }

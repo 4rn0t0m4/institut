@@ -7,7 +7,7 @@ use App\Mail\OrderConfirmation;
 use App\Mail\PaymentFailed;
 use App\Models\Order;
 use App\Models\Product;
-use App\Services\BoxtalConnectService;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -92,10 +92,6 @@ class StripeWebhookController extends Controller
                 Log::info("Email notification admin envoyé pour commande #{$order->number}");
             } catch (\Exception $e) {
                 Log::error("Échec envoi email admin pour commande #{$order->number}", ['error' => $e->getMessage()]);
-            }
-
-            if ($order->shipping_key === 'boxtal') {
-                app(BoxtalConnectService::class)->pushOrder($order);
             }
         }
     }
