@@ -20,26 +20,26 @@ class QuizAiController extends Controller
             ->where('is_active', true)
             ->whereHas('category', function ($q) {
                 $q->where('parent_id', self::VISAGE_PARENT_CATEGORY_ID)
-                  ->orWhere('id', self::VISAGE_PARENT_CATEGORY_ID);
+                    ->orWhere('id', self::VISAGE_PARENT_CATEGORY_ID);
             })
             ->get()
-            ->map(fn(Product $p) => [
-                'name'        => $p->name,
-                'price'       => $p->currentPrice(),
-                'category'    => $p->category?->name,
+            ->map(fn (Product $p) => [
+                'name' => $p->name,
+                'price' => $p->currentPrice(),
+                'category' => $p->category?->name,
                 'description' => trim(strip_tags($p->short_description ?? '')),
-                'url'         => '/' . ltrim(parse_url($p->url(), PHP_URL_PATH), '/'),
+                'url' => '/'.ltrim(parse_url($p->url(), PHP_URL_PATH), '/'),
             ]);
 
         // Réponses du quiz formatées
-        $answers = $completion->answers->map(fn($a) => [
+        $answers = $completion->answers->map(fn ($a) => [
             'question' => $a->question->title,
-            'answer'   => $a->question->choices->firstWhere('id', $a->answer)?->label ?? $a->answer,
+            'answer' => $a->question->choices->firstWhere('id', $a->answer)?->label ?? $a->answer,
         ]);
 
         return response()->json([
             'skinType' => $completion->result?->title ?? 'Non déterminé',
-            'answers'  => $answers,
+            'answers' => $answers,
             'products' => $products,
         ]);
     }

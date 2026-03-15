@@ -21,7 +21,7 @@ class StockNotificationTest extends TestCase
         $response->assertRedirect();
         $this->assertDatabaseHas('stock_notifications', [
             'product_id' => $product->id,
-            'email'      => 'client@example.com',
+            'email' => 'client@example.com',
         ]);
     }
 

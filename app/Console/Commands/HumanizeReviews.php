@@ -9,13 +9,15 @@ use Illuminate\Console\Command;
 class HumanizeReviews extends Command
 {
     protected $signature = 'reviews:humanize {--dry-run}';
+
     protected $description = 'Rend les avis produits plus humains via Claude AI';
 
     public function handle(): int
     {
         $apiKey = env('ANTHROPIC_API_KEY');
-        if (!$apiKey) {
+        if (! $apiKey) {
             $this->error('ANTHROPIC_API_KEY manquant');
+
             return 1;
         }
 
@@ -28,7 +30,7 @@ class HumanizeReviews extends Command
 
         // Traiter par lots de 10
         foreach ($reviews->chunk(10) as $chunk) {
-            $reviewsData = $chunk->map(fn($r) => [
+            $reviewsData = $chunk->map(fn ($r) => [
                 'id' => $r->id,
                 'author_name' => $r->author_name,
                 'rating' => $r->rating,
@@ -61,14 +63,14 @@ PROMPT;
             try {
                 $response = $http->post('/v1/messages', [
                     'headers' => [
-                        'x-api-key'         => $apiKey,
+                        'x-api-key' => $apiKey,
                         'anthropic-version' => '2023-06-01',
-                        'content-type'      => 'application/json',
+                        'content-type' => 'application/json',
                     ],
                     'json' => [
-                        'model'      => 'claude-sonnet-4-6',
+                        'model' => 'claude-sonnet-4-6',
                         'max_tokens' => 4096,
-                        'messages'   => [['role' => 'user', 'content' => $prompt]],
+                        'messages' => [['role' => 'user', 'content' => $prompt]],
                     ],
                 ]);
 
@@ -82,12 +84,12 @@ PROMPT;
                             if ($this->option('dry-run')) {
                                 $this->newLine();
                                 $this->line("[{$item['id']}] <fg=cyan>{$item['author_name']}</> ({$item['rating']}★) — {$item['title']}");
-                                $this->line("  " . substr($item['body'], 0, 120) . (strlen($item['body']) > 120 ? '…' : ''));
+                                $this->line('  '.substr($item['body'], 0, 120).(strlen($item['body']) > 120 ? '…' : ''));
                             } else {
                                 ProductReview::where('id', $item['id'])->update([
-                                    'author_name'       => $item['author_name'],
-                                    'title'             => $item['title'] ?? '',
-                                    'body'              => $item['body'],
+                                    'author_name' => $item['author_name'],
+                                    'title' => $item['title'] ?? '',
+                                    'body' => $item['body'],
                                     'is_verified_buyer' => $item['is_verified_buyer'],
                                 ]);
                             }
@@ -96,7 +98,7 @@ PROMPT;
                 }
             } catch (\Exception $e) {
                 $this->newLine();
-                $this->warn("Erreur lot : " . $e->getMessage());
+                $this->warn('Erreur lot : '.$e->getMessage());
             }
 
             $bar->advance($chunk->count());

@@ -34,7 +34,13 @@
       "Bash(git add .gitignore app/Console/Commands/Migrate/WpProducts.php app/Http/Controllers/CartController.php app/Http/Controllers/ShopController.php app/Models/Product.php app/Models/ProductCategory.php app/Services/CartService.php resources/views/admin/products/index.blade.php resources/views/cart/partials/item.blade.php resources/views/cart/partials/mini-cart.blade.php resources/views/components/product-card.blade.php resources/views/emails/back-in-stock.blade.php resources/views/partials/footer.blade.php resources/views/partials/header.blade.php resources/views/shop/index.blade.php resources/views/shop/show.blade.php resources/views/sitemap.blade.php routes/web.php tests/Feature/ReviewTest.php tests/Feature/ShopTest.php .DS_Store)",
       "Bash(git add .gitignore app/Console/Commands/Migrate/WpProducts.php app/Http/Controllers/CartController.php app/Http/Controllers/ShopController.php app/Models/Product.php app/Models/ProductCategory.php app/Services/CartService.php resources/views/admin/products/index.blade.php resources/views/cart/partials/item.blade.php resources/views/cart/partials/mini-cart.blade.php resources/views/components/product-card.blade.php resources/views/emails/back-in-stock.blade.php resources/views/partials/footer.blade.php resources/views/partials/header.blade.php resources/views/shop/index.blade.php resources/views/shop/show.blade.php resources/views/sitemap.blade.php routes/web.php tests/Feature/ReviewTest.php tests/Feature/ShopTest.php)",
       "Bash(php artisan vendor:publish --tag=laravel-pagination --list)",
-      "Bash(php artisan vendor:publish --tag=laravel-pagination)"
+      "Bash(php artisan vendor:publish --tag=laravel-pagination)",
+      "Bash(vercel login)",
+      "Bash(vercel whoami)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(gh api repos/boxtal/boxtal-connect-woocommerce/git/trees/master?recursive=1 --jq '.tree[].path')",
+      "Bash(gh api \"repos/boxtal/boxtal-connect-woocommerce/git/trees/master?recursive=1\" --jq '.tree[].path')"
     ]
   }
 }

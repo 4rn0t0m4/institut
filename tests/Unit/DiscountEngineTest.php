@@ -18,18 +18,18 @@ class DiscountEngineTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->engine = new DiscountEngine();
+        $this->engine = new DiscountEngine;
     }
 
     private function makeCartItems(array $products): array
     {
-        return array_map(fn(Product $p) => [
+        return array_map(fn (Product $p) => [
             'product_id' => $p->id,
-            'product'    => $p,
-            'price'      => $p->currentPrice(),
+            'product' => $p,
+            'price' => $p->currentPrice(),
             'unit_price' => $p->currentPrice(),
             'addon_price' => 0,
-            'quantity'   => 1,
+            'quantity' => 1,
         ], $products);
     }
 

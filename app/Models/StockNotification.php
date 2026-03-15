@@ -10,5 +10,8 @@ class StockNotification extends Model
 
     protected $casts = ['notified_at' => 'datetime'];
 
-    public function product() { return $this->belongsTo(Product::class); }
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

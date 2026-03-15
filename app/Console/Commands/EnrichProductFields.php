@@ -22,14 +22,15 @@ class EnrichProductFields extends Command
     public function handle(): int
     {
         $apiKey = env('ANTHROPIC_API_KEY');
-        if (!$apiKey) {
+        if (! $apiKey) {
             $this->error('ANTHROPIC_API_KEY manquant dans .env');
+
             return 1;
         }
 
         $this->http = new Client([
             'base_uri' => 'https://api.anthropic.com',
-            'timeout'  => 60,
+            'timeout' => 60,
         ]);
 
         $query = Product::whereNotNull('description')
@@ -38,11 +39,11 @@ class EnrichProductFields extends Command
         if ($this->option('product')) {
             $query->where('id', $this->option('product'));
         } else {
-            if (!$this->option('force')) {
+            if (! $this->option('force')) {
                 // Par défaut, ignorer les produits déjà enrichis
                 $query->where(function ($q) {
                     $q->whereNull('benefits')
-                      ->orWhere('benefits', '');
+                        ->orWhere('benefits', '');
                 });
             }
 
@@ -61,6 +62,7 @@ class EnrichProductFields extends Command
 
         if ($products->isEmpty()) {
             $this->info('Aucun produit à traiter.');
+
             return 0;
         }
 
@@ -78,8 +80,9 @@ class EnrichProductFields extends Command
             try {
                 $result = $this->callClaude($product, $apiKey);
 
-                if (!$result) {
+                if (! $result) {
                     $errors++;
+
                     continue;
                 }
 
@@ -87,16 +90,16 @@ class EnrichProductFields extends Command
                     $this->newLine(2);
                     $this->line("─── <fg=cyan>{$product->name}</> (ID {$product->id}) ───");
                     foreach ($result as $key => $value) {
-                        $this->line("<fg=yellow>{$key}:</> " . (strlen($value) > 200 ? substr(strip_tags($value), 0, 200) . '…' : strip_tags($value)));
+                        $this->line("<fg=yellow>{$key}:</> ".(strlen($value) > 200 ? substr(strip_tags($value), 0, 200).'…' : strip_tags($value)));
                     }
                 } else {
                     if ($this->option('force')) {
                         $product->update($result);
                     } else {
                         // Ne remplir que les champs vides, SAUF description qu'on nettoie toujours
-                        $toUpdate = array_filter($result, fn($v) => !empty($v));
-                        $toUpdate = array_filter($toUpdate, fn($k) => $k === 'description' || empty($product->{$k}), ARRAY_FILTER_USE_KEY);
-                        if (!empty($toUpdate)) {
+                        $toUpdate = array_filter($result, fn ($v) => ! empty($v));
+                        $toUpdate = array_filter($toUpdate, fn ($k) => $k === 'description' || empty($product->{$k}), ARRAY_FILTER_USE_KEY);
+                        if (! empty($toUpdate)) {
                             $product->update($toUpdate);
                         }
                     }
@@ -107,7 +110,7 @@ class EnrichProductFields extends Command
             } catch (\Exception $e) {
                 $errors++;
                 $this->newLine();
-                $this->warn("Erreur pour «{$product->name}» : " . $e->getMessage());
+                $this->warn("Erreur pour «{$product->name}» : ".$e->getMessage());
             }
 
             // Pause pour respecter le rate-limit (3 req/s)
@@ -125,8 +128,8 @@ class EnrichProductFields extends Command
     private function callClaude(Product $product, string $apiKey): ?array
     {
         $description = strip_tags($product->description ?? '');
-        $shortDesc   = strip_tags($product->short_description ?? '');
-        $name        = $product->name;
+        $shortDesc = strip_tags($product->short_description ?? '');
+        $name = $product->name;
         $unitMeasure = $product->unit_measure ?? '';
 
         $prompt = <<<PROMPT
@@ -154,14 +157,14 @@ PROMPT;
 
         $response = $this->http->post('/v1/messages', [
             'headers' => [
-                'x-api-key'         => $apiKey,
+                'x-api-key' => $apiKey,
                 'anthropic-version' => '2023-06-01',
-                'content-type'      => 'application/json',
+                'content-type' => 'application/json',
             ],
             'json' => [
-                'model'      => 'claude-sonnet-4-5-20250929',
+                'model' => 'claude-sonnet-4-5-20250929',
                 'max_tokens' => 2048,
-                'messages'   => [
+                'messages' => [
                     ['role' => 'user', 'content' => $prompt],
                 ],
             ],

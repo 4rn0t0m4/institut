@@ -13,13 +13,13 @@ class ProductReviewFactory extends Factory
     public function definition(): array
     {
         return [
-            'product_id'   => Product::factory(),
-            'author_name'  => fake()->name(),
+            'product_id' => Product::factory(),
+            'author_name' => fake()->name(),
             'author_email' => fake()->email(),
-            'rating'       => fake()->numberBetween(1, 5),
-            'title'        => fake()->sentence(4),
-            'body'         => fake()->paragraph(),
-            'is_approved'  => false,
+            'rating' => fake()->numberBetween(1, 5),
+            'title' => fake()->sentence(4),
+            'body' => fake()->paragraph(),
+            'is_approved' => false,
         ];
     }
 

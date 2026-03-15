@@ -34,7 +34,9 @@ abstract class WpImportCommand extends Command
 
     protected function attachmentUrl(int $attachId): ?string
     {
-        if (! $attachId) return null;
+        if (! $attachId) {
+            return null;
+        }
 
         $file = $this->wp()
             ->table('postmeta')
@@ -42,7 +44,7 @@ abstract class WpImportCommand extends Command
             ->where('meta_key', '_wp_attached_file')
             ->value('meta_value');
 
-        return $file ? '/wp-content/uploads/' . $file : null;
+        return $file ? '/wp-content/uploads/'.$file : null;
     }
 
     /** Vide une table Laravel en désactivant temporairement les FK */
@@ -55,6 +57,6 @@ abstract class WpImportCommand extends Command
 
     protected function printResult(string $entity, int $created, int $skipped = 0): void
     {
-        $this->info("  ✓ {$entity} : {$created} importés" . ($skipped ? ", {$skipped} ignorés" : ''));
+        $this->info("  ✓ {$entity} : {$created} importés".($skipped ? ", {$skipped} ignorés" : ''));
     }
 }

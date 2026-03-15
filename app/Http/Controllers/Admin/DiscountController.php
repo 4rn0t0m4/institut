@@ -51,20 +51,20 @@ class DiscountController extends Controller
     private function validateRule(Request $request, ?int $ignoreId = null): array
     {
         $data = $request->validate([
-            'name'            => 'required|string|max:255',
-            'coupon_code'     => 'nullable|string|max:50|unique:discount_rules,coupon_code' . ($ignoreId ? ",$ignoreId" : ''),
-            'is_active'       => 'nullable|boolean',
-            'type'            => 'required|in:all_products,category,cart_value,quantity',
-            'discount_type'   => 'required|in:percentage,flat',
+            'name' => 'required|string|max:255',
+            'coupon_code' => 'nullable|string|max:50|unique:discount_rules,coupon_code'.($ignoreId ? ",$ignoreId" : ''),
+            'is_active' => 'nullable|boolean',
+            'type' => 'required|in:all_products,category,cart_value,quantity',
+            'discount_type' => 'required|in:percentage,flat',
             'discount_amount' => 'required|numeric|min:0',
-            'min_cart_value'  => 'nullable|numeric|min:0',
-            'max_cart_value'  => 'nullable|numeric|min:0',
-            'min_quantity'    => 'nullable|integer|min:0',
-            'max_quantity'    => 'nullable|integer|min:0',
-            'starts_at'      => 'nullable|date',
-            'ends_at'        => 'nullable|date|after_or_equal:starts_at',
-            'stackable'      => 'nullable|boolean',
-            'sort_order'      => 'nullable|integer',
+            'min_cart_value' => 'nullable|numeric|min:0',
+            'max_cart_value' => 'nullable|numeric|min:0',
+            'min_quantity' => 'nullable|integer|min:0',
+            'max_quantity' => 'nullable|integer|min:0',
+            'starts_at' => 'nullable|date',
+            'ends_at' => 'nullable|date|after_or_equal:starts_at',
+            'stackable' => 'nullable|boolean',
+            'sort_order' => 'nullable|integer',
         ]);
 
         $data['is_active'] = $request->boolean('is_active');

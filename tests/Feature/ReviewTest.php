@@ -20,18 +20,18 @@ class ReviewTest extends TestCase
         $product = Product::factory()->create();
 
         $response = $this->post(route('shop.review.store', $product), [
-            'author_name'  => 'Marie',
+            'author_name' => 'Marie',
             'author_email' => 'marie@example.com',
-            'rating'       => 4,
-            'title'        => 'Super produit',
-            'body'         => 'Je recommande ce produit à tout le monde.',
+            'rating' => 4,
+            'title' => 'Super produit',
+            'body' => 'Je recommande ce produit à tout le monde.',
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('product_reviews', [
-            'product_id'  => $product->id,
+            'product_id' => $product->id,
             'author_name' => 'Marie',
-            'rating'      => 4,
+            'rating' => 4,
             'is_approved' => false,
         ]);
     }
@@ -50,11 +50,11 @@ class ReviewTest extends TestCase
         $product = Product::factory()->create();
 
         $response = $this->post(route('shop.review.store', $product), [
-            'author_name'  => 'Test',
+            'author_name' => 'Test',
             'author_email' => 'test@example.com',
-            'rating'       => 6,
-            'title'        => 'Test',
-            'body'         => 'Test body',
+            'rating' => 6,
+            'title' => 'Test',
+            'body' => 'Test body',
         ]);
 
         $response->assertSessionHasErrors('rating');
@@ -68,16 +68,16 @@ class ReviewTest extends TestCase
         OrderItem::factory()->create(['order_id' => $order->id, 'product_id' => $product->id]);
 
         $this->actingAs($user)->post(route('shop.review.store', $product), [
-            'author_name'  => $user->name,
+            'author_name' => $user->name,
             'author_email' => $user->email,
-            'rating'       => 5,
-            'title'        => 'Excellent',
-            'body'         => 'Très bon produit.',
+            'rating' => 5,
+            'title' => 'Excellent',
+            'body' => 'Très bon produit.',
         ]);
 
         $this->assertDatabaseHas('product_reviews', [
-            'product_id'        => $product->id,
-            'user_id'           => $user->id,
+            'product_id' => $product->id,
+            'user_id' => $user->id,
             'is_verified_buyer' => true,
         ]);
     }
@@ -88,15 +88,15 @@ class ReviewTest extends TestCase
         $product = Product::factory()->create();
 
         $this->actingAs($user)->post(route('shop.review.store', $product), [
-            'author_name'  => $user->name,
+            'author_name' => $user->name,
             'author_email' => $user->email,
-            'rating'       => 3,
-            'title'        => 'Correct',
-            'body'         => 'Produit correct.',
+            'rating' => 3,
+            'title' => 'Correct',
+            'body' => 'Produit correct.',
         ]);
 
         $this->assertDatabaseHas('product_reviews', [
-            'product_id'        => $product->id,
+            'product_id' => $product->id,
             'is_verified_buyer' => false,
         ]);
     }
@@ -107,11 +107,11 @@ class ReviewTest extends TestCase
         $child = ProductCategory::factory()->create(['slug' => 'cremes', 'parent_id' => $parent->id]);
         $product = Product::factory()->create(['category_id' => $child->id]);
         ProductReview::factory()->approved()->create([
-            'product_id'  => $product->id,
+            'product_id' => $product->id,
             'author_name' => 'Approuvé',
         ]);
         ProductReview::factory()->create([
-            'product_id'  => $product->id,
+            'product_id' => $product->id,
             'author_name' => 'En attente',
         ]);
 

@@ -13,9 +13,10 @@ class ProductCategoryFactory extends Factory
     public function definition(): array
     {
         $name = fake()->words(2, true);
+
         return [
-            'name'       => $name,
-            'slug'       => Str::slug($name) . '-' . fake()->unique()->numberBetween(1, 99999),
+            'name' => $name,
+            'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(1, 99999),
             'sort_order' => 0,
         ];
     }

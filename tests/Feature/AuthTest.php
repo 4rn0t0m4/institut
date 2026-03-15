@@ -22,7 +22,7 @@ class AuthTest extends TestCase
         $user = User::factory()->create(['password' => 'password123']);
 
         $response = $this->post(route('login'), [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => 'password123',
         ]);
 
@@ -35,7 +35,7 @@ class AuthTest extends TestCase
         $user = User::factory()->create(['password' => 'password123']);
 
         $response = $this->post(route('login'), [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => 'wrongpassword',
         ]);
 
@@ -46,7 +46,7 @@ class AuthTest extends TestCase
     public function test_login_fails_with_nonexistent_email(): void
     {
         $response = $this->post(route('login'), [
-            'email'    => 'nobody@example.com',
+            'email' => 'nobody@example.com',
             'password' => 'password',
         ]);
 
@@ -64,9 +64,9 @@ class AuthTest extends TestCase
     public function test_user_can_register(): void
     {
         $response = $this->post(route('register'), [
-            'name'                  => 'Jean Dupont',
-            'email'                 => 'jean@example.com',
-            'password'              => 'password123',
+            'name' => 'Jean Dupont',
+            'email' => 'jean@example.com',
+            'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
 
@@ -78,8 +78,8 @@ class AuthTest extends TestCase
     public function test_register_requires_password_confirmation(): void
     {
         $response = $this->post(route('register'), [
-            'name'     => 'Test',
-            'email'    => 'test@example.com',
+            'name' => 'Test',
+            'email' => 'test@example.com',
             'password' => 'password123',
         ]);
 
@@ -89,9 +89,9 @@ class AuthTest extends TestCase
     public function test_register_requires_minimum_password_length(): void
     {
         $response = $this->post(route('register'), [
-            'name'                  => 'Test',
-            'email'                 => 'test@example.com',
-            'password'              => 'short',
+            'name' => 'Test',
+            'email' => 'test@example.com',
+            'password' => 'short',
             'password_confirmation' => 'short',
         ]);
 
@@ -103,9 +103,9 @@ class AuthTest extends TestCase
         User::factory()->create(['email' => 'taken@example.com']);
 
         $response = $this->post(route('register'), [
-            'name'                  => 'Test',
-            'email'                 => 'taken@example.com',
-            'password'              => 'password123',
+            'name' => 'Test',
+            'email' => 'taken@example.com',
+            'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
 

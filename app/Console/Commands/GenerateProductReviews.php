@@ -38,14 +38,15 @@ class GenerateProductReviews extends Command
     public function handle(): int
     {
         $apiKey = env('ANTHROPIC_API_KEY');
-        if (!$apiKey) {
+        if (! $apiKey) {
             $this->error('ANTHROPIC_API_KEY manquant dans .env');
+
             return 1;
         }
 
         $this->http = new Client([
             'base_uri' => 'https://api.anthropic.com',
-            'timeout'  => 60,
+            'timeout' => 60,
         ]);
 
         $reviewsPer = max(2, min(5, (int) $this->option('reviews-per')));
@@ -60,6 +61,7 @@ class GenerateProductReviews extends Command
 
         if ($products->isEmpty()) {
             $this->info('Aucun produit trouvé.');
+
             return 0;
         }
 
@@ -77,8 +79,9 @@ class GenerateProductReviews extends Command
             try {
                 $reviews = $this->generateReviews($product, $reviewsPer, $apiKey);
 
-                if (!$reviews) {
+                if (! $reviews) {
                     $errors++;
+
                     continue;
                 }
 
@@ -90,22 +93,22 @@ class GenerateProductReviews extends Command
                     $firstName = $useMale
                         ? $this->maleNames[array_rand($this->maleNames)]
                         : $this->femaleNames[array_rand($this->femaleNames)];
-                    $name = $firstName . ' ' . $this->lastInitials[array_rand($this->lastInitials)];
+                    $name = $firstName.' '.$this->lastInitials[array_rand($this->lastInitials)];
 
                     $allReviews[] = [
-                        'product_id'   => $product->id,
+                        'product_id' => $product->id,
                         'product_name' => $product->name,
-                        'author_name'  => $name,
-                        'author_email' => strtolower(str_replace([' ', '.', 'é', 'è', 'ë', 'ê', 'à', 'ô', 'î', 'ù', 'û', 'ï', 'ç'], ['', '', 'e', 'e', 'e', 'e', 'a', 'o', 'i', 'u', 'u', 'i', 'c'], $name)) . rand(10, 99) . '@example.fr',
-                        'rating'       => $review['rating'] ?? 5,
-                        'title'        => $review['title'] ?? '',
-                        'body'         => $review['body'] ?? '',
+                        'author_name' => $name,
+                        'author_email' => strtolower(str_replace([' ', '.', 'é', 'è', 'ë', 'ê', 'à', 'ô', 'î', 'ù', 'û', 'ï', 'ç'], ['', '', 'e', 'e', 'e', 'e', 'a', 'o', 'i', 'u', 'u', 'i', 'c'], $name)).rand(10, 99).'@example.fr',
+                        'rating' => $review['rating'] ?? 5,
+                        'title' => $review['title'] ?? '',
+                        'body' => $review['body'] ?? '',
                     ];
                 }
             } catch (\Exception $e) {
                 $errors++;
                 $this->newLine();
-                $this->warn("Erreur pour «{$product->name}» : " . $e->getMessage());
+                $this->warn("Erreur pour «{$product->name}» : ".$e->getMessage());
             }
 
             usleep(400000);
@@ -116,6 +119,7 @@ class GenerateProductReviews extends Command
 
         if (empty($allReviews)) {
             $this->warn('Aucun avis généré.');
+
             return 1;
         }
 
@@ -131,7 +135,7 @@ class GenerateProductReviews extends Command
             $this->exportSql($allReviews);
         }
 
-        $this->info("Terminé : " . count($allReviews) . " avis générés, {$errors} erreurs.");
+        $this->info('Terminé : '.count($allReviews)." avis générés, {$errors} erreurs.");
 
         return 0;
     }
@@ -169,14 +173,14 @@ PROMPT;
 
         $response = $this->http->post('/v1/messages', [
             'headers' => [
-                'x-api-key'         => $apiKey,
+                'x-api-key' => $apiKey,
                 'anthropic-version' => '2023-06-01',
-                'content-type'      => 'application/json',
+                'content-type' => 'application/json',
             ],
             'json' => [
-                'model'      => 'claude-sonnet-4-5-20250929',
+                'model' => 'claude-sonnet-4-5-20250929',
                 'max_tokens' => 2048,
-                'messages'   => [
+                'messages' => [
                     ['role' => 'user', 'content' => $prompt],
                 ],
             ],
@@ -199,11 +203,11 @@ PROMPT;
     {
         $output = $this->option('output');
         $lines = [];
-        $lines[] = "-- Avis clients générés — " . now()->toDateTimeString();
-        $lines[] = "-- " . count($reviews) . " avis";
-        $lines[] = "";
-        $lines[] = "START TRANSACTION;";
-        $lines[] = "";
+        $lines[] = '-- Avis clients générés — '.now()->toDateTimeString();
+        $lines[] = '-- '.count($reviews).' avis';
+        $lines[] = '';
+        $lines[] = 'START TRANSACTION;';
+        $lines[] = '';
 
         // Dates variées sur les 6 derniers mois
         $now = now();
@@ -225,13 +229,13 @@ PROMPT;
             );
         }
 
-        $lines[] = "";
-        $lines[] = "COMMIT;";
+        $lines[] = '';
+        $lines[] = 'COMMIT;';
 
         file_put_contents($output, implode("\n", $lines));
 
         $this->info("Fichier généré : {$output}");
-        $this->line("Appliquer en prod :");
+        $this->line('Appliquer en prod :');
         $this->line("  ssh instiqh@ssh.cluster130.hosting.ovh.net \"mysql -h instiqhapp.mysql.db -u instiqhapp -p'MOT_DE_PASSE' instiqhapp\" < {$output}");
     }
 
@@ -240,6 +244,7 @@ PROMPT;
         if ($value === null) {
             return 'NULL';
         }
-        return "'" . addslashes($value) . "'";
+
+        return "'".addslashes($value)."'";
     }
 }

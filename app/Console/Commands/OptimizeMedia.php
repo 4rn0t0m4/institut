@@ -9,6 +9,7 @@ use Intervention\Image\Facades\Image;
 class OptimizeMedia extends Command
 {
     protected $signature = 'media:optimize {--dry-run} {--reprocess}';
+
     protected $description = 'Convertit les images locales en WebP et les redimensionne (max 900px, qualité 78)';
 
     public function handle(): int
@@ -16,7 +17,7 @@ class OptimizeMedia extends Command
         $query = Media::where('disk', 'public')
             ->where('mime_type', 'like', 'image/%');
 
-        if (!$this->option('reprocess')) {
+        if (! $this->option('reprocess')) {
             $query->where('mime_type', '!=', 'image/webp');
         }
 
@@ -27,23 +28,24 @@ class OptimizeMedia extends Command
         $bar->start();
 
         $converted = 0;
-        $skipped   = 0;
-        $errors    = 0;
+        $skipped = 0;
+        $errors = 0;
 
         foreach ($medias as $media) {
-            $sourcePath = storage_path('app/public/' . $media->path);
+            $sourcePath = storage_path('app/public/'.$media->path);
 
-            if (!file_exists($sourcePath)) {
+            if (! file_exists($sourcePath)) {
                 $skipped++;
                 $bar->advance();
+
                 continue;
             }
 
             try {
-                $newFilename = pathinfo($media->filename, PATHINFO_FILENAME) . '.webp';
-                $newPath     = 'media/' . $newFilename;
-                $newFullPath = storage_path('app/public/' . $newPath);
-                $sameFile    = realpath($sourcePath) === realpath($newFullPath) || $sourcePath === $newFullPath;
+                $newFilename = pathinfo($media->filename, PATHINFO_FILENAME).'.webp';
+                $newPath = 'media/'.$newFilename;
+                $newFullPath = storage_path('app/public/'.$newPath);
+                $sameFile = realpath($sourcePath) === realpath($newFullPath) || $sourcePath === $newFullPath;
 
                 if ($this->option('dry-run')) {
                     $this->newLine();
@@ -60,16 +62,16 @@ class OptimizeMedia extends Command
                     [$width, $height] = getimagesize($newFullPath) ?: [null, null];
 
                     $media->update([
-                        'filename'  => $newFilename,
-                        'path'      => $newPath,
-                        'url'       => '/storage/' . $newPath,
+                        'filename' => $newFilename,
+                        'path' => $newPath,
+                        'url' => '/storage/'.$newPath,
                         'mime_type' => 'image/webp',
-                        'size'      => filesize($newFullPath) ?: 0,
-                        'width'     => $width,
-                        'height'    => $height,
+                        'size' => filesize($newFullPath) ?: 0,
+                        'width' => $width,
+                        'height' => $height,
                     ]);
 
-                    if (!$sameFile) {
+                    if (! $sameFile) {
                         @unlink($sourcePath);
                     }
                 }
@@ -78,7 +80,7 @@ class OptimizeMedia extends Command
             } catch (\Exception $e) {
                 $errors++;
                 $this->newLine();
-                $this->warn("Erreur {$media->filename} : " . $e->getMessage());
+                $this->warn("Erreur {$media->filename} : ".$e->getMessage());
             }
 
             $bar->advance();
@@ -98,8 +100,13 @@ class OptimizeMedia extends Command
 
     private function formatBytes(int $bytes): string
     {
-        if ($bytes >= 1048576) return round($bytes / 1048576, 1) . ' Mo';
-        if ($bytes >= 1024) return round($bytes / 1024, 1) . ' Ko';
-        return $bytes . ' B';
+        if ($bytes >= 1048576) {
+            return round($bytes / 1048576, 1).' Mo';
+        }
+        if ($bytes >= 1024) {
+            return round($bytes / 1024, 1).' Ko';
+        }
+
+        return $bytes.' B';
     }
 }

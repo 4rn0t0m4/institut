@@ -38,10 +38,10 @@ class DiscountTest extends TestCase
     public function test_admin_can_create_discount(): void
     {
         $response = $this->actingAs($this->admin)->post(route('admin.discounts.store'), [
-            'name'            => 'Promo Ete',
-            'coupon_code'     => 'ETE2026',
-            'type'            => 'all_products',
-            'discount_type'   => 'percentage',
+            'name' => 'Promo Ete',
+            'coupon_code' => 'ETE2026',
+            'type' => 'all_products',
+            'discount_type' => 'percentage',
             'discount_amount' => 15,
         ]);
 
@@ -54,9 +54,9 @@ class DiscountTest extends TestCase
         $discount = DiscountRule::factory()->create();
 
         $response = $this->actingAs($this->admin)->put(route('admin.discounts.update', $discount), [
-            'name'            => 'Modifie',
-            'type'            => 'all_products',
-            'discount_type'   => 'flat',
+            'name' => 'Modifie',
+            'type' => 'all_products',
+            'discount_type' => 'flat',
             'discount_amount' => 5,
         ]);
 
@@ -79,10 +79,10 @@ class DiscountTest extends TestCase
         DiscountRule::factory()->create(['coupon_code' => 'UNIQUE']);
 
         $response = $this->actingAs($this->admin)->post(route('admin.discounts.store'), [
-            'name'            => 'Doublon',
-            'coupon_code'     => 'UNIQUE',
-            'type'            => 'all_products',
-            'discount_type'   => 'percentage',
+            'name' => 'Doublon',
+            'coupon_code' => 'UNIQUE',
+            'type' => 'all_products',
+            'discount_type' => 'percentage',
             'discount_amount' => 10,
         ]);
 

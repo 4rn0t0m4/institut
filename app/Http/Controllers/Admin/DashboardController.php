@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Models\Product;
 use App\Models\Page;
+use App\Models\Product;
 use App\Models\Setting;
 use Spatie\Analytics\Facades\Analytics;
 use Spatie\Analytics\Period;

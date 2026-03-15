@@ -6,7 +6,8 @@ use App\Models\DiscountRule;
 
 class WpDiscounts extends WpImportCommand
 {
-    protected $signature   = 'migrate:wp-discounts';
+    protected $signature = 'migrate:wp-discounts';
+
     protected $description = 'Importe les règles de remise depuis WordPress (plugin Simple Discount Rules)';
 
     // discount_type WP : 0=all, 1=taxonomy, 2=cart, 3=quantity
@@ -30,14 +31,14 @@ class WpDiscounts extends WpImportCommand
         $this->safeTruncate('discount_rules');
 
         $wpDiscounts = $this->wp()->table('wpcd_discounts')->get();
-        $catMap      = file_exists(storage_path('wp_category_map.json'))
+        $catMap = file_exists(storage_path('wp_category_map.json'))
             ? json_decode(file_get_contents(storage_path('wp_category_map.json')), true)
             : [];
 
         $created = 0;
 
         foreach ($wpDiscounts as $wd) {
-            $type         = $this->typeMap[$wd->discount_type] ?? 'all_products';
+            $type = $this->typeMap[$wd->discount_type] ?? 'all_products';
             $discountType = $this->amountTypeMap[$wd->discount_amount_type] ?? 'percentage';
 
             // Résoudre les catégories cibles pour les remises de type taxonomy
@@ -75,18 +76,18 @@ class WpDiscounts extends WpImportCommand
             }
 
             DiscountRule::create([
-                'name'              => $wd->name,
-                'is_active'         => (bool) $wd->status,
-                'type'              => $type,
-                'discount_type'     => $discountType,
-                'discount_amount'   => (float) $wd->discount_amount,
+                'name' => $wd->name,
+                'is_active' => (bool) $wd->status,
+                'type' => $type,
+                'discount_type' => $discountType,
+                'discount_amount' => (float) $wd->discount_amount,
                 'target_categories' => $targetCategories,
-                'min_cart_value'    => $minCart,
-                'max_cart_value'    => $maxCart,
-                'starts_at'         => $wd->start_date ?: null,
-                'ends_at'           => $wd->end_date ?: null,
-                'stackable'         => false,
-                'sort_order'        => 0,
+                'min_cart_value' => $minCart,
+                'max_cart_value' => $maxCart,
+                'starts_at' => $wd->start_date ?: null,
+                'ends_at' => $wd->end_date ?: null,
+                'stackable' => false,
+                'sort_order' => 0,
             ]);
 
             $created++;

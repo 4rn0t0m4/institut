@@ -11,7 +11,7 @@ class LegacyRedirectController extends Controller
     {
         $product = Product::with(['category.parent'])->where('slug', $slug)->first();
 
-        if (!$product) {
+        if (! $product) {
             abort(404);
         }
 
@@ -22,13 +22,13 @@ class LegacyRedirectController extends Controller
     {
         $category = ProductCategory::with('parent')->where('slug', $slug)->first();
 
-        if (!$category) {
+        if (! $category) {
             return redirect('/boutique', 301);
         }
 
         $path = $category->parent
-            ? '/boutique/' . $category->parent->slug . '/' . $category->slug
-            : '/boutique/' . $category->slug;
+            ? '/boutique/'.$category->parent->slug.'/'.$category->slug
+            : '/boutique/'.$category->slug;
 
         return redirect($path, 301);
     }

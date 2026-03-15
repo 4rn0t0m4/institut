@@ -10,8 +10,8 @@ class AddonPriceCalculator
      * Calcule le prix total des addons sélectionnés.
      * Les prix sont TOUJOURS lus depuis la base de données, jamais depuis le formulaire.
      *
-     * @param array $addons  [addonId => ['value'=>'...', ...], ...]
-     * @param float $basePrice  Prix unitaire du produit (pour les addons en %)
+     * @param  array  $addons  [addonId => ['value'=>'...', ...], ...]
+     * @param  float  $basePrice  Prix unitaire du produit (pour les addons en %)
      */
     public function calculate(array $addons, float $basePrice = 0): float
     {
@@ -26,7 +26,7 @@ class AddonPriceCalculator
 
         foreach ($addons as $addonId => $data) {
             $dbAddon = $dbAddons->get($addonId);
-            if (!$dbAddon || $dbAddon->price <= 0) {
+            if (! $dbAddon || $dbAddon->price <= 0) {
                 continue;
             }
 
@@ -48,7 +48,9 @@ class AddonPriceCalculator
         $label = $addon['label'] ?? '';
         $value = $addon['value'] ?? '';
 
-        if (empty($value)) return $label;
+        if (empty($value)) {
+            return $label;
+        }
 
         return "{$label} : {$value}";
     }

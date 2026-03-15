@@ -17,7 +17,7 @@ class UpdatePasswordRequest extends FormRequest
     {
         return [
             'current_password' => 'required',
-            'password'         => ['required', 'confirmed', Password::min(8)],
+            'password' => ['required', 'confirmed', Password::min(8)],
         ];
     }
 
@@ -34,8 +34,8 @@ class UpdatePasswordRequest extends FormRequest
     {
         return [
             'current_password.required' => 'Le mot de passe actuel est obligatoire.',
-            'password.required'         => 'Le nouveau mot de passe est obligatoire.',
-            'password.confirmed'        => 'Les mots de passe ne correspondent pas.',
+            'password.required' => 'Le nouveau mot de passe est obligatoire.',
+            'password.confirmed' => 'Les mots de passe ne correspondent pas.',
         ];
     }
 }

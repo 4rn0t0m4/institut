@@ -64,16 +64,16 @@ return [
         ],
 
         'wp_legacy' => [
-            'driver'    => 'mysql',
-            'host'      => env('DB_WP_HOST', '127.0.0.1'),
-            'port'      => env('DB_WP_PORT', '8889'),
-            'database'  => env('DB_WP_DATABASE', 'institut_db'),
-            'username'  => env('DB_WP_USERNAME', 'root'),
-            'password'  => env('DB_WP_PASSWORD', 'root'),
-            'charset'   => 'utf8mb4',
+            'driver' => 'mysql',
+            'host' => env('DB_WP_HOST', '127.0.0.1'),
+            'port' => env('DB_WP_PORT', '8889'),
+            'database' => env('DB_WP_DATABASE', 'institut_db'),
+            'username' => env('DB_WP_USERNAME', 'root'),
+            'password' => env('DB_WP_PASSWORD', 'root'),
+            'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
-            'prefix'    => 'mod352_',
-            'strict'    => false,
+            'prefix' => 'mod352_',
+            'strict' => false,
         ],
 
         'pgsql' => [

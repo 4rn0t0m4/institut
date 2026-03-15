@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProductAddonAssignment extends Model
 {
     public $timestamps = false;
+
     protected $fillable = ['addon_id', 'assignable_type', 'assignable_id', 'mode'];
 
     public function addon()

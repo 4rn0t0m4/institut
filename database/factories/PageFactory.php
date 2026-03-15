@@ -13,11 +13,12 @@ class PageFactory extends Factory
     public function definition(): array
     {
         $title = fake()->sentence(3);
+
         return [
-            'title'        => $title,
-            'slug'         => Str::slug($title) . '-' . fake()->unique()->numberBetween(1, 99999),
-            'content'      => fake()->paragraphs(3, true),
-            'status'       => 'published',
+            'title' => $title,
+            'slug' => Str::slug($title).'-'.fake()->unique()->numberBetween(1, 99999),
+            'content' => fake()->paragraphs(3, true),
+            'status' => 'published',
             'published_at' => now(),
         ];
     }

@@ -13,9 +13,10 @@ class BrandFactory extends Factory
     public function definition(): array
     {
         $name = fake()->company();
+
         return [
             'name' => $name,
-            'slug' => Str::slug($name) . '-' . fake()->unique()->numberBetween(1, 99999),
+            'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(1, 99999),
         ];
     }
 }

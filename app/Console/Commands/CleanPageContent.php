@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 class CleanPageContent extends Command
 {
     protected $signature = 'pages:clean {--dry-run : Preview changes without saving}';
+
     protected $description = 'Clean page content: fix broken image URLs (.jpg/.png → .webp) and remove WordPress block comments';
 
     public function handle(): int
@@ -25,13 +26,15 @@ class CleanPageContent extends Command
             $content = preg_replace_callback(
                 '/(?<=src=["\'])([^"\']+)\.(jpg|jpeg|png)(?=["\'])/',
                 function ($matches) use (&$totalImages) {
-                    $path = public_path(ltrim($matches[1] . '.' . $matches[2], '/'));
-                    $webpPath = public_path(ltrim($matches[1] . '.webp', '/'));
+                    $path = public_path(ltrim($matches[1].'.'.$matches[2], '/'));
+                    $webpPath = public_path(ltrim($matches[1].'.webp', '/'));
 
-                    if (!file_exists($path) && file_exists($webpPath)) {
+                    if (! file_exists($path) && file_exists($webpPath)) {
                         $totalImages++;
-                        return $matches[1] . '.webp';
+
+                        return $matches[1].'.webp';
                     }
+
                     return $matches[0];
                 },
                 $content

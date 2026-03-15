@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Quiz;
-use App\Models\QuizQuestion;
-use App\Models\QuizCompletion;
 use App\Models\QuizAnswer;
+use App\Models\QuizCompletion;
+use App\Models\QuizQuestion;
 use App\Models\QuizResult;
 use Illuminate\Http\Request;
 
@@ -24,7 +24,7 @@ class DiagnostiqueController extends Controller
         $quiz = $this->quiz();
         $firstQuestion = $quiz->questions()->with('choices')->orderBy('sort_order')->first();
 
-        if (!$firstQuestion) {
+        if (! $firstQuestion) {
             abort(404);
         }
 
@@ -37,32 +37,32 @@ class DiagnostiqueController extends Controller
     /** Affiche une question */
     public function question(string $question)
     {
-        $quiz     = $this->quiz();
+        $quiz = $this->quiz();
         $question = QuizQuestion::where('quiz_id', $quiz->id)->findOrFail($question);
         $question->load('choices');
 
-        $answers  = session("quiz.{$quiz->id}.answers", []);
+        $answers = session("quiz.{$quiz->id}.answers", []);
         $answered = count($answers);
-        $total    = $quiz->questions()->count();
+        $total = $quiz->questions()->count();
 
         return view('quiz.show', [
-            'quiz'          => $quiz,
+            'quiz' => $quiz,
             'firstQuestion' => $question,
-            'answered'      => $answered,
-            'total'         => $total,
+            'answered' => $answered,
+            'total' => $total,
         ]);
     }
 
     /** Traite la réponse et détermine la prochaine question ou le résultat */
     public function answer(Request $request, string $question)
     {
-        $quiz     = $this->quiz();
+        $quiz = $this->quiz();
         $question = QuizQuestion::where('quiz_id', $quiz->id)
             ->with('choices')
             ->findOrFail($question);
 
         $choiceId = $request->input('choice_id');
-        $comment  = $request->input('comment');
+        $comment = $request->input('comment');
 
         // Récupère le choix sélectionné
         $choice = $question->choices->firstWhere('id', $choiceId);
@@ -71,8 +71,8 @@ class DiagnostiqueController extends Controller
         $answers = session("quiz.{$quiz->id}.answers", []);
         $answers[$question->id] = [
             'choice_id' => $choiceId,
-            'points'    => $choice?->points ?? 0,
-            'comment'   => $comment,
+            'points' => $choice?->points ?? 0,
+            'comment' => $comment,
         ];
         session(["quiz.{$quiz->id}.answers" => $answers]);
 
@@ -95,7 +95,7 @@ class DiagnostiqueController extends Controller
     /** Affiche le résultat */
     public function result(string $completion)
     {
-        $quiz       = $this->quiz();
+        $quiz = $this->quiz();
         $completion = QuizCompletion::where('quiz_id', $quiz->id)
             ->with('result')
             ->findOrFail($completion);
@@ -139,21 +139,21 @@ class DiagnostiqueController extends Controller
         $totalPoints = array_sum(array_column($answers, 'points'));
 
         $completion = QuizCompletion::create([
-            'quiz_id'    => $quiz->id,
-            'result_id'  => $result?->id,
-            'user_id'    => auth()->id(),
-            'score'      => $totalPoints,
-            'ip'         => $request->ip(),
+            'quiz_id' => $quiz->id,
+            'result_id' => $result?->id,
+            'user_id' => auth()->id(),
+            'score' => $totalPoints,
+            'ip' => $request->ip(),
             'source_url' => url()->previous(),
         ]);
 
         foreach ($answers as $questionId => $data) {
             QuizAnswer::create([
                 'completion_id' => $completion->id,
-                'question_id'   => $questionId,
-                'answer'        => $data['choice_id'],
-                'points'        => $data['points'],
-                'comment'       => $data['comment'] ?? null,
+                'question_id' => $questionId,
+                'answer' => $data['choice_id'],
+                'points' => $data['points'],
+                'comment' => $data['comment'] ?? null,
             ]);
         }
 

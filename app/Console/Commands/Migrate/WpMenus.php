@@ -7,7 +7,8 @@ use App\Models\MenuItem;
 
 class WpMenus extends WpImportCommand
 {
-    protected $signature   = 'migrate:wp-menus';
+    protected $signature = 'migrate:wp-menus';
+
     protected $description = 'Importe la structure de navigation depuis WordPress';
 
     public function handle(): void
@@ -27,7 +28,7 @@ class WpMenus extends WpImportCommand
 
         foreach ($wpMenus as $wm) {
             $menu = Menu::create([
-                'name'     => $wm->name,
+                'name' => $wm->name,
                 'location' => $wm->slug === 'menu-principal' ? 'primary' : $wm->slug,
             ]);
 
@@ -46,9 +47,9 @@ class WpMenus extends WpImportCommand
             ->join('posts as p', 'tr.object_id', '=', 'p.ID')
             ->where('tr.term_taxonomy_id', function ($q) use ($wpMenuTermId) {
                 $q->select('term_taxonomy_id')
-                  ->from('term_taxonomy')
-                  ->where('term_id', $wpMenuTermId)
-                  ->where('taxonomy', 'nav_menu');
+                    ->from('term_taxonomy')
+                    ->where('term_id', $wpMenuTermId)
+                    ->where('taxonomy', 'nav_menu');
             })
             ->where('p.post_type', 'nav_menu_item')
             ->where('p.post_status', 'publish')
@@ -81,18 +82,18 @@ class WpMenus extends WpImportCommand
             $label = $item->post_title ?: $this->resolveLabel($meta);
 
             $menuItem = MenuItem::create([
-                'menu_id'    => $laravelMenuId,
-                'parent_id'  => null,
-                'label'      => $label ?: 'Lien',
-                'url'        => $url,
-                'target'     => $meta['_menu_item_target'] ?? '_self',
-                'is_mega'    => false,
+                'menu_id' => $laravelMenuId,
+                'parent_id' => null,
+                'label' => $label ?: 'Lien',
+                'url' => $url,
+                'target' => $meta['_menu_item_target'] ?? '_self',
+                'is_mega' => false,
                 'sort_order' => $item->menu_order,
             ]);
 
             $wpIdToLaravel[$item->ID] = [
                 'laravel_id' => $menuItem->id,
-                'wp_parent'  => (int) ($meta['_menu_item_menu_item_parent'] ?? 0),
+                'wp_parent' => (int) ($meta['_menu_item_menu_item_parent'] ?? 0),
             ];
         }
 
@@ -107,22 +108,24 @@ class WpMenus extends WpImportCommand
 
     private function resolveUrl(array $meta): string
     {
-        if (!empty($meta['_menu_item_url'])) {
+        if (! empty($meta['_menu_item_url'])) {
             return $meta['_menu_item_url'];
         }
 
-        $type     = $meta['_menu_item_type'] ?? '';
-        $object   = $meta['_menu_item_object'] ?? '';
+        $type = $meta['_menu_item_type'] ?? '';
+        $object = $meta['_menu_item_object'] ?? '';
         $objectId = (int) ($meta['_menu_item_object_id'] ?? 0);
 
         if ($type === 'post_type' && $objectId) {
             $post = $this->wp()->table('posts')->where('ID', $objectId)->first();
-            return $post ? '/' . $post->post_name : '#';
+
+            return $post ? '/'.$post->post_name : '#';
         }
 
         if ($type === 'taxonomy' && $objectId) {
             $term = $this->wp()->table('terms')->where('term_id', $objectId)->first();
-            return $term ? '/' . $object . '/' . $term->slug : '#';
+
+            return $term ? '/'.$object.'/'.$term->slug : '#';
         }
 
         return '#';
@@ -131,7 +134,9 @@ class WpMenus extends WpImportCommand
     private function resolveLabel(array $meta): string
     {
         $objectId = (int) ($meta['_menu_item_object_id'] ?? 0);
-        if (!$objectId) return '';
+        if (! $objectId) {
+            return '';
+        }
 
         $type = $meta['_menu_item_type'] ?? '';
 

@@ -20,20 +20,21 @@ class ExportEnrichedProducts extends Command
 
         if ($products->isEmpty()) {
             $this->warn('Aucun produit enrichi trouvé.');
+
             return 1;
         }
 
         $output = $this->option('output');
         $lines = [];
-        $lines[] = "-- Export des champs enrichis — " . now()->toDateTimeString();
-        $lines[] = "-- " . $products->count() . " produit(s)";
-        $lines[] = "";
-        $lines[] = "START TRANSACTION;";
-        $lines[] = "";
+        $lines[] = '-- Export des champs enrichis — '.now()->toDateTimeString();
+        $lines[] = '-- '.$products->count().' produit(s)';
+        $lines[] = '';
+        $lines[] = 'START TRANSACTION;';
+        $lines[] = '';
 
         foreach ($products as $product) {
             $lines[] = sprintf(
-                "UPDATE products SET benefits=%s, usage_instructions=%s, composition=%s, team_recommendation=%s, unit_measure=%s, description=%s WHERE id=%d;",
+                'UPDATE products SET benefits=%s, usage_instructions=%s, composition=%s, team_recommendation=%s, unit_measure=%s, description=%s WHERE id=%d;',
                 $this->quote($product->benefits),
                 $this->quote($product->usage_instructions),
                 $this->quote($product->composition),
@@ -44,13 +45,13 @@ class ExportEnrichedProducts extends Command
             );
         }
 
-        $lines[] = "";
-        $lines[] = "COMMIT;";
+        $lines[] = '';
+        $lines[] = 'COMMIT;';
 
         file_put_contents($output, implode("\n", $lines));
 
         $this->info("Fichier généré : {$output} ({$products->count()} produits)");
-        $this->line("Appliquer en prod :");
+        $this->line('Appliquer en prod :');
         $this->line("  ssh instiqh@ssh.cluster130.hosting.ovh.net \"mysql -h instiqhapp.mysql.db -u instiqhapp -p'MOT_DE_PASSE' instiqhapp\" < {$output}");
 
         return 0;
@@ -61,6 +62,7 @@ class ExportEnrichedProducts extends Command
         if ($value === null) {
             return 'NULL';
         }
-        return "'" . addslashes($value) . "'";
+
+        return "'".addslashes($value)."'";
     }
 }

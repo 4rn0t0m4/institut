@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 class FixLegacyUrls extends Command
 {
     protected $signature = 'migrate:fix-legacy-urls';
+
     protected $description = 'Remplace les URLs WordPress et embeds YouTube dans le contenu des pages';
 
     public function handle(): void
@@ -62,18 +63,18 @@ class FixLegacyUrls extends Command
             '#<!-- wp:embed \{[^}]*youtube[^}]*\} -->\s*.*?\s*<!-- /wp:embed -->#s',
             function ($match) {
                 // Extraire l'URL YouTube du bloc
-                if (!preg_match('#https?://(?:www\.)?(?:youtube\.com/(?:watch\?v=|shorts/)|youtu\.be/)([a-zA-Z0-9_-]+)#', $match[0], $urlMatch)) {
+                if (! preg_match('#https?://(?:www\.)?(?:youtube\.com/(?:watch\?v=|shorts/)|youtu\.be/)([a-zA-Z0-9_-]+)#', $match[0], $urlMatch)) {
                     return $match[0]; // Pas d'URL trouvée, on ne touche pas
                 }
 
                 $videoId = $urlMatch[1];
 
                 return '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin:1rem 0">'
-                    . '<iframe src="https://www.youtube-nocookie.com/embed/' . $videoId . '" '
-                    . 'style="position:absolute;top:0;left:0;width:100%;height:100%" '
-                    . 'frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" '
-                    . 'allowfullscreen loading="lazy"></iframe>'
-                    . '</div>';
+                    .'<iframe src="https://www.youtube-nocookie.com/embed/'.$videoId.'" '
+                    .'style="position:absolute;top:0;left:0;width:100%;height:100%" '
+                    .'frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" '
+                    .'allowfullscreen loading="lazy"></iframe>'
+                    .'</div>';
             },
             $content
         );
@@ -85,20 +86,20 @@ class FixLegacyUrls extends Command
 
         // Exact match
         if ($localFiles->contains($fn)) {
-            return '/storage/media/' . $fn;
+            return '/storage/media/'.$fn;
         }
 
         // Strip WP dimension suffix: name-NNNxNNN.ext → name.ext
         $stripped = preg_replace('/-\d+x\d+(\.\w+)$/', '$1', $fn);
         if ($localFiles->contains($stripped)) {
-            return '/storage/media/' . $stripped;
+            return '/storage/media/'.$stripped;
         }
 
         // Fuzzy: find any local file starting with the same base name
         $base = pathinfo($stripped, PATHINFO_FILENAME);
         $candidates = $localFiles->filter(fn ($f) => str_starts_with($f, $base));
         if ($candidates->isNotEmpty()) {
-            return '/storage/media/' . $candidates->first();
+            return '/storage/media/'.$candidates->first();
         }
 
         return null;

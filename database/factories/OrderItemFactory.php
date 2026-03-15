@@ -14,14 +14,14 @@ class OrderItemFactory extends Factory
     public function definition(): array
     {
         return [
-            'order_id'     => Order::factory(),
-            'product_id'   => Product::factory(),
+            'order_id' => Order::factory(),
+            'product_id' => Product::factory(),
             'product_name' => fake()->words(3, true),
-            'quantity'     => 1,
-            'unit_price'   => 25.00,
+            'quantity' => 1,
+            'unit_price' => 25.00,
             'addons_price' => 0,
-            'total'        => 25.00,
-            'tax'          => 0,
+            'total' => 25.00,
+            'tax' => 0,
         ];
     }
 }

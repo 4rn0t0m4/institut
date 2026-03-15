@@ -11,7 +11,7 @@ class BannerAwareHasher extends DefaultHasher
     {
         $bannerDismissed = $request->cookie('banner_dismissed') ? '1' : '0';
 
-        return 'responsecache-' . md5(
+        return 'responsecache-'.md5(
             "{$request->getUri()}-{$request->getMethod()}/{$bannerDismissed}-{$this->cacheProfile->useCacheNameSuffix($request)}"
         );
     }

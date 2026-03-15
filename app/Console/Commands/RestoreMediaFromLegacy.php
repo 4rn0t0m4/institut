@@ -10,6 +10,7 @@ use Intervention\Image\Facades\Image;
 class RestoreMediaFromLegacy extends Command
 {
     protected $signature = 'media:restore-from-legacy {--dry-run} {--product=} {--wp-path=/home/instiqh/www/wp-content/uploads}';
+
     protected $description = 'Lit les images originales depuis le dossier WP local et les reconvertit en WebP (source JPEG → WebP)';
 
     public function handle(): int
@@ -21,8 +22,9 @@ class RestoreMediaFromLegacy extends Command
         if ($this->option('product')) {
             $productId = (int) $this->option('product');
             $product = \App\Models\Product::find($productId);
-            if (!$product) {
+            if (! $product) {
                 $this->error("Produit #{$productId} introuvable.");
+
                 return 1;
             }
 
@@ -55,17 +57,19 @@ class RestoreMediaFromLegacy extends Command
             // Retirer le suffixe ajouté par la conversion (ex: -scaled, UUID, etc.)
             $wpFile = $this->findWpOriginal($baseName, $media->original_filename, $wpAttachments);
 
-            if (!$wpFile) {
+            if (! $wpFile) {
                 $skipped++;
+
                 continue;
             }
 
-            $wpPath = rtrim($this->option('wp-path'), '/') . '/' . $wpFile;
+            $wpPath = rtrim($this->option('wp-path'), '/').'/'.$wpFile;
 
-            if (!file_exists($wpPath)) {
+            if (! file_exists($wpPath)) {
                 $this->newLine();
                 $this->warn("Fichier introuvable: {$wpPath}");
                 $errors++;
+
                 continue;
             }
 
@@ -73,11 +77,12 @@ class RestoreMediaFromLegacy extends Command
                 $this->newLine();
                 $this->line("{$media->filename} ← {$wpPath}");
                 $restored++;
+
                 continue;
             }
 
             try {
-                $newFullPath = storage_path('app/public/' . $media->path);
+                $newFullPath = storage_path('app/public/'.$media->path);
 
                 Image::make($wpPath)
                     ->resize(900, 900, function ($constraint) {
@@ -90,8 +95,8 @@ class RestoreMediaFromLegacy extends Command
                 [$width, $height] = getimagesize($newFullPath) ?: [null, null];
 
                 $media->update([
-                    'size'   => filesize($newFullPath) ?: 0,
-                    'width'  => $width,
+                    'size' => filesize($newFullPath) ?: 0,
+                    'width' => $width,
                     'height' => $height,
                 ]);
 
@@ -131,10 +136,11 @@ class RestoreMediaFromLegacy extends Command
                     AND p.post_status = 'inherit'
                 ");
 
-            return array_map(fn($r) => $r->file_path, $rows);
+            return array_map(fn ($r) => $r->file_path, $rows);
         } catch (\Exception $e) {
             $this->warn("Impossible de se connecter à wp_legacy: {$e->getMessage()}");
-            $this->info("Tentative via les noms de fichiers originaux...");
+            $this->info('Tentative via les noms de fichiers originaux...');
+
             return [];
         }
     }

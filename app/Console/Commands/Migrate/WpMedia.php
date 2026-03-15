@@ -7,7 +7,8 @@ use App\Models\Product;
 
 class WpMedia extends WpImportCommand
 {
-    protected $signature   = 'migrate:wp-media';
+    protected $signature = 'migrate:wp-media';
+
     protected $description = 'Importe les médias WP et relie les images aux produits';
 
     private const WP_BASE_URL = 'https://institutcorpsacoeur.fr';
@@ -50,8 +51,8 @@ class WpMedia extends WpImportCommand
                 ORDER BY p.ID
             ");
 
-        $created   = 0;
-        $mediaMap  = []; // WP attachment ID => Laravel Media ID
+        $created = 0;
+        $mediaMap = []; // WP attachment ID => Laravel Media ID
 
         foreach ($attachments as $att) {
             if (empty($att->file_path)) {
@@ -59,31 +60,31 @@ class WpMedia extends WpImportCommand
             }
 
             $filename = basename($att->file_path);
-            $path     = 'wp-content/uploads/' . $att->file_path;
-            $url      = self::WP_BASE_URL . '/wp-content/uploads/' . $att->file_path;
+            $path = 'wp-content/uploads/'.$att->file_path;
+            $url = self::WP_BASE_URL.'/wp-content/uploads/'.$att->file_path;
 
             // Dimensions via les métadonnées sérialisées
             $width = $height = null;
             if ($att->attachment_meta) {
                 $meta = @unserialize($att->attachment_meta);
                 if (is_array($meta)) {
-                    $width  = $meta['width']  ?? null;
+                    $width = $meta['width'] ?? null;
                     $height = $meta['height'] ?? null;
                 }
             }
 
             $media = Media::create([
-                'filename'          => $filename,
+                'filename' => $filename,
                 'original_filename' => $filename,
-                'disk'              => 'external',
-                'path'              => $path,
-                'url'               => $url,
-                'mime_type'         => $att->post_mime_type ?: 'image/jpeg',
-                'size'              => 0,
-                'width'             => $width,
-                'height'            => $height,
-                'alt'               => $att->alt_text ?: $att->post_title,
-                'title'             => $att->post_title,
+                'disk' => 'external',
+                'path' => $path,
+                'url' => $url,
+                'mime_type' => $att->post_mime_type ?: 'image/jpeg',
+                'size' => 0,
+                'width' => $width,
+                'height' => $height,
+                'alt' => $att->alt_text ?: $att->post_title,
+                'title' => $att->post_title,
             ]);
 
             $mediaMap[$att->ID] = $media->id;
@@ -100,9 +101,9 @@ class WpMedia extends WpImportCommand
     {
         $this->info('  Conversion IDs galerie → Media...');
 
-        $mediaMap   = json_decode(file_get_contents(storage_path('wp_media_map.json')), true);
+        $mediaMap = json_decode(file_get_contents(storage_path('wp_media_map.json')), true);
         $productMap = [];
-        $mapFile    = storage_path('wp_product_map.json');
+        $mapFile = storage_path('wp_product_map.json');
         if (file_exists($mapFile)) {
             $productMap = json_decode(file_get_contents($mapFile), true);
         }
@@ -115,8 +116,8 @@ class WpMedia extends WpImportCommand
                 continue;
             }
 
-            $wpIds     = array_filter(explode(',', $galleryRaw));
-            $mediaIds  = [];
+            $wpIds = array_filter(explode(',', $galleryRaw));
+            $mediaIds = [];
 
             foreach ($wpIds as $wpId) {
                 $wpId = (int) trim($wpId);
@@ -125,7 +126,7 @@ class WpMedia extends WpImportCommand
                 }
             }
 
-            if (!empty($mediaIds)) {
+            if (! empty($mediaIds)) {
                 Product::where('id', $laravelProductId)->update([
                     'gallery_image_ids' => json_encode($mediaIds),
                 ]);
@@ -149,6 +150,7 @@ class WpMedia extends WpImportCommand
 
         if (empty($productMap)) {
             $this->warn('  Aucune map produits trouvée. Lancez d\'abord migrate:wp-products.');
+
             return;
         }
 

@@ -14,8 +14,8 @@ class CheckoutShippingTest extends TestCase
     private function addProductToCart(): void
     {
         $product = Product::factory()->create([
-            'price'        => 25.00,
-            'is_active'    => true,
+            'price' => 25.00,
+            'is_active' => true,
             'stock_status' => 'instock',
         ]);
 
@@ -27,15 +27,15 @@ class CheckoutShippingTest extends TestCase
     {
         return array_merge([
             'billing_first_name' => 'Jean',
-            'billing_last_name'  => 'Dupont',
-            'billing_email'      => 'jean@example.com',
-            'billing_phone'      => '0600000000',
-            'billing_address_1'  => '1 rue de la Paix',
-            'billing_city'       => 'Paris',
-            'billing_postcode'   => '75001',
-            'billing_country'    => 'FR',
-            'shipping_same'      => '1',
-            'shipping_method'    => 'colissimo',
+            'billing_last_name' => 'Dupont',
+            'billing_email' => 'jean@example.com',
+            'billing_phone' => '0600000000',
+            'billing_address_1' => '1 rue de la Paix',
+            'billing_city' => 'Paris',
+            'billing_postcode' => '75001',
+            'billing_country' => 'FR',
+            'shipping_same' => '1',
+            'shipping_method' => 'colissimo',
         ], $overrides);
     }
 
@@ -82,10 +82,10 @@ class CheckoutShippingTest extends TestCase
         $this->addProductToCart();
 
         $response = $this->post(route('checkout.store'), $this->checkoutData([
-            'billing_country'    => 'FR',
-            'shipping_method'    => 'boxtal',
-            'relay_point_code'   => 'MONR-12345',
-            'relay_point_name'   => 'Relay Test',
+            'billing_country' => 'FR',
+            'shipping_method' => 'boxtal',
+            'relay_point_code' => 'MONR-12345',
+            'relay_point_name' => 'Relay Test',
             'relay_point_address' => '1 rue Test, 75001 Paris',
         ]));
 
@@ -121,10 +121,10 @@ class CheckoutShippingTest extends TestCase
         $this->addProductToCart();
 
         $response = $this->post(route('checkout.store'), $this->checkoutData([
-            'billing_country'    => 'BE',
-            'shipping_method'    => 'boxtal',
-            'relay_point_code'   => 'MONR-99999',
-            'relay_point_name'   => 'Relay Bruxelles',
+            'billing_country' => 'BE',
+            'shipping_method' => 'boxtal',
+            'relay_point_code' => 'MONR-99999',
+            'relay_point_name' => 'Relay Bruxelles',
             'relay_point_address' => '1 Grand Place, 1000 Bruxelles',
         ]));
 
@@ -174,15 +174,15 @@ class CheckoutShippingTest extends TestCase
 
         // Billing = FR but shipping to BE with colissimo should fail
         $response = $this->post(route('checkout.store'), $this->checkoutData([
-            'billing_country'  => 'FR',
-            'shipping_same'    => '0',
+            'billing_country' => 'FR',
+            'shipping_same' => '0',
             'shipping_country' => 'BE',
-            'shipping_method'  => 'colissimo',
+            'shipping_method' => 'colissimo',
             'shipping_first_name' => 'Jean',
-            'shipping_last_name'  => 'Dupont',
-            'shipping_address_1'  => '1 Grand Place',
-            'shipping_city'       => 'Bruxelles',
-            'shipping_postcode'   => '1000',
+            'shipping_last_name' => 'Dupont',
+            'shipping_address_1' => '1 Grand Place',
+            'shipping_city' => 'Bruxelles',
+            'shipping_postcode' => '1000',
         ]));
 
         $response->assertSessionHasErrors('shipping_method');

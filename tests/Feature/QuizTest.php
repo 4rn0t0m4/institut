@@ -113,7 +113,7 @@ class QuizTest extends TestCase
 
         $this->assertDatabaseHas('quiz_completions', [
             'quiz_id' => $data['quiz']->id,
-            'score'   => 2.00, // 1 + 1
+            'score' => 2.00, // 1 + 1
         ]);
         $this->assertDatabaseCount('quiz_answers', 2);
     }
@@ -133,9 +133,9 @@ class QuizTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('quiz_completions', [
-            'quiz_id'   => $data['quiz']->id,
+            'quiz_id' => $data['quiz']->id,
             'result_id' => $data['resultOily']->id,
-            'score'     => 6.00,
+            'score' => 6.00,
         ]);
     }
 

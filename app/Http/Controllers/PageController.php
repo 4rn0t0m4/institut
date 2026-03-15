@@ -17,8 +17,8 @@ class PageController extends Controller
             ->firstOrFail();
 
         // URL WP imbriquée mais page sans parent → redirection 301 vers URL plate
-        if (count($segments) > 1 && !$page->parent_id) {
-            return redirect('/' . $lastSlug, 301);
+        if (count($segments) > 1 && ! $page->parent_id) {
+            return redirect('/'.$lastSlug, 301);
         }
 
         // Verify the full path matches the parent hierarchy
@@ -33,7 +33,7 @@ class PageController extends Controller
         if (count($segments) === 1 && $page->parent_id) {
             $parent = $page->parent;
             if ($parent) {
-                return redirect($parent->slug . '/' . $page->slug, 301);
+                return redirect($parent->slug.'/'.$page->slug, 301);
             }
         }
 

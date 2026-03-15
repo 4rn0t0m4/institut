@@ -1,13 +1,27 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 
 class QuizQuestion extends Model
 {
-    protected $fillable = ['quiz_id','title','question','type','sort_order','accept_comments','comments_label'];
-    protected $casts = ['accept_comments'=>'boolean'];
+    protected $fillable = ['quiz_id', 'title', 'question', 'type', 'sort_order', 'accept_comments', 'comments_label'];
 
-    public function quiz() { return $this->belongsTo(Quiz::class); }
-    public function choices() { return $this->hasMany(QuizChoice::class,'question_id')->orderBy('sort_order'); }
-    public function answers() { return $this->hasMany(QuizAnswer::class,'question_id'); }
+    protected $casts = ['accept_comments' => 'boolean'];
+
+    public function quiz()
+    {
+        return $this->belongsTo(Quiz::class);
+    }
+
+    public function choices()
+    {
+        return $this->hasMany(QuizChoice::class, 'question_id')->orderBy('sort_order');
+    }
+
+    public function answers()
+    {
+        return $this->hasMany(QuizAnswer::class, 'question_id');
+    }
 }

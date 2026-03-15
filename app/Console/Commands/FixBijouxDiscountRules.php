@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 class FixBijouxDiscountRules extends Command
 {
     protected $signature = 'fix:bijoux-discount-rules';
+
     protected $description = 'Corrige les règles de remise bijoux : cible catégorie Bijoux (id 5) et quantités min';
 
     public function handle(): int
@@ -15,8 +16,9 @@ class FixBijouxDiscountRules extends Command
         $rule2 = DiscountRule::find(1);
         $rule3 = DiscountRule::find(2);
 
-        if (!$rule2 || !$rule3) {
+        if (! $rule2 || ! $rule3) {
             $this->error('Règles de remise bijoux introuvables (id 1 et 2).');
+
             return self::FAILURE;
         }
 

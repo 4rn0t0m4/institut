@@ -12,13 +12,13 @@ class DiscountRuleFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'            => fake()->sentence(3),
-            'is_active'       => true,
-            'type'            => 'all_products',
-            'discount_type'   => 'percentage',
+            'name' => fake()->sentence(3),
+            'is_active' => true,
+            'type' => 'all_products',
+            'discount_type' => 'percentage',
             'discount_amount' => 10.00,
-            'stackable'       => true,
-            'sort_order'      => 0,
+            'stackable' => true,
+            'sort_order' => 0,
         ];
     }
 

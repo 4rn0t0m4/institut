@@ -76,8 +76,8 @@ class OrderTest extends TestCase
         $order = Order::factory()->create(['status' => 'processing', 'billing_email' => 'client@test.com']);
 
         $this->actingAs($this->admin)->put(route('admin.orders.update', $order), [
-            'status'           => 'processing',
-            'tracking_number'  => 'COL123456',
+            'status' => 'processing',
+            'tracking_number' => 'COL123456',
             'tracking_carrier' => 'Colissimo',
         ]);
 

@@ -8,7 +8,8 @@ use Illuminate\Support\Str;
 
 class WpProducts extends WpImportCommand
 {
-    protected $signature   = 'migrate:wp-products';
+    protected $signature = 'migrate:wp-products';
+
     protected $description = 'Importe les produits WooCommerce depuis WordPress';
 
     public function handle(): void
@@ -44,12 +45,12 @@ class WpProducts extends WpImportCommand
             $catId = $this->getProductCategoryId($p->ID, $wpCatToLaravel);
 
             // Image principale
-            $thumbnailId  = (int) ($meta['_thumbnail_id'] ?? 0);
+            $thumbnailId = (int) ($meta['_thumbnail_id'] ?? 0);
             $featuredPath = $thumbnailId ? $this->attachmentUrl($thumbnailId) : null;
 
             // Galerie
             $galleryIds = [];
-            if (!empty($meta['_product_image_gallery'])) {
+            if (! empty($meta['_product_image_gallery'])) {
                 $galleryIds = array_filter(explode(',', $meta['_product_image_gallery']));
             }
 
@@ -59,25 +60,25 @@ class WpProducts extends WpImportCommand
             $finalSlug = $slug;
             $i = 1;
             while (Product::where('slug', $finalSlug)->exists()) {
-                $finalSlug = $slug . '-' . $i++;
+                $finalSlug = $slug.'-'.$i++;
             }
 
             Product::create([
-                'category_id'       => $catId,
-                'name'              => $p->post_title,
-                'slug'              => $finalSlug,
+                'category_id' => $catId,
+                'name' => $p->post_title,
+                'slug' => $finalSlug,
                 'short_description' => strip_tags($p->post_excerpt) ?: null,
-                'description'       => $p->post_content ?: null,
-                'price'             => (float) ($meta['_regular_price'] ?? $meta['_price'] ?? 0),
-                'sale_price'        => !empty($meta['_sale_price']) ? (float) $meta['_sale_price'] : null,
-                'sku'               => $meta['_sku'] ?? null,
-                'stock_quantity'    => isset($meta['_stock']) ? (int) $meta['_stock'] : null,
-                'manage_stock'      => ($meta['_manage_stock'] ?? 'no') === 'yes',
-                'stock_status'      => $meta['_stock_status'] ?? 'instock',
-                'weight'            => !empty($meta['_weight']) ? (float) $meta['_weight'] : null,
-                'is_virtual'        => ($meta['_virtual'] ?? 'no') === 'yes',
-                'is_downloadable'   => ($meta['_downloadable'] ?? 'no') === 'yes',
-                'is_active'         => true,
+                'description' => $p->post_content ?: null,
+                'price' => (float) ($meta['_regular_price'] ?? $meta['_price'] ?? 0),
+                'sale_price' => ! empty($meta['_sale_price']) ? (float) $meta['_sale_price'] : null,
+                'sku' => $meta['_sku'] ?? null,
+                'stock_quantity' => isset($meta['_stock']) ? (int) $meta['_stock'] : null,
+                'manage_stock' => ($meta['_manage_stock'] ?? 'no') === 'yes',
+                'stock_status' => $meta['_stock_status'] ?? 'instock',
+                'weight' => ! empty($meta['_weight']) ? (float) $meta['_weight'] : null,
+                'is_virtual' => ($meta['_virtual'] ?? 'no') === 'yes',
+                'is_downloadable' => ($meta['_downloadable'] ?? 'no') === 'yes',
+                'is_active' => true,
                 'featured_image_id' => null, // on lie via Media après
                 'gallery_image_ids' => $galleryIds ?: null,
             ]);
@@ -91,7 +92,9 @@ class WpProducts extends WpImportCommand
         $productMap = [];
         foreach ($products as $p) {
             $product = Product::where('slug', Str::slug($p->post_name ?: $p->post_title))->first();
-            if ($product) $productMap[$p->ID] = $product->id;
+            if ($product) {
+                $productMap[$p->ID] = $product->id;
+            }
         }
         file_put_contents(storage_path('wp_product_map.json'), json_encode($productMap));
     }

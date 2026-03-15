@@ -12,10 +12,10 @@ class ShippingController extends Controller
     public function index()
     {
         $shipping = [
-            'colissimo_price'              => Setting::get('shipping_colissimo_price', config('shipping.methods.colissimo.price')),
-            'boxtal_price'                 => Setting::get('shipping_boxtal_price', config('shipping.methods.boxtal.price')),
-            'boxtal_price_international'   => Setting::get('shipping_boxtal_price_international', config('shipping.methods.boxtal.price_international')),
-            'free_threshold_fr'            => Setting::get('shipping_free_threshold_fr', config('shipping.zones.FR.free_shipping_threshold')),
+            'colissimo_price' => Setting::get('shipping_colissimo_price', config('shipping.methods.colissimo.price')),
+            'boxtal_price' => Setting::get('shipping_boxtal_price', config('shipping.methods.boxtal.price')),
+            'boxtal_price_international' => Setting::get('shipping_boxtal_price_international', config('shipping.methods.boxtal.price_international')),
+            'free_threshold_fr' => Setting::get('shipping_free_threshold_fr', config('shipping.zones.FR.free_shipping_threshold')),
             'free_threshold_international' => Setting::get('shipping_free_threshold_international', config('shipping.zones.international.free_shipping_threshold')),
         ];
 
@@ -25,10 +25,10 @@ class ShippingController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'colissimo_price'              => 'required|numeric|min:0',
-            'boxtal_price'                 => 'required|numeric|min:0',
-            'boxtal_price_international'   => 'required|numeric|min:0',
-            'free_threshold_fr'            => 'required|numeric|min:0',
+            'colissimo_price' => 'required|numeric|min:0',
+            'boxtal_price' => 'required|numeric|min:0',
+            'boxtal_price_international' => 'required|numeric|min:0',
+            'free_threshold_fr' => 'required|numeric|min:0',
             'free_threshold_international' => 'required|numeric|min:0',
         ]);
 

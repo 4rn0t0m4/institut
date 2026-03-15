@@ -19,15 +19,15 @@ class AnnouncementController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'banner_text'       => 'nullable|string|max:300',
-            'banner_link'       => 'nullable|url|max:500',
+            'banner_text' => 'nullable|string|max:300',
+            'banner_link' => 'nullable|url|max:500',
             'banner_link_label' => 'nullable|string|max:100',
         ]);
 
         Setting::set('sticky_banner', json_encode([
-            'active'     => $request->boolean('banner_active'),
-            'text'       => $validated['banner_text'] ?? '',
-            'link'       => $validated['banner_link'] ?? '',
+            'active' => $request->boolean('banner_active'),
+            'text' => $validated['banner_text'] ?? '',
+            'link' => $validated['banner_link'] ?? '',
             'link_label' => $validated['banner_link_label'] ?? '',
         ]), 'announcement');
 

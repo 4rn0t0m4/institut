@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 class SendReviewRequests extends Command
 {
     protected $signature = 'orders:send-review-requests';
+
     protected $description = 'Envoie un email de demande d\'avis 7 jours après l\'expédition';
 
     public function handle(): void

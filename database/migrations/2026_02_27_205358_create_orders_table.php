@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('number')->unique(); // numéro de commande lisible
             $table->enum('status', [
-                'pending', 'processing', 'on-hold', 'completed', 'cancelled', 'refunded', 'failed'
+                'pending', 'processing', 'on-hold', 'completed', 'cancelled', 'refunded', 'failed',
             ])->default('pending');
             // Montants
             $table->decimal('subtotal', 10, 2)->default(0);

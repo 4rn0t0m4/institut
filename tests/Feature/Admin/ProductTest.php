@@ -38,9 +38,9 @@ class ProductTest extends TestCase
     public function test_admin_can_create_product(): void
     {
         $response = $this->actingAs($this->admin)->post(route('admin.products.store'), [
-            'name'           => 'Nouveau Produit',
-            'price'          => 29.90,
-            'stock_status'   => 'instock',
+            'name' => 'Nouveau Produit',
+            'price' => 29.90,
+            'stock_status' => 'instock',
         ]);
 
         $response->assertRedirect(route('admin.products.index'));
@@ -70,8 +70,8 @@ class ProductTest extends TestCase
         $product = Product::factory()->create();
 
         $response = $this->actingAs($this->admin)->put(route('admin.products.update', $product), [
-            'name'         => 'Produit Modifie',
-            'price'        => 35.00,
+            'name' => 'Produit Modifie',
+            'price' => 35.00,
             'stock_status' => 'instock',
         ]);
 
@@ -92,8 +92,8 @@ class ProductTest extends TestCase
     public function test_auto_generates_slug(): void
     {
         $this->actingAs($this->admin)->post(route('admin.products.store'), [
-            'name'         => 'Mon Super Produit',
-            'price'        => 10.00,
+            'name' => 'Mon Super Produit',
+            'price' => 10.00,
             'stock_status' => 'instock',
         ]);
 

@@ -41,10 +41,10 @@ class AccountTest extends TestCase
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->patch(route('account.profile.update'), [
-            'name'       => 'Nouveau Nom',
-            'email'      => $user->email,
+            'name' => 'Nouveau Nom',
+            'email' => $user->email,
             'first_name' => 'Jean',
-            'last_name'  => 'Dupont',
+            'last_name' => 'Dupont',
         ]);
 
         $response->assertRedirect();
@@ -58,8 +58,8 @@ class AccountTest extends TestCase
         $user = User::factory()->create(['password' => 'oldpassword']);
 
         $response = $this->actingAs($user)->patch(route('account.password.update'), [
-            'current_password'      => 'oldpassword',
-            'password'              => 'newpassword123',
+            'current_password' => 'oldpassword',
+            'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
         ]);
 
@@ -73,7 +73,7 @@ class AccountTest extends TestCase
 
         $response = $this->actingAs($user)->patch(route('account.password.update'), [
             'current_password' => 'oldpassword',
-            'password'         => 'newpassword123',
+            'password' => 'newpassword123',
         ]);
 
         $response->assertSessionHasErrors('password');
@@ -124,11 +124,11 @@ class AccountTest extends TestCase
 
         $response = $this->actingAs($user)->patch(route('account.address.update'), [
             'first_name' => 'Jean',
-            'last_name'  => 'Dupont',
-            'address_1'  => '1 rue de la Paix',
-            'city'       => 'Paris',
-            'postcode'   => '75001',
-            'country'    => 'FR',
+            'last_name' => 'Dupont',
+            'address_1' => '1 rue de la Paix',
+            'city' => 'Paris',
+            'postcode' => '75001',
+            'country' => 'FR',
         ]);
 
         $response->assertRedirect();

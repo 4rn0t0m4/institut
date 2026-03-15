@@ -8,7 +8,8 @@ use Illuminate\Support\Str;
 
 class WpUsers extends WpImportCommand
 {
-    protected $signature   = 'migrate:wp-users';
+    protected $signature = 'migrate:wp-users';
+
     protected $description = 'Importe les utilisateurs/clients depuis WordPress';
 
     public function handle(): void
@@ -25,6 +26,7 @@ class WpUsers extends WpImportCommand
                 $existing = User::where('email', $u->user_email)->first();
                 $userMap[$u->ID] = $existing->id;
                 $skipped++;
+
                 continue;
             }
 
@@ -34,18 +36,18 @@ class WpUsers extends WpImportCommand
                 ->pluck('meta_value', 'meta_key')
                 ->all();
 
-            $name = trim(($meta['first_name'] ?? '') . ' ' . ($meta['last_name'] ?? ''))
+            $name = trim(($meta['first_name'] ?? '').' '.($meta['last_name'] ?? ''))
                 ?: $u->display_name
                 ?: $u->user_login;
 
             $user = User::create([
-                'name'              => $name,
-                'email'             => $u->user_email,
+                'name' => $name,
+                'email' => $u->user_email,
                 // Mot de passe temporaire aléatoire — les utilisateurs devront
                 // utiliser "Mot de passe oublié" au 1er accès
-                'password'          => Hash::make(Str::random(32)),
+                'password' => Hash::make(Str::random(32)),
                 'email_verified_at' => now(),
-                'created_at'        => $u->user_registered,
+                'created_at' => $u->user_registered,
             ]);
 
             $userMap[$u->ID] = $user->id;

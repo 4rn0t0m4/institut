@@ -4,12 +4,12 @@ namespace App\Console\Commands\Migrate;
 
 use App\Models\Page;
 use App\Models\Post;
-use App\Models\User;
 use Illuminate\Support\Str;
 
 class WpPages extends WpImportCommand
 {
-    protected $signature   = 'migrate:wp-pages';
+    protected $signature = 'migrate:wp-pages';
+
     protected $description = 'Importe les pages et articles de blog depuis WordPress';
 
     public function handle(): void
@@ -30,7 +30,7 @@ class WpPages extends WpImportCommand
             ->orderBy('menu_order')
             ->get();
 
-        $idMap   = [];
+        $idMap = [];
         $created = 0;
 
         // 1er pass : créer sans parent
@@ -38,20 +38,20 @@ class WpPages extends WpImportCommand
             $meta = $this->postMeta($p->ID);
             $slug = Str::slug($p->post_name ?: $p->post_title);
 
-            $finalSlug = $slug ?: 'page-' . $p->ID;
+            $finalSlug = $slug ?: 'page-'.$p->ID;
             $i = 1;
             while (Page::where('slug', $finalSlug)->exists()) {
-                $finalSlug = $slug . '-' . $i++;
+                $finalSlug = $slug.'-'.$i++;
             }
 
             $page = Page::create([
-                'title'        => $p->post_title ?: '(sans titre)',
-                'slug'         => $finalSlug,
-                'content'      => $p->post_content ?: null,
-                'status'       => $p->post_status === 'publish' ? 'published' : 'draft',
-                'meta_title'   => $meta['_yoast_wpseo_title'] ?? null,
+                'title' => $p->post_title ?: '(sans titre)',
+                'slug' => $finalSlug,
+                'content' => $p->post_content ?: null,
+                'status' => $p->post_status === 'publish' ? 'published' : 'draft',
+                'meta_title' => $meta['_yoast_wpseo_title'] ?? null,
                 'meta_description' => $meta['_yoast_wpseo_metadesc'] ?? null,
-                'sort_order'   => $p->menu_order,
+                'sort_order' => $p->menu_order,
                 'published_at' => $p->post_date !== '0000-00-00 00:00:00' ? $p->post_date : null,
             ]);
 
@@ -108,25 +108,25 @@ class WpPages extends WpImportCommand
                 ->all();
 
             $slug = Str::slug($p->post_name ?: $p->post_title);
-            $finalSlug = $slug ?: 'article-' . $p->ID;
+            $finalSlug = $slug ?: 'article-'.$p->ID;
             $i = 1;
             while (Post::where('slug', $finalSlug)->exists()) {
-                $finalSlug = $slug . '-' . $i++;
+                $finalSlug = $slug.'-'.$i++;
             }
 
             Post::create([
-                'user_id'          => null,
-                'title'            => $p->post_title,
-                'slug'             => $finalSlug,
-                'excerpt'          => strip_tags($p->post_excerpt) ?: null,
-                'content'          => $p->post_content ?: null,
-                'status'           => 'published',
-                'meta_title'       => $meta['_yoast_wpseo_title'] ?? null,
+                'user_id' => null,
+                'title' => $p->post_title,
+                'slug' => $finalSlug,
+                'excerpt' => strip_tags($p->post_excerpt) ?: null,
+                'content' => $p->post_content ?: null,
+                'status' => 'published',
+                'meta_title' => $meta['_yoast_wpseo_title'] ?? null,
                 'meta_description' => $meta['_yoast_wpseo_metadesc'] ?? null,
-                'categories'       => $categories ?: null,
-                'tags'             => $tags ?: null,
-                'published_at'     => $p->post_date,
-                'created_at'       => $p->post_date,
+                'categories' => $categories ?: null,
+                'tags' => $tags ?: null,
+                'published_at' => $p->post_date,
+                'created_at' => $p->post_date,
             ]);
 
             $created++;

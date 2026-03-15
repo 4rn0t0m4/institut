@@ -7,8 +7,8 @@ use Illuminate\Support\Str;
 
 class WpCategories extends WpImportCommand
 {
-    
-    protected $signature   = 'migrate:wp-categories';
+    protected $signature = 'migrate:wp-categories';
+
     protected $description = 'Importe les catégories de produits depuis WordPress';
 
     public function handle(): void
@@ -30,10 +30,10 @@ class WpCategories extends WpImportCommand
 
         foreach ($rows as $row) {
             $cat = ProductCategory::create([
-                'name'        => $row->name,
-                'slug'        => Str::slug($row->slug) ?: Str::slug($row->name),
+                'name' => $row->name,
+                'slug' => Str::slug($row->slug) ?: Str::slug($row->name),
                 'description' => $row->description ?: null,
-                'sort_order'  => 0,
+                'sort_order' => 0,
             ]);
             $idMap[$row->term_id] = $cat->id;
         }

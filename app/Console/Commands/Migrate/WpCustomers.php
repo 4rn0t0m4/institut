@@ -4,12 +4,12 @@ namespace App\Console\Commands\Migrate;
 
 use App\Models\Order;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class WpCustomers extends WpImportCommand
 {
-    protected $signature   = 'migrate:wp-customers';
+    protected $signature = 'migrate:wp-customers';
+
     protected $description = 'Crée les comptes clients à partir des commandes WooCommerce (invités)';
 
     public function handle(): void
@@ -24,7 +24,7 @@ class WpCustomers extends WpImportCommand
             ->where('email', '!=', '')
             ->select('email', 'first_name', 'last_name', 'phone', 'address_1', 'address_2', 'city', 'postcode', 'country')
             ->get()
-            ->groupBy(fn($c) => strtolower(trim($c->email)));
+            ->groupBy(fn ($c) => strtolower(trim($c->email)));
 
         // Get shipping addresses too
         $shippingAddresses = $this->wp()
@@ -34,7 +34,7 @@ class WpCustomers extends WpImportCommand
             ->where('email', '!=', '')
             ->select('email', 'first_name', 'last_name', 'address_1', 'address_2', 'city', 'postcode', 'country')
             ->get()
-            ->keyBy(fn($s) => strtolower(trim($s->email)));
+            ->keyBy(fn ($s) => strtolower(trim($s->email)));
 
         $created = 0;
         $updated = 0;
@@ -44,30 +44,30 @@ class WpCustomers extends WpImportCommand
             $s = $shippingAddresses->get($email);
 
             $firstName = trim($c->first_name ?? '');
-            $lastName  = trim($c->last_name ?? '');
-            $name      = trim("$firstName $lastName") ?: $email;
+            $lastName = trim($c->last_name ?? '');
+            $name = trim("$firstName $lastName") ?: $email;
 
             $userData = [
                 'first_name' => $firstName,
-                'last_name'  => $lastName,
-                'name'       => $name,
-                'phone'      => $c->phone ?? null,
-                'address_1'  => $c->address_1 ?? null,
-                'address_2'  => $c->address_2 ?? null,
-                'city'       => $c->city ?? null,
-                'postcode'   => $c->postcode ?? null,
-                'country'    => $c->country ?? null,
+                'last_name' => $lastName,
+                'name' => $name,
+                'phone' => $c->phone ?? null,
+                'address_1' => $c->address_1 ?? null,
+                'address_2' => $c->address_2 ?? null,
+                'city' => $c->city ?? null,
+                'postcode' => $c->postcode ?? null,
+                'country' => $c->country ?? null,
             ];
 
-            if ($s && !empty($s->address_1)) {
+            if ($s && ! empty($s->address_1)) {
                 $userData += [
                     'shipping_first_name' => trim($s->first_name ?? ''),
-                    'shipping_last_name'  => trim($s->last_name ?? ''),
-                    'shipping_address_1'  => $s->address_1 ?? null,
-                    'shipping_address_2'  => $s->address_2 ?? null,
-                    'shipping_city'       => $s->city ?? null,
-                    'shipping_postcode'   => $s->postcode ?? null,
-                    'shipping_country'    => $s->country ?? null,
+                    'shipping_last_name' => trim($s->last_name ?? ''),
+                    'shipping_address_1' => $s->address_1 ?? null,
+                    'shipping_address_2' => $s->address_2 ?? null,
+                    'shipping_city' => $s->city ?? null,
+                    'shipping_postcode' => $s->postcode ?? null,
+                    'shipping_country' => $s->country ?? null,
                 ];
             }
 
@@ -78,7 +78,7 @@ class WpCustomers extends WpImportCommand
                 $updated++;
             } else {
                 $user = User::create($userData + [
-                    'email'    => $email,
+                    'email' => $email,
                     'password' => Str::random(32),
                 ]);
                 $created++;

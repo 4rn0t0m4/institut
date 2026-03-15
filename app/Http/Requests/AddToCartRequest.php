@@ -15,8 +15,8 @@ class AddToCartRequest extends FormRequest
     {
         return [
             'product_id' => 'required|exists:products,id',
-            'quantity'   => 'integer|min:1|max:99',
-            'addons'     => 'array',
+            'quantity' => 'integer|min:1|max:99',
+            'addons' => 'array',
         ];
     }
 }

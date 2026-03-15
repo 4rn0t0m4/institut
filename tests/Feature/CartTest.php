@@ -22,7 +22,7 @@ class CartTest extends TestCase
 
         $response = $this->post(route('cart.add'), [
             'product_id' => $product->id,
-            'quantity'    => 1,
+            'quantity' => 1,
         ]);
 
         $response->assertRedirect();
@@ -37,7 +37,7 @@ class CartTest extends TestCase
 
         $this->post(route('cart.add'), [
             'product_id' => $product->id,
-            'quantity'    => 3,
+            'quantity' => 3,
         ]);
 
         $cart = app(CartService::class);
@@ -77,7 +77,7 @@ class CartTest extends TestCase
     {
         $response = $this->post(route('cart.add'), [
             'product_id' => 99999,
-            'quantity'    => 1,
+            'quantity' => 1,
         ]);
 
         $response->assertSessionHasErrors('product_id');
