@@ -150,7 +150,7 @@ return new class extends Migration
                     'title' => 'Comment ta peau réagit-elle après le nettoyage ?',
                     'question' => 'Pense à ce que tu ressens juste après avoir nettoyé ton visage, sans crème.',
                 ]);
-                $labels = ['Elle tire et est inconfortable', 'Elle tire un peu, surtout sur les joues', 'Elle est confortable, rien de particulier'];
+                $labels = ['Elle tire beaucoup, c\'est inconfortable', 'Elle tire légèrement sur les joues', 'Elle est souple et confortable'];
                 foreach ($choices->values() as $i => $c) {
                     if (isset($labels[$i])) {
                         DB::table('quiz_choices')->where('id', $c->id)->update(['label' => $labels[$i]]);
