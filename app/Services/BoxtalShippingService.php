@@ -188,6 +188,11 @@ class BoxtalShippingService
                 'Accept' => 'application/json',
             ])->get($this->baseUrl().'/shipping/v3.1/shipping-order/'.$shippingOrderId);
 
+            Log::info("BoxtalShipping: GET expédition {$shippingOrderId}", [
+                'status' => $response->status(),
+                'body' => $response->json(),
+            ]);
+
             if ($response->successful()) {
                 return $response->json();
             }
