@@ -93,11 +93,7 @@ class StripeWebhookController extends Controller
             } catch (\Exception $e) {
                 Log::error("Échec envoi email admin pour commande #{$order->number}", ['error' => $e->getMessage()]);
             }
-
-            // Sync automatique vers le dashboard Boxtal Connect
-            if ($order->shipping_key === 'boxtal') {
-                app(BoxtalConnectService::class)->pushOrder($order);
-            }
+            // Le push Boxtal est géré côté client (page success) via le proxy Vercel
         }
     }
 

@@ -9,34 +9,45 @@ use Illuminate\Support\Facades\Mail;
 
 /**
  * Pousse les commandes vers le dashboard Boxtal Connect.
- * Reproduit le comportement du plugin WooCommerce Boxtal Connect.
  *
  * Doc API : https://connect.boxtal.com/api-doc
- * Endpoint : POST https://api.boxtal.com/v2/orders
  *
- * OVH mutualisé bloque api.boxtal.com — les appels passent par un proxy Vercel.
+ * OVH mutualisé bloque les appels HTTPS sortants (api.boxtal.com).
+ * Le push passe par le navigateur client → proxy Vercel → Boxtal.
+ * Laravel prépare le payload signé (HMAC), le JS de la page success l'envoie.
  */
 class BoxtalConnectService
 {
-    private function auth(): string
+    /**
+     * Prépare le payload signé pour le push côté client via le proxy Vercel.
+     * Retourne null si la commande n'utilise pas Boxtal.
+     */
+    public function buildSignedPayload(Order $order): ?array
     {
-        return base64_encode(
-            config('shipping.boxtal.access_key').':'.config('shipping.boxtal.secret_key')
-        );
-    }
+        if ($order->shipping_key !== 'boxtal') {
+            return null;
+        }
 
-    private function endpoint(): string
-    {
-        $proxyUrl = config('shipping.boxtal.proxy_url');
+        $proxySecret = config('shipping.boxtal.proxy_secret');
+        if (! $proxySecret) {
+            Log::warning('BoxtalConnect: BOXTAL_PROXY_SECRET manquant, push ignoré.');
 
-        return $proxyUrl
-            ? rtrim($proxyUrl, '/').'/api/boxtal'
-            : 'https://api.boxtal.com/v2/orders';
+            return null;
+        }
+
+        $payload = $this->buildPayload($order);
+        $signature = hash_hmac('sha256', json_encode($payload), $proxySecret);
+
+        return [
+            'url' => rtrim(config('shipping.boxtal.proxy_url'), '/').'/api/boxtal',
+            'payload' => $payload,
+            'signature' => $signature,
+        ];
     }
 
     /**
-     * Envoie la commande à Boxtal Connect.
-     * Ne lève pas d'exception — les erreurs sont loguées seulement.
+     * Push direct serveur → Boxtal (fonctionne uniquement hors OVH mutualisé).
+     * Conservé comme fallback pour les environnements sans restriction réseau.
      */
     public function pushOrder(Order $order): void
     {
@@ -49,19 +60,11 @@ class BoxtalConnectService
         $payload = $this->buildPayload($order);
 
         try {
-            $headers = [
+            $response = Http::withHeaders([
                 'Authorization' => $this->auth(),
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
-            ];
-
-            // Ajouter le secret proxy si on passe par le proxy Vercel
-            if (config('shipping.boxtal.proxy_url')) {
-                $headers['X-Proxy-Secret'] = config('shipping.boxtal.proxy_secret');
-            }
-
-            $response = Http::withHeaders($headers)
-                ->post($this->endpoint(), $payload);
+            ])->post('https://api.boxtal.com/v2/orders', $payload);
 
             if ($response->successful()) {
                 Log::info("BoxtalConnect: commande #{$order->number} envoyée.", [
@@ -80,6 +83,13 @@ class BoxtalConnectService
             ]);
             $this->notifyAdmin($order, $e->getMessage());
         }
+    }
+
+    private function auth(): string
+    {
+        return base64_encode(
+            config('shipping.boxtal.access_key').':'.config('shipping.boxtal.secret_key')
+        );
     }
 
     private function notifyAdmin(Order $order, string $error): void
@@ -120,7 +130,6 @@ class BoxtalConnectService
             'currency' => $order->currency ?? 'EUR',
         ];
 
-        // Ajout des infos point relais
         if ($order->relay_point_code) {
             $payload['shippingMethod'] = [
                 'type' => 'parcelPoint',
