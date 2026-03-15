@@ -4,6 +4,23 @@ import './bootstrap';
 import * as Turbo from '@hotwired/turbo';
 Turbo.start();
 
+// Injecter le token CSRF à jour dans chaque requête Turbo
+// Évite les erreurs 419 quand Turbo sert une page depuis son cache
+document.addEventListener('turbo:before-fetch-request', (event) => {
+    const token = document.querySelector('meta[name="csrf-token"]')?.content;
+    if (token) {
+        event.detail.fetchOptions.headers['X-CSRF-TOKEN'] = token;
+    }
+});
+
+// Rafraîchir le meta CSRF après chaque réponse Turbo
+document.addEventListener('turbo:before-render', (event) => {
+    const newToken = event.detail.newBody.querySelector('meta[name="csrf-token"]')?.content;
+    if (newToken) {
+        document.querySelector('meta[name="csrf-token"]').content = newToken;
+    }
+});
+
 // Alpine.js
 import Alpine from 'alpinejs';
 window.Alpine = Alpine;
