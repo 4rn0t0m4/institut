@@ -80,6 +80,17 @@ Route::post('/api/boxtal/parcel-points', [BoxtalController::class, 'searchParcel
 // Quiz AI recommendation
 Route::get('/api/quiz/{completion}/ai-data', [\App\Http\Controllers\Api\QuizAiController::class, 'products'])->name('quiz.ai-data');
 
+// Test temporaire : vérifier si PHP web peut appeler api.boxtal.com
+Route::get('/test-boxtal-connect', function () {
+    $order = \App\Models\Order::where('number', 'CMD-69B5825F90BF6')->with('items')->first();
+    if (! $order) {
+        return response()->json(['error' => 'Order not found']);
+    }
+    app(\App\Services\BoxtalConnectService::class)->pushOrder($order);
+
+    return response()->json(['ok' => true, 'check' => 'voir storage/logs/laravel.log']);
+})->middleware('auth');
+
 // Webhook Stripe (exclure CSRF)
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
 
