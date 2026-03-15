@@ -182,19 +182,29 @@ function aiRecommendation(completionId) {
 
         renderMarkdown(md) {
             return md
-                // Supprimer les images markdown générées par l'IA (on les remplace par les nôtres)
+                // Supprimer les images markdown générées par l'IA
                 .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '')
-                // Liens produit → lien + miniature
+                // Lien produit + prix sur la même ligne ou la suivante : [Nom](url) — prix€
+                .replace(/\[([^\]]+)\]\(([^)]+)\)\s*[—–-]\s*(\d+[.,]?\d*)\s*€/g, (match, text, url, price) => {
+                    const img = this.findProductImage(url);
+                    const cleanText = text.replace(/\*\*/g, '');
+                    const imgHtml = img
+                        ? `<img src="${img}" alt="" class="w-16 h-16 object-cover rounded-lg shrink-0">`
+                        : '';
+                    return `<a href="${url}" class="flex items-center gap-3 p-3 my-2 rounded-xl border border-gray-100 hover:border-green-200 hover:bg-green-50/50 transition no-underline group">${imgHtml}<span class="flex flex-col min-w-0"><span class="text-sm font-medium text-gray-900 group-hover:text-green-800">${cleanText}</span><span class="text-sm text-green-700 font-semibold">${price} €</span></span></a>`;
+                })
+                // Liens restants (sans prix)
                 .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
                     const img = this.findProductImage(url);
-                    const imgHtml = img
-                        ? `<img src="${img}" alt="" class="w-14 h-14 object-cover rounded-lg shrink-0">`
-                        : '';
-                    return `<a href="${url}" class="flex items-center gap-3 p-2 -mx-2 rounded-xl hover:bg-green-50 transition no-underline">${imgHtml}<span class="text-green-700 underline hover:text-green-900">${text}</span></a>`;
+                    const cleanText = text.replace(/\*\*/g, '');
+                    if (img) {
+                        return `<a href="${url}" class="flex items-center gap-3 p-3 my-2 rounded-xl border border-gray-100 hover:border-green-200 hover:bg-green-50/50 transition no-underline group"><img src="${img}" alt="" class="w-16 h-16 object-cover rounded-lg shrink-0"><span class="text-sm font-medium text-gray-900 group-hover:text-green-800">${cleanText}</span></a>`;
+                    }
+                    return `<a href="${url}" class="text-green-700 underline hover:text-green-900">${cleanText}</a>`;
                 })
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>')
-                .replace(/^### (.+)$/gm, '<h4 class="font-semibold text-gray-900 mt-4 mb-1">$1</h4>')
+                .replace(/^### (.+)$/gm, '<h4 class="font-semibold text-gray-900 mt-5 mb-2">$1</h4>')
                 .replace(/^## (.+)$/gm, '<h3 class="font-bold text-gray-900 mt-5 mb-2">$1</h3>')
                 .replace(/^- (.+)$/gm, '<li class="ml-4">$1</li>')
                 .replace(/(<li.*<\/li>\n?)+/g, '<ul class="list-disc space-y-1 my-2">$&</ul>')
