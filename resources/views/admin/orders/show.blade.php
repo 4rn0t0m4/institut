@@ -165,7 +165,15 @@
                         <form method="POST" action="{{ route('admin.orders.create-shipment', $order) }}">
                             @csrf
                             <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                                {{ $order->shipping_method ?? 'Expédition' }}
+                                @if ($order->relay_network === 'MONR_NETWORK')
+                                    Mondial Relay
+                                @elseif ($order->relay_network === 'CHRP_NETWORK')
+                                    Chronopost
+                                @elseif ($order->shipping_key === 'colissimo')
+                                    Colissimo
+                                @else
+                                    {{ $order->shipping_method ?? 'Expédition' }}
+                                @endif
                                 @if ($order->relay_point_code)
                                     <br><span class="text-xs">Relais : {{ $order->relay_point_code }}</span>
                                 @endif
