@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\Http;
 
 class BoxtalController extends Controller
 {
+    private function auth(): string
+    {
+        return base64_encode(
+            config('shipping.boxtal.v3_access_key').':'.config('shipping.boxtal.v3_secret_key')
+        );
+    }
+
     public function mapToken()
     {
         // Cache the token for 50 minutes (it expires after 1 hour)
@@ -15,7 +22,7 @@ class BoxtalController extends Controller
             return $this->fetchToken();
         });
 
-        if (!$token) {
+        if (! $token) {
             return response()->json(['error' => 'Unable to get map token'], 500);
         }
 
@@ -26,27 +33,23 @@ class BoxtalController extends Controller
     {
         $request->validate([
             'zipCode' => 'required|string|max:10',
-            'city'    => 'required|string|max:100',
+            'city' => 'required|string|max:100',
             'country' => 'nullable|string|size:2',
         ]);
 
-        $auth = base64_encode(
-            config('shipping.boxtal.access_key') . ':' . config('shipping.boxtal.secret_key')
-        );
-
         $response = Http::withHeaders([
-            'Authorization' => $auth,
-            'Content-Type'  => 'application/json',
+            'Authorization' => 'Basic '.$this->auth(),
+            'Content-Type' => 'application/json',
         ])->post('https://api.boxtal.com/v2/parcel-point', [
             'networks' => config('shipping.boxtal.networks'),
-            'address'  => [
+            'address' => [
                 'zipCode' => $request->input('zipCode'),
-                'city'    => $request->input('city'),
+                'city' => $request->input('city'),
                 'country' => $request->input('country', 'FR'),
             ],
         ]);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return response()->json(['error' => 'Recherche impossible', 'points' => []], 422);
         }
 
@@ -69,26 +72,26 @@ class BoxtalController extends Controller
 
             $openingDays = collect($p['openingDays'] ?? [])->map(function ($day) use ($dayLabels) {
                 $slots = collect($day['openingPeriods'] ?? [])->map(function ($slot) {
-                    return ($slot['openingTime'] ?? '') . '-' . ($slot['closingTime'] ?? '');
+                    return ($slot['openingTime'] ?? '').'-'.($slot['closingTime'] ?? '');
                 })->join(', ');
 
                 return [
-                    'day'   => $dayLabels[$day['weekday']] ?? $day['weekday'],
+                    'day' => $dayLabels[$day['weekday']] ?? $day['weekday'],
                     'slots' => $slots,
                 ];
             })->values()->all();
 
             return [
-                'code'         => $p['code'] ?? '',
-                'name'         => $p['name'] ?? '',
-                'network'      => $network,
+                'code' => $p['code'] ?? '',
+                'name' => $p['name'] ?? '',
+                'network' => $network,
                 'networkLabel' => $networkLabels[$network] ?? $network,
-                'street'       => $p['location']['street'] ?? '',
-                'zipCode'      => $p['location']['zipCode'] ?? '',
-                'city'         => $p['location']['city'] ?? '',
-                'lat'          => (float) ($p['location']['position']['latitude'] ?? 0),
-                'lng'          => (float) ($p['location']['position']['longitude'] ?? 0),
-                'openingDays'  => $openingDays,
+                'street' => $p['location']['street'] ?? '',
+                'zipCode' => $p['location']['zipCode'] ?? '',
+                'city' => $p['location']['city'] ?? '',
+                'lat' => (float) ($p['location']['position']['latitude'] ?? 0),
+                'lng' => (float) ($p['location']['position']['longitude'] ?? 0),
+                'openingDays' => $openingDays,
             ];
         })->take(30)->values();
 
@@ -97,13 +100,9 @@ class BoxtalController extends Controller
 
     private function fetchToken(): ?string
     {
-        $auth = base64_encode(
-            config('shipping.boxtal.access_key') . ':' . config('shipping.boxtal.secret_key')
-        );
-
         $response = Http::withHeaders([
-            'Authorization' => $auth,
-            'Content-Type'  => 'application/json',
+            'Authorization' => 'Basic '.$this->auth(),
+            'Content-Type' => 'application/json',
         ])->post(config('shipping.boxtal.token_url'));
 
         return $response->json('accessToken');
