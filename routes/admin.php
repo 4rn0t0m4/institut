@@ -1,19 +1,19 @@
 <?php
 
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\ProductCategoryController;
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Admin\EditorUploadController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
-use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Admin\ProductCategoryController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductTagController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShippingController;
-use App\Http\Controllers\Admin\AnnouncementController;
-use App\Http\Controllers\Admin\EditorUploadController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -24,6 +24,7 @@ Route::resource('categories', ProductCategoryController::class)->names('admin.ca
 Route::resource('brands', BrandController::class)->except(['show'])->names('admin.brands');
 Route::resource('orders', OrderController::class)->only(['index', 'show', 'edit', 'update', 'destroy'])->names('admin.orders');
 Route::post('orders/{order}/resend-emails', [OrderController::class, 'resendEmails'])->name('admin.orders.resend-emails');
+Route::post('orders/{order}/create-shipment', [OrderController::class, 'createShipment'])->name('admin.orders.create-shipment');
 Route::resource('customers', CustomerController::class)->only(['index', 'show'])->names('admin.customers');
 Route::resource('pages', PageController::class)->names('admin.pages');
 Route::resource('discounts', DiscountController::class)->except(['show'])->names('admin.discounts');

@@ -8,6 +8,7 @@ use App\Mail\OrderConfirmation;
 use App\Mail\OrderShipped;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Services\BoxtalShippingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -97,6 +98,33 @@ class OrderController extends Controller
 
             return redirect()->route('admin.orders.show', $order)->with('error', "Erreur lors de l'envoi : {$e->getMessage()}");
         }
+    }
+
+    public function createShipment(Request $request, Order $order, BoxtalShippingService $boxtal)
+    {
+        if ($order->boxtal_shipping_order_id) {
+            return redirect()->route('admin.orders.show', $order)->with('error', 'Une expédition Boxtal existe déjà pour cette commande.');
+        }
+
+        $validated = $request->validate([
+            'weight' => 'nullable|numeric|min:0.01|max:30',
+            'length' => 'nullable|integer|min:1|max:200',
+            'width' => 'nullable|integer|min:1|max:200',
+            'height' => 'nullable|integer|min:1|max:200',
+            'shippingOfferCode' => 'nullable|string|max:50',
+        ]);
+
+        $overrides = array_filter($validated);
+
+        $result = $boxtal->createShipment($order, $overrides);
+
+        if ($result['success']) {
+            $order->update(['boxtal_shipping_order_id' => $result['shipping_order_id']]);
+
+            return redirect()->route('admin.orders.show', $order)->with('success', 'Expédition Boxtal créée avec succès (ID : '.$result['shipping_order_id'].').');
+        }
+
+        return redirect()->route('admin.orders.show', $order)->with('error', 'Erreur Boxtal : '.$result['error']);
     }
 
     public function destroy(Order $order)
