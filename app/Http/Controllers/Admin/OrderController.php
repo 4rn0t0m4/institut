@@ -121,7 +121,6 @@ class OrderController extends Controller
         if ($result['success']) {
             $order->update([
                 'boxtal_shipping_order_id' => $result['shipping_order_id'],
-                'boxtal_label_url' => $result['label_url'],
             ]);
 
             return redirect()->route('admin.orders.show', $order)->with('success', 'Expédition Boxtal créée avec succès (ID : '.$result['shipping_order_id'].').');
@@ -130,32 +129,9 @@ class OrderController extends Controller
         return redirect()->route('admin.orders.show', $order)->with('error', 'Erreur Boxtal : '.$result['error']);
     }
 
-    public function downloadLabel(Order $order, BoxtalShippingService $boxtal)
-    {
-        if (! $order->boxtal_shipping_order_id) {
-            return redirect()->route('admin.orders.show', $order)->with('error', 'Aucune expédition Boxtal pour cette commande.');
-        }
-
-        // Utiliser l'URL stockée ou la récupérer via l'API
-        $labelUrl = $order->boxtal_label_url;
-
-        if (! $labelUrl) {
-            $labelUrl = $boxtal->getLabelUrl($order->boxtal_shipping_order_id);
-            if ($labelUrl) {
-                $order->update(['boxtal_label_url' => $labelUrl]);
-            }
-        }
-
-        if (! $labelUrl) {
-            return redirect()->route('admin.orders.show', $order)->with('error', 'Étiquette non disponible. Elle sera peut-être générée dans quelques instants, réessayez.');
-        }
-
-        return redirect($labelUrl);
-    }
-
     public function resetShipment(Order $order)
     {
-        $order->update(['boxtal_shipping_order_id' => null, 'boxtal_label_url' => null]);
+        $order->update(['boxtal_shipping_order_id' => null]);
 
         return redirect()->route('admin.orders.show', $order)->with('success', 'Expédition Boxtal dissociée. Vous pouvez en créer une nouvelle.');
     }

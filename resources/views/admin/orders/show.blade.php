@@ -150,24 +150,18 @@
                         <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
                             <p><span class="font-medium">ID expédition :</span> {{ $order->boxtal_shipping_order_id }}</p>
 
-                            <a href="{{ route('admin.orders.download-label', $order) }}" target="_blank" class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
+                            <a href="https://www.boxtal.com/fr/fr/mon-compte/mes-envois" target="_blank" class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                Télécharger l'étiquette
+                                Voir / imprimer l'étiquette
                             </a>
 
-                            <div class="flex items-center justify-between">
-                                <a href="https://www.boxtal.com" target="_blank" class="inline-flex items-center gap-1 text-brand-500 hover:underline text-xs">
-                                    Voir sur Boxtal
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                </a>
-                                <form method="POST" action="{{ route('admin.orders.reset-shipment', $order) }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-xs text-error-500 hover:underline" onclick="return confirm('Dissocier cette expédition Boxtal ? (ne l\'annule pas sur Boxtal)')">
-                                        Dissocier
-                                    </button>
-                                </form>
-                            </div>
+                            <form method="POST" action="{{ route('admin.orders.reset-shipment', $order) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-xs text-error-500 hover:underline" onclick="return confirm('Dissocier cette expédition Boxtal ? (ne l\'annule pas sur Boxtal)')">
+                                    Dissocier l'expédition
+                                </button>
+                            </form>
                         </div>
                     @else
                         <form method="POST" action="{{ route('admin.orders.create-shipment', $order) }}">

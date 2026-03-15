@@ -47,18 +47,13 @@ class BoxtalShippingService
             ])->post($this->baseUrl().'/shipping/v3.1/shipping-order', $payload);
 
             if ($response->successful()) {
-                $body = $response->json();
-                $shippingOrderId = $body['content']['id'] ?? null;
+                $shippingOrderId = $response->json('content.id');
 
                 Log::info("BoxtalShipping: expédition créée pour commande #{$order->number}", [
                     'shipping_order_id' => $shippingOrderId,
-                    'response' => $body,
                 ]);
 
-                // Extraire l'URL de l'étiquette depuis la réponse
-                $labelUrl = $this->extractLabelUrl($body);
-
-                return ['success' => true, 'shipping_order_id' => $shippingOrderId, 'label_url' => $labelUrl, 'error' => null];
+                return ['success' => true, 'shipping_order_id' => $shippingOrderId, 'error' => null];
             }
 
             $errorBody = $response->json();
@@ -69,13 +64,13 @@ class BoxtalShippingService
                 'body' => $errorBody,
             ]);
 
-            return ['success' => false, 'shipping_order_id' => null, 'label_url' => null, 'error' => $errorMsg];
+            return ['success' => false, 'shipping_order_id' => null, 'error' => $errorMsg];
         } catch (\Throwable $e) {
             Log::error("BoxtalShipping: exception pour commande #{$order->number}", [
                 'error' => $e->getMessage(),
             ]);
 
-            return ['success' => false, 'shipping_order_id' => null, 'label_url' => null, 'error' => $e->getMessage()];
+            return ['success' => false, 'shipping_order_id' => null, 'error' => $e->getMessage()];
         }
     }
 
@@ -175,78 +170,6 @@ class BoxtalShippingService
 
         // Par défaut : Mondial Relay
         return $offers['MONR_NETWORK'] ?? 'MONR-CpourToi';
-    }
-
-    /**
-     * Récupère les détails d'une expédition, y compris les URLs des documents.
-     */
-    public function getShipmentDetails(string $shippingOrderId): ?array
-    {
-        try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Basic '.$this->auth(),
-                'Accept' => 'application/json',
-            ])->get($this->baseUrl().'/shipping/v3.1/shipping-order/'.$shippingOrderId);
-
-            Log::info("BoxtalShipping: GET expédition {$shippingOrderId}", [
-                'status' => $response->status(),
-                'body' => $response->json(),
-            ]);
-
-            if ($response->successful()) {
-                return $response->json();
-            }
-
-            Log::warning("BoxtalShipping: impossible de récupérer l'expédition {$shippingOrderId}", [
-                'status' => $response->status(),
-            ]);
-        } catch (\Throwable $e) {
-            Log::error("BoxtalShipping: exception GET expédition {$shippingOrderId}", [
-                'error' => $e->getMessage(),
-            ]);
-        }
-
-        return null;
-    }
-
-    /**
-     * Récupère l'URL de l'étiquette pour une expédition.
-     */
-    public function getLabelUrl(string $shippingOrderId): ?string
-    {
-        $details = $this->getShipmentDetails($shippingOrderId);
-        if (! $details) {
-            return null;
-        }
-
-        return $this->extractLabelUrl($details);
-    }
-
-    /**
-     * Extrait l'URL du label depuis la réponse API.
-     * Cherche dans plusieurs structures possibles de la réponse.
-     */
-    private function extractLabelUrl(?array $body): ?string
-    {
-        if (! $body) {
-            return null;
-        }
-
-        // Structure possible : content.documents[].url (type LABEL)
-        $documents = $body['content']['documents'] ?? $body['documents'] ?? [];
-        foreach ($documents as $doc) {
-            if (($doc['type'] ?? '') === 'LABEL' || ($doc['type'] ?? '') === 'label') {
-                return $doc['url'] ?? null;
-            }
-        }
-
-        // Première URL de document disponible
-        if (! empty($documents)) {
-            return $documents[0]['url'] ?? null;
-        }
-
-        // Structure alternative : content.labelUrl ou labelUrl
-        return $body['content']['labelUrl'] ?? $body['labelUrl'] ?? null;
     }
 
     private function formatApiError(?array $body, int $status): string
