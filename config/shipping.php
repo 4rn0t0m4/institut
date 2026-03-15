@@ -82,7 +82,7 @@ return [
         // Codes offres par méthode d'expédition / réseau
         'shipping_offer_codes' => [
             'MONR_NETWORK' => env('BOXTAL_OFFER_MONR', 'MONR-CpourToi'),
-            'CHRP_NETWORK' => env('BOXTAL_OFFER_CHRP', 'CHRP-Chrono13'),
+            'CHRP_NETWORK' => env('BOXTAL_OFFER_CHRP', 'CHRP-ChronoShoptoShop'),
             'colissimo' => env('BOXTAL_OFFER_COLISSIMO', 'POFR-ColissimoAccess'),
         ],
     ],
