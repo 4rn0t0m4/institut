@@ -45,8 +45,7 @@ return [
     'boxtal' => [
         'access_key' => env('BOXTAL_ACCESS_KEY'),
         'secret_key' => env('BOXTAL_SECRET_KEY'),
-        'proxy_url' => env('BOXTAL_PROXY_URL'),
-        'proxy_secret' => env('BOXTAL_PROXY_SECRET'),
+        'connect_access_key' => env('BOXTAL_CONNECT_ACCESS_KEY'),
         'token_url' => 'https://api.boxtal.com/v2/token/maps',
         'bootstrap_url' => 'https://maps.boxtal.com/styles/boxtal/style.json?access_token=${access_token}',
         'networks' => ['MONR_NETWORK', 'CHRP_NETWORK'],

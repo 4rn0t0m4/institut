@@ -80,6 +80,14 @@ Route::post('/api/boxtal/parcel-points', [BoxtalController::class, 'searchParcel
 // Quiz AI recommendation
 Route::get('/api/quiz/{completion}/ai-data', [\App\Http\Controllers\Api\QuizAiController::class, 'products'])->name('quiz.ai-data');
 
+// Boxtal Connect (sync commandes — exclure CSRF)
+Route::prefix('boxtal-connect/v1')->group(function () {
+    Route::post('/shop/pair', [\App\Http\Controllers\BoxtalConnectController::class, 'pair']);
+    Route::post('/order', [\App\Http\Controllers\BoxtalConnectController::class, 'retrieveOrders']);
+    Route::post('/order/{orderId}/shipped', [\App\Http\Controllers\BoxtalConnectController::class, 'orderShipped']);
+    Route::post('/order/{orderId}/delivered', [\App\Http\Controllers\BoxtalConnectController::class, 'orderDelivered']);
+});
+
 // Webhook Stripe (exclure CSRF)
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
 
