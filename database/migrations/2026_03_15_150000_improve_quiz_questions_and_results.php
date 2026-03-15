@@ -46,8 +46,6 @@ return new class extends Migration
                 'is_correct' => false,
                 'goto' => 'next',
                 'sort_order' => $choice['sort'],
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
         }
 
@@ -75,8 +73,6 @@ return new class extends Migration
                 'is_correct' => false,
                 'goto' => 'next',
                 'sort_order' => $choice['sort'],
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
         }
 
