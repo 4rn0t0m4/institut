@@ -15,5 +15,6 @@ class VerifyCsrfToken extends Middleware
         'stripe/webhook',
         'boxtal-connect/*',
         'wp-json/boxtal-connect/*',
+        'api/boxtal/webhook',
     ];
 }

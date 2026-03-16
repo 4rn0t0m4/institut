@@ -172,6 +172,70 @@ class BoxtalShippingService
         return $offers['MONR_NETWORK'] ?? 'MONR-CpourToi';
     }
 
+    /**
+     * Récupère les infos de tracking depuis l'API Boxtal v3.
+     *
+     * @param  string  $shippingOrderId  L'ID Boxtal de la commande d'expédition
+     * @return array{tracking_number: ?string, tracking_url: ?string, events: array}
+     */
+    public function fetchTrackingV3(string $shippingOrderId): array
+    {
+        if (! config('shipping.boxtal.v3_access_key')) {
+            Log::warning('BoxtalShipping: impossible de récupérer le tracking — clés v3 non configurées');
+
+            return ['tracking_number' => null, 'tracking_url' => null, 'events' => []];
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Basic '.$this->auth(),
+                'Accept' => 'application/json',
+            ])->get($this->baseUrl().'/shipping/v3.1/shipping-order/'.$shippingOrderId.'/tracking');
+
+            if (! $response->successful()) {
+                Log::warning("BoxtalShipping: échec récupération tracking pour shipping_order={$shippingOrderId}", [
+                    'status' => $response->status(),
+                    'body' => $response->json(),
+                ]);
+
+                return ['tracking_number' => null, 'tracking_url' => null, 'events' => []];
+            }
+
+            $data = $response->json();
+            $parcel = $data['parcels'][0] ?? $data['content'][0] ?? null;
+
+            // Extraire le numéro de suivi et l'URL selon la structure de la réponse
+            $trackingNumber = $parcel['trackingNumber'] ?? $parcel['reference'] ?? $data['trackingNumber'] ?? null;
+            $trackingUrl = $parcel['trackingUrl'] ?? $data['trackingUrl'] ?? null;
+            $events = $parcel['events'] ?? $data['events'] ?? [];
+
+            return [
+                'tracking_number' => $trackingNumber,
+                'tracking_url' => $trackingUrl,
+                'events' => $events,
+            ];
+        } catch (\Throwable $e) {
+            Log::error("BoxtalShipping: exception récupération tracking v3 {$shippingOrderId}", [
+                'error' => $e->getMessage(),
+            ]);
+
+            return ['tracking_number' => null, 'tracking_url' => null, 'events' => []];
+        }
+    }
+
+    /**
+     * Déduit le nom du transporteur à partir des infos de la commande.
+     */
+    public static function carrierName(Order $order): ?string
+    {
+        return match (true) {
+            $order->relay_network === 'MONR_NETWORK' => 'Mondial Relay',
+            $order->relay_network === 'CHRP_NETWORK' => 'Chronopost',
+            $order->shipping_key === 'colissimo' => 'Colissimo',
+            default => null,
+        };
+    }
+
     private function formatApiError(?array $body, int $status): string
     {
         if (! $body || ! isset($body['errors'])) {

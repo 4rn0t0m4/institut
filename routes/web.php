@@ -91,6 +91,9 @@ $boxtalRoutes = function () {
 Route::prefix('boxtal-connect/v1')->group($boxtalRoutes);
 Route::prefix('wp-json/boxtal-connect/v1')->group($boxtalRoutes);
 
+// Webhook Boxtal v3 (exclure CSRF)
+Route::post('/api/boxtal/webhook', [\App\Http\Controllers\BoxtalWebhookController::class, 'handle']);
+
 // Webhook Stripe (exclure CSRF)
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
 

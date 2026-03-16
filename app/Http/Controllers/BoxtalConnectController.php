@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderShipped;
 use App\Models\Order;
 use App\Services\BoxtalAuthService;
+use App\Services\BoxtalShippingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Endpoints REST compatibles Boxtal Connect.
@@ -22,7 +25,10 @@ use Illuminate\Support\Facades\Log;
  */
 class BoxtalConnectController extends Controller
 {
-    public function __construct(private BoxtalAuthService $auth) {}
+    public function __construct(
+        private BoxtalAuthService $auth,
+        private BoxtalShippingService $shipping,
+    ) {}
 
     /**
      * Pairing : Boxtal envoie les credentials pour connecter la boutique.
@@ -135,6 +141,9 @@ class BoxtalConnectController extends Controller
 
     /**
      * Boxtal signale qu'une commande a été expédiée.
+     *
+     * Récupère le tracking depuis l'API Boxtal, met à jour la commande,
+     * puis envoie l'email d'expédition au client.
      */
     public function orderShipped(Request $request, int $orderId): JsonResponse
     {
@@ -150,12 +159,36 @@ class BoxtalConnectController extends Controller
             return response()->json(['message' => 'Order not found'], 404);
         }
 
+        // Récupérer le tracking depuis l'API Boxtal v3 si possible
+        $trackingNumber = $order->tracking_number;
+        if ($order->boxtal_shipping_order_id) {
+            $tracking = $this->shipping->fetchTrackingV3($order->boxtal_shipping_order_id);
+            $trackingNumber = $tracking['tracking_number'] ?? $trackingNumber;
+        }
+        $carrier = BoxtalShippingService::carrierName($order);
+
         $order->update([
             'status' => 'shipped',
             'shipped_at' => now(),
+            'tracking_number' => $trackingNumber,
+            'tracking_carrier' => $carrier ?? $order->tracking_carrier,
         ]);
 
-        Log::info("BoxtalConnect: commande #{$order->number} marquée expédiée");
+        Log::info("BoxtalConnect: commande #{$order->number} marquée expédiée", [
+            'tracking_number' => $order->tracking_number,
+            'tracking_carrier' => $order->tracking_carrier,
+        ]);
+
+        // Envoyer l'email d'expédition au client
+        try {
+            $order->load('items');
+            Mail::to($order->billing_email)->send(new OrderShipped($order));
+            Log::info("BoxtalConnect: email d'expédition envoyé pour commande #{$order->number}");
+        } catch (\Throwable $e) {
+            Log::error("BoxtalConnect: échec envoi email expédition #{$order->number}", [
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json(null, 200);
     }

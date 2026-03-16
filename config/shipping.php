@@ -53,7 +53,10 @@ return [
         // API v3 — expéditions
         'v3_access_key' => env('BOXTAL_V3_ACCESS_KEY'),
         'v3_secret_key' => env('BOXTAL_V3_SECRET_KEY'),
-        'v3_base_url' => 'https://api.boxtal.com',
+        'v3_base_url' => env('BOXTAL_V3_BASE_URL', 'https://api.boxtal.com'),
+
+        // Webhook v3 — secret pour vérifier la signature HMAC SHA256
+        'v3_webhook_secret' => env('BOXTAL_V3_WEBHOOK_SECRET'),
 
         // Adresse expéditeur
         'from_address' => [
