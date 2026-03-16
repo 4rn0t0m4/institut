@@ -10,12 +10,9 @@ return [
     | google = nom Google Fonts (chargé dynamiquement sur la fiche produit).
     */
     'fonts' => [
-        'dancing-script' => ['label' => 'Dancing Script',   'google' => 'Dancing+Script'],
-        'great-vibes' => ['label' => 'Great Vibes',      'google' => 'Great+Vibes'],
-        'playfair-display' => ['label' => 'Playfair Display',  'google' => 'Playfair+Display'],
-        'montserrat' => ['label' => 'Montserrat',       'google' => 'Montserrat'],
-        'pacifico' => ['label' => 'Pacifico',         'google' => 'Pacifico'],
-        'lora' => ['label' => 'Lora',             'google' => 'Lora'],
+        'pacifico' => ['label' => 'Pacifico', 'google' => 'Pacifico'],
+        'angelisa' => ['label' => 'Angelisa', 'google' => null, 'local' => true],
+        'cinzel' => ['label' => 'Cinzel',   'google' => 'Cinzel'],
     ],
 
     /*

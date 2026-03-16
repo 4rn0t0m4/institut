@@ -8,10 +8,12 @@
 
 @if($product->personalizable)
 @push('head')
-@php $googleFonts = collect(config('personalization.fonts'))->pluck('google')->implode('&family='); @endphp
+@php $googleFonts = collect(config('personalization.fonts'))->pluck('google')->filter()->implode('&family='); @endphp
+@if($googleFonts)
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family={{ $googleFonts }}&display=swap" rel="stylesheet">
+@endif
 @endpush
 @endif
 
@@ -353,7 +355,7 @@ $breadcrumbJsonLd = json_encode([
                                            :class="persoFont === '{{ $fontKey }}' ? 'border-[#276e44] bg-[#e8fae8]' : 'border-gray-200 bg-white hover:border-gray-300'">
                                         <input type="radio" name="personalization[font]" value="{{ $fontKey }}"
                                                x-model="persoFont" class="sr-only">
-                                        <span class="text-sm" style="font-family: '{{ $fontData['label'] }}', cursive;">{{ $fontData['label'] }}</span>
+                                        <span class="text-sm" style="font-family: '{{ $fontData['label'] }}', serif;">{{ $fontData['label'] }}</span>
                                     </label>
                                 @endforeach
                             </div>
@@ -379,7 +381,7 @@ $breadcrumbJsonLd = json_encode([
                         <div x-show="persoText.length > 0" x-transition>
                             <p class="text-xs font-medium mb-2" style="color: #9ca3af;">Aperçu</p>
                             <div class="rounded-lg p-4 text-center" style="background-color: #ffffff; border: 1px dashed #b0f1b9;">
-                                <span class="text-2xl" :style="'font-family: \'' + persoFontLabel + '\', cursive; color: ' + persoColorHex">
+                                <span class="text-2xl" :style="'font-family: \'' + persoFontLabel + '\', serif; color: ' + persoColorHex">
                                     <span x-text="persoText"></span>
                                 </span>
                             </div>
