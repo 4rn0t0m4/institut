@@ -64,7 +64,7 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'status' => 'required|string|in:pending,processing,completed,cancelled',
+            'status' => 'required|string|in:pending,processing,shipped,completed,cancelled',
             'tracking_number' => 'nullable|string|max:255',
             'tracking_carrier' => 'nullable|string|max:255',
             'customer_note' => 'nullable|string|max:1000',

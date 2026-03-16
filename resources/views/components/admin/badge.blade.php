@@ -4,6 +4,7 @@
     $styles = [
         'pending' => 'bg-warning-50 text-warning-700 dark:bg-warning-500/10 dark:text-warning-400',
         'processing' => 'bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400',
+        'shipped' => 'bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400',
         'completed' => 'bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400',
         'cancelled' => 'bg-error-50 text-error-700 dark:bg-error-500/10 dark:text-error-400',
         'published' => 'bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400',
@@ -13,6 +14,7 @@
     $labels = [
         'pending' => 'Non réglée',
         'processing' => 'En cours',
+        'shipped' => 'Expédiée',
         'completed' => 'Terminée',
         'cancelled' => 'Annulée',
         'published' => 'Publiée',

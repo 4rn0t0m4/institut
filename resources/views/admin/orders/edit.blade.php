@@ -17,6 +17,7 @@
                             class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90">
                             <option value="pending" {{ old('status', $order->status) === 'pending' ? 'selected' : '' }}>Non réglée</option>
                             <option value="processing" {{ old('status', $order->status) === 'processing' ? 'selected' : '' }}>En cours</option>
+                            <option value="shipped" {{ old('status', $order->status) === 'shipped' ? 'selected' : '' }}>Expédiée</option>
                             <option value="completed" {{ old('status', $order->status) === 'completed' ? 'selected' : '' }}>Terminée</option>
                             <option value="cancelled" {{ old('status', $order->status) === 'cancelled' ? 'selected' : '' }}>Annulée</option>
                         </select>

@@ -42,6 +42,7 @@
                     <option value="">Tous les statuts</option>
                     <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Non réglée</option>
                     <option value="processing" {{ request('status') === 'processing' ? 'selected' : '' }}>En cours</option>
+                    <option value="shipped" {{ request('status') === 'shipped' ? 'selected' : '' }}>Expédiée</option>
                     <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Terminée</option>
                     <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Annulée</option>
                 </select>
