@@ -114,6 +114,49 @@ class BoxtalSubscriptionController extends Controller
             ->with('results', $results);
     }
 
+    /**
+     * Simule un webhook TRACKING_CHANGED sur une vraie commande.
+     * Met à jour le statut et envoie l'email d'expédition.
+     */
+    public function test(Request $request)
+    {
+        $orderNumber = $request->input('order_number');
+
+        $order = \App\Models\Order::where('number', $orderNumber)->first();
+
+        if (! $order) {
+            return redirect()->route('admin.boxtal-subscriptions.index')
+                ->with('error', "Commande {$orderNumber} introuvable.");
+        }
+
+        // Simuler la mise à jour comme le ferait le webhook
+        $carrier = \App\Services\BoxtalShippingService::carrierName($order);
+
+        $order->update([
+            'status' => 'shipped',
+            'shipped_at' => now(),
+            'tracking_number' => $order->tracking_number ?: 'TEST-'.strtoupper(bin2hex(random_bytes(6))),
+            'tracking_carrier' => $carrier ?? $order->tracking_carrier ?? 'Colissimo',
+        ]);
+
+        // Envoyer l'email
+        $emailResult = 'non envoyé';
+        try {
+            $order->load('items');
+            \Illuminate\Support\Facades\Mail::to($order->billing_email)
+                ->send(new \App\Mail\OrderShipped($order));
+            $emailResult = "envoyé à {$order->billing_email}";
+        } catch (\Throwable $e) {
+            $emailResult = "erreur : {$e->getMessage()}";
+        }
+
+        return redirect()->route('admin.boxtal-subscriptions.index')
+            ->with('test_result', [
+                'status' => 200,
+                'body' => "Commande #{$order->number} → statut shipped, tracking: {$order->tracking_number}, carrier: {$order->tracking_carrier}, email: {$emailResult}",
+            ]);
+    }
+
     public function destroy(string $id)
     {
         try {

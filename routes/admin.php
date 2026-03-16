@@ -49,4 +49,5 @@ Route::post('editor-upload', [EditorUploadController::class, 'upload'])->name('a
 
 Route::get('boxtal-subscriptions', [\App\Http\Controllers\Admin\BoxtalSubscriptionController::class, 'index'])->name('admin.boxtal-subscriptions.index');
 Route::post('boxtal-subscriptions', [\App\Http\Controllers\Admin\BoxtalSubscriptionController::class, 'store'])->name('admin.boxtal-subscriptions.store');
+Route::post('boxtal-subscriptions/test', [\App\Http\Controllers\Admin\BoxtalSubscriptionController::class, 'test'])->name('admin.boxtal-subscriptions.test');
 Route::delete('boxtal-subscriptions/{id}', [\App\Http\Controllers\Admin\BoxtalSubscriptionController::class, 'destroy'])->name('admin.boxtal-subscriptions.destroy');

@@ -42,6 +42,20 @@
             </div>
         @endif
 
+        {{-- Résultat du test --}}
+        @if(session('test_result'))
+            @php $test = session('test_result'); @endphp
+            <div class="rounded-lg border p-4 text-sm {{ $test['status'] === 200 ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300' : 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300' }}">
+                <strong>Test webhook :</strong> HTTP {{ $test['status'] }}
+                @if(is_array($test['body']))
+                    — {{ json_encode($test['body']) }}
+                @else
+                    — {{ $test['body'] }}
+                @endif
+                <p class="mt-1 text-xs opacity-75">Vérifie les logs (storage/logs/laravel.log) pour plus de détails.</p>
+            </div>
+        @endif
+
         {{-- Erreur de chargement --}}
         @if($error)
             <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
@@ -75,6 +89,22 @@
             @else
                 <p class="text-sm text-gray-500 dark:text-gray-400">Aucune souscription.</p>
             @endif
+
+            <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                <form method="POST" action="{{ route('admin.boxtal-subscriptions.test') }}" class="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+                    @csrf
+                    <div>
+                        <label for="order_number" class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">N° de commande</label>
+                        <input type="text" id="order_number" name="order_number" required placeholder="CMD-..."
+                            class="h-10 w-48 rounded-lg border border-gray-200 bg-transparent px-3 text-sm dark:border-gray-700 dark:bg-white/3 dark:text-white/90" />
+                    </div>
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Tester (expédier + email)
+                    </button>
+                </form>
+                <p class="mt-1 text-xs text-gray-400">Simule l'expédition : passe la commande en "shipped" et envoie l'email au client.</p>
+            </div>
         </div>
 
         {{-- Créer les souscriptions --}}
