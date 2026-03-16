@@ -110,7 +110,7 @@ class BoxtalSubscribe extends Command
 
         $this->info("URL de callback : {$callbackUrl}");
 
-        $eventTypes = ['TRACKING_UPDATED', 'DOCUMENT_CREATED'];
+        $eventTypes = ['TRACKING_CHANGED', 'DOCUMENT_CREATED'];
         $created = 0;
 
         foreach ($eventTypes as $eventType) {

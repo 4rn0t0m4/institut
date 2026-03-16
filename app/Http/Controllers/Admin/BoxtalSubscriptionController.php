@@ -62,7 +62,7 @@ class BoxtalSubscriptionController extends Controller
 
         $eventTypes = $request->input('event_types')
             ? explode(',', $request->input('event_types'))
-            : ['DOCUMENT_CREATED', 'TRACKING_UPDATED', 'TRACKING_CHANGED', 'TRACKING_UPDATE', 'SHIPMENT_TRACKING_UPDATED'];
+            : ['DOCUMENT_CREATED', 'TRACKING_CHANGED'];
 
         foreach ($eventTypes as $eventType) {
             $eventType = trim($eventType);
