@@ -719,8 +719,12 @@ $breadcrumbJsonLd = json_encode([
 
 <script>
 function productForm(basePrice, salePrice, persoPrice) {
-    const fonts = @json(collect(config('personalization.fonts'))->map(fn($f, $k) => ['key' => $k, 'label' => $f['label'], 'weight' => $f['weight'] ?? 400])->values());
-    const colors = @json(collect(config('personalization.colors'))->map(fn($c, $k) => ['key' => $k, 'hex' => $c['hex']])->values());
+    @php
+        $fontsJs = collect(config('personalization.fonts'))->map(fn($f, $k) => ['key' => $k, 'label' => $f['label'], 'weight' => $f['weight'] ?? 400])->values();
+        $colorsJs = collect(config('personalization.colors'))->map(fn($c, $k) => ['key' => $k, 'hex' => $c['hex']])->values();
+    @endphp
+    const fonts = @json($fontsJs);
+    const colors = @json($colorsJs);
 
     return {
         qty: 1,
