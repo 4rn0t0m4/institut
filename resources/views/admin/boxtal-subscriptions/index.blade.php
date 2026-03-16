@@ -94,6 +94,14 @@
                 </div>
 
                 <div class="mb-4">
+                    <label for="event_types" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Types d'événements (séparés par des virgules)</label>
+                    <input type="text" id="event_types" name="event_types"
+                        placeholder="Laisse vide pour tester toutes les variantes"
+                        class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90" />
+                    <p class="mt-1 text-xs text-gray-400">Ex: TRACKING_UPDATED, DOCUMENT_CREATED</p>
+                </div>
+
+                <div class="mb-4">
                     <label for="webhook_secret" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Webhook secret (optionnel, auto-généré si vide)</label>
                     <input type="text" id="webhook_secret" name="webhook_secret"
                         placeholder="Laisse vide pour en générer un automatiquement"

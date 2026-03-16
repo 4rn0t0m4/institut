@@ -60,7 +60,12 @@ class BoxtalSubscriptionController extends Controller
         $webhookSecret = $request->input('webhook_secret', bin2hex(random_bytes(32)));
         $results = [];
 
-        foreach (['TRACKING_UPDATED', 'DOCUMENT_CREATED'] as $eventType) {
+        $eventTypes = $request->input('event_types')
+            ? explode(',', $request->input('event_types'))
+            : ['DOCUMENT_CREATED', 'TRACKING_UPDATED', 'TRACKING_CHANGED', 'TRACKING_UPDATE', 'SHIPMENT_TRACKING_UPDATED'];
+
+        foreach ($eventTypes as $eventType) {
+            $eventType = trim($eventType);
             try {
                 $response = Http::withHeaders([
                     'Authorization' => 'Basic '.$this->auth(),
