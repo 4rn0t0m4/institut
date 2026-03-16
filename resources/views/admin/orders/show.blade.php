@@ -141,75 +141,107 @@
                 </div>
             @endif
 
-            {{-- Boxtal Shipping --}}
+            {{-- Expédition --}}
             @if (in_array($order->status, ['processing', 'shipped']) && $order->shipping_key !== 'pickup')
-                <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-                    <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Boxtal</h3>
+                @if ($order->shipping_key === 'colissimo')
+                    {{-- Colissimo : saisie manuelle du suivi --}}
+                    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+                        <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Expédition Colissimo</h3>
 
-                    @if ($order->boxtal_shipping_order_id)
-                        <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
-                            <p><span class="font-medium">ID expédition :</span> {{ $order->boxtal_shipping_order_id }}</p>
-
-                            <a href="https://shipping.boxtal.com/fr/fr/centrale-expeditions/mes-commandes" target="_blank" class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                Voir / imprimer l'étiquette
-                            </a>
-
-                            <form method="POST" action="{{ route('admin.orders.reset-shipment', $order) }}">
+                        @if ($order->tracking_number)
+                            <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                <p><span class="font-medium">N° suivi :</span> {{ $order->tracking_number }}</p>
+                                <a href="https://www.laposte.fr/outils/suivre-vos-envois?code={{ $order->tracking_number }}" target="_blank" class="inline-flex items-center gap-1 text-brand-500 hover:underline text-sm">
+                                    Suivre sur La Poste
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                </a>
+                            </div>
+                        @else
+                            <form method="POST" action="{{ route('admin.orders.update', $order) }}">
                                 @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-xs text-error-500 hover:underline" onclick="return confirm('Dissocier cette expédition Boxtal ? (ne l\'annule pas sur Boxtal)')">
-                                    Dissocier l'expédition
+                                @method('PUT')
+                                <input type="hidden" name="status" value="shipped">
+                                <input type="hidden" name="tracking_carrier" value="Colissimo">
+                                <div class="mb-3">
+                                    <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Numéro de suivi Colissimo</label>
+                                    <input type="text" name="tracking_number" required placeholder="Ex : 6A12345678901"
+                                        class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-2 px-3">
+                                </div>
+                                <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    Marquer expédiée
                                 </button>
                             </form>
-                        </div>
-                    @else
-                        <form method="POST" action="{{ route('admin.orders.create-shipment', $order) }}">
-                            @csrf
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                                @if ($order->relay_network === 'MONR_NETWORK')
-                                    Mondial Relay
-                                @elseif ($order->relay_network === 'CHRP_NETWORK')
-                                    Chronopost
-                                @elseif ($order->shipping_key === 'colissimo')
-                                    Colissimo
-                                @else
-                                    {{ $order->shipping_method ?? 'Expédition' }}
-                                @endif
-                                @if ($order->relay_point_code)
-                                    <br><span class="text-xs">Relais : {{ $order->relay_point_code }}</span>
-                                @endif
-                            </p>
+                        @endif
+                    </div>
+                @else
+                    {{-- Boxtal (Mondial Relay, Chronopost, etc.) --}}
+                    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+                        <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Boxtal</h3>
 
-                            @php $pkg = config('shipping.boxtal.default_package'); @endphp
-                            <div class="space-y-2 mb-3">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <label class="block text-xs text-gray-500 dark:text-gray-400">Poids (kg)</label>
-                                        <input type="number" name="weight" step="0.01" value="{{ $pkg['weight'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2" required>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs text-gray-500 dark:text-gray-400">Longueur (cm)</label>
-                                        <input type="number" name="length" value="{{ $pkg['length'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2" required>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs text-gray-500 dark:text-gray-400">Largeur (cm)</label>
-                                        <input type="number" name="width" value="{{ $pkg['width'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2" required>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs text-gray-500 dark:text-gray-400">Hauteur (cm)</label>
-                                        <input type="number" name="height" value="{{ $pkg['height'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2" required>
+                        @if ($order->boxtal_shipping_order_id)
+                            <div class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                                <p><span class="font-medium">ID expédition :</span> {{ $order->boxtal_shipping_order_id }}</p>
+
+                                <a href="https://shipping.boxtal.com/fr/fr/centrale-expeditions/mes-commandes" target="_blank" class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    Voir / imprimer l'étiquette
+                                </a>
+
+                                <form method="POST" action="{{ route('admin.orders.reset-shipment', $order) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-xs text-error-500 hover:underline" onclick="return confirm('Dissocier cette expédition Boxtal ? (ne l\'annule pas sur Boxtal)')">
+                                        Dissocier l'expédition
+                                    </button>
+                                </form>
+                            </div>
+                        @else
+                            <form method="POST" action="{{ route('admin.orders.create-shipment', $order) }}">
+                                @csrf
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                    @if ($order->relay_network === 'MONR_NETWORK')
+                                        Mondial Relay
+                                    @elseif ($order->relay_network === 'CHRP_NETWORK')
+                                        Chronopost
+                                    @else
+                                        {{ $order->shipping_method ?? 'Expédition' }}
+                                    @endif
+                                    @if ($order->relay_point_code)
+                                        <br><span class="text-xs">Relais : {{ $order->relay_point_code }}</span>
+                                    @endif
+                                </p>
+
+                                @php $pkg = config('shipping.boxtal.default_package'); @endphp
+                                <div class="space-y-2 mb-3">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-xs text-gray-500 dark:text-gray-400">Poids (kg)</label>
+                                            <input type="number" name="weight" step="0.01" value="{{ $pkg['weight'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2" required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-500 dark:text-gray-400">Longueur (cm)</label>
+                                            <input type="number" name="length" value="{{ $pkg['length'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2" required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-500 dark:text-gray-400">Largeur (cm)</label>
+                                            <input type="number" name="width" value="{{ $pkg['width'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2" required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-gray-500 dark:text-gray-400">Hauteur (cm)</label>
+                                            <input type="number" name="height" value="{{ $pkg['height'] }}" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-1.5 px-2" required>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 transition-colors" onclick="return confirm('Créer l\'expédition Boxtal pour cette commande ?')">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-                                Créer l'expédition Boxtal
-                            </button>
-                        </form>
-                    @endif
-                </div>
+                                <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 transition-colors" onclick="return confirm('Créer l\'expédition Boxtal pour cette commande ?')">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                                    Créer l'expédition Boxtal
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                @endif
             @endif
 
             {{-- Gift wrap --}}
