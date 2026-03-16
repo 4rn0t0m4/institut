@@ -59,7 +59,7 @@
 
             @if($trackingUrl)
                 <p style="text-align: center; margin-bottom: 24px;">
-                    <a href="{{ $trackingUrl }}" class="btn">Suivre mon colis</a>
+                    <a href="{{ $trackingUrl }}" class="btn" style="display: inline-block; background: #276e44; color: #ffffff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600;">Suivre mon colis</a>
                 </p>
             @endif
         @endif
