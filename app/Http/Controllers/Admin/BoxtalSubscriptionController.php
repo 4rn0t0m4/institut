@@ -57,9 +57,10 @@ class BoxtalSubscriptionController extends Controller
     public function store(Request $request)
     {
         $callbackUrl = $request->input('callback_url', url('/api/boxtal/webhook'));
+        $webhookSecret = $request->input('webhook_secret', bin2hex(random_bytes(32)));
         $results = [];
 
-        foreach (['TRACKING_UPDATE', 'SHIPPING_DOCUMENT'] as $eventType) {
+        foreach (['TRACKING_UPDATED', 'DOCUMENT_CREATED'] as $eventType) {
             try {
                 $response = Http::withHeaders([
                     'Authorization' => 'Basic '.$this->auth(),
@@ -68,15 +69,14 @@ class BoxtalSubscriptionController extends Controller
                 ])->post($this->baseUrl().'/shipping/v3.1/subscription', [
                     'eventType' => $eventType,
                     'callbackUrl' => $callbackUrl,
+                    'webhookSecret' => $webhookSecret,
                 ]);
 
                 if ($response->successful()) {
-                    $data = $response->json();
-                    $secret = $data['webhookValidationKey'] ?? $data['content']['webhookValidationKey'] ?? null;
                     $results[] = [
                         'eventType' => $eventType,
                         'success' => true,
-                        'webhookSecret' => $secret,
+                        'webhookSecret' => $webhookSecret,
                     ];
 
                     Log::info("BoxtalSubscription: souscription créée pour {$eventType}", [

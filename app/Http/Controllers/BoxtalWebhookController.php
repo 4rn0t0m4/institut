@@ -44,8 +44,8 @@ class BoxtalWebhookController extends Controller
         $eventType = $payload['eventType'] ?? null;
 
         return match ($eventType) {
-            'tracking_update', 'TRACKING_UPDATE' => $this->handleTrackingUpdate($payload),
-            'shipping_document', 'SHIPPING_DOCUMENT' => $this->handleShippingDocument($payload),
+            'TRACKING_UPDATED', 'tracking_updated' => $this->handleTrackingUpdate($payload),
+            'DOCUMENT_CREATED', 'document_created' => $this->handleShippingDocument($payload),
             default => $this->handleUnknownEvent($payload),
         };
     }

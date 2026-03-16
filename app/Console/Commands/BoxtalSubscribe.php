@@ -110,7 +110,7 @@ class BoxtalSubscribe extends Command
 
         $this->info("URL de callback : {$callbackUrl}");
 
-        $eventTypes = ['TRACKING_UPDATE', 'SHIPPING_DOCUMENT'];
+        $eventTypes = ['TRACKING_UPDATED', 'DOCUMENT_CREATED'];
         $created = 0;
 
         foreach ($eventTypes as $eventType) {
@@ -123,6 +123,7 @@ class BoxtalSubscribe extends Command
             ])->post($this->baseUrl().'/shipping/v3.1/subscription', [
                 'eventType' => $eventType,
                 'callbackUrl' => $callbackUrl,
+                'webhookSecret' => bin2hex(random_bytes(32)),
             ]);
 
             if ($response->successful()) {
