@@ -369,9 +369,9 @@ $breadcrumbJsonLd = json_encode([
                                     <label class="relative cursor-pointer group" title="{{ $colorData['label'] }}">
                                         <input type="radio" name="personalization[color]" value="{{ $colorKey }}"
                                                x-model="persoColor" class="sr-only">
-                                        <span class="block w-8 h-8 rounded-full border-2 transition"
+                                        <span class="block w-8 h-8 rounded-full border-2 transition overflow-hidden"
                                               :class="persoColor === '{{ $colorKey }}' ? 'border-[#276e44] scale-110' : 'border-gray-200 hover:border-gray-400'"
-                                              style="background-color: {{ $colorData['hex'] }};{{ $colorData['hex'] === '#ffffff' ? ' box-shadow: inset 0 0 0 1px #d1d5db;' : '' }}"></span>
+                                              style="{{ isset($colorData['image']) ? 'background-image: url('.$colorData['image'].'); background-size: cover; background-position: center;' : 'background-color: '.$colorData['hex'].';' }}{{ $colorData['hex'] === '#ffffff' ? ' box-shadow: inset 0 0 0 1px #d1d5db;' : '' }}"></span>
                                     </label>
                                 @endforeach
                             </div>

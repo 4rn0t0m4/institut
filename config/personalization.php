@@ -22,8 +22,8 @@ return [
     | Chaque entrée : clé = identifiant stocké, label = nom affiché, hex = code couleur.
     */
     'colors' => [
-        'or' => ['label' => 'Or',      'hex' => '#d4af37'],
-        'argent' => ['label' => 'Argent',  'hex' => '#c0c0c0'],
+        'dore' => ['label' => 'Doré',     'hex' => '#d4af37', 'image' => '/images/dore.jpeg'],
+        'argente' => ['label' => 'Argenté', 'hex' => '#c0c0c0', 'image' => '/images/argente.jpg'],
         'noir' => ['label' => 'Noir',    'hex' => '#000000'],
         'blanc' => ['label' => 'Blanc',   'hex' => '#ffffff'],
         'rose' => ['label' => 'Rose',    'hex' => '#ec4899'],
