@@ -62,8 +62,16 @@ class BoxtalWebhookController extends Controller
             return response()->json(['message' => 'Missing shippingOrderId'], 200);
         }
 
-        // Trouver la commande par son boxtal_shipping_order_id
+        // Trouver la commande par son boxtal_shipping_order_id ou par numéro (fallback test)
         $order = Order::where('boxtal_shipping_order_id', $shippingOrderId)->first();
+
+        if (! $order) {
+            // Fallback : chercher par numéro de commande (pour les tests admin)
+            $orderNumber = $payload['orderNumber'] ?? null;
+            if ($orderNumber) {
+                $order = Order::where('number', $orderNumber)->first();
+            }
+        }
 
         if (! $order) {
             Log::warning("BoxtalWebhook: commande introuvable pour shipping_order_id={$shippingOrderId}");
@@ -71,10 +79,19 @@ class BoxtalWebhookController extends Controller
             return response()->json(['message' => 'Order not found'], 200);
         }
 
-        // Récupérer le tracking détaillé via l'API v3
-        $tracking = $this->shipping->fetchTrackingV3($shippingOrderId);
+        // Récupérer le tracking détaillé via l'API v3 (si on a un vrai shipping order id)
+        $tracking = ['tracking_number' => null, 'tracking_url' => null, 'events' => []];
+        if ($order->boxtal_shipping_order_id) {
+            $tracking = $this->shipping->fetchTrackingV3($order->boxtal_shipping_order_id);
+        }
 
-        if (! $tracking['tracking_number']) {
+        // En mode test, utiliser un tracking fictif si pas de vrai tracking
+        $trackingNumber = $tracking['tracking_number'] ?: $order->tracking_number;
+        if (! $trackingNumber && ($payload['test'] ?? false)) {
+            $trackingNumber = 'TEST-'.strtoupper(bin2hex(random_bytes(6)));
+        }
+
+        if (! $trackingNumber) {
             Log::info("BoxtalWebhook: pas encore de tracking pour commande #{$order->number}");
 
             return response()->json(['message' => 'No tracking yet'], 200);
@@ -82,13 +99,13 @@ class BoxtalWebhookController extends Controller
 
         $carrier = BoxtalShippingService::carrierName($order);
         $wasAlreadyShipped = $order->status === 'shipped';
-        $trackingChanged = $tracking['tracking_number'] !== $order->tracking_number;
+        $trackingChanged = $trackingNumber !== $order->tracking_number;
 
         $order->update([
             'status' => 'shipped',
             'shipped_at' => $order->shipped_at ?? now(),
-            'tracking_number' => $tracking['tracking_number'],
-            'tracking_carrier' => $carrier ?? $order->tracking_carrier,
+            'tracking_number' => $trackingNumber,
+            'tracking_carrier' => $carrier ?? $order->tracking_carrier ?? 'Colissimo',
         ]);
 
         Log::info("BoxtalWebhook: commande #{$order->number} tracking mis à jour", [

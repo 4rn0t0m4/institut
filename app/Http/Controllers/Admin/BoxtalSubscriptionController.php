@@ -115,8 +115,8 @@ class BoxtalSubscriptionController extends Controller
     }
 
     /**
-     * Simule un webhook TRACKING_CHANGED sur une vraie commande.
-     * Met à jour le statut et envoie l'email d'expédition.
+     * Envoie un vrai webhook de test au endpoint /api/boxtal/webhook.
+     * Simule exactement ce que Boxtal enverrait.
      */
     public function test(Request $request)
     {
@@ -129,32 +129,36 @@ class BoxtalSubscriptionController extends Controller
                 ->with('error', "Commande {$orderNumber} introuvable.");
         }
 
-        // Simuler la mise à jour comme le ferait le webhook
-        $carrier = \App\Services\BoxtalShippingService::carrierName($order);
+        $secret = config('shipping.boxtal.v3_webhook_secret')
+            ?: Setting::where('key', 'boxtal_v3_webhook_secret')->value('value');
 
-        $order->update([
-            'status' => 'shipped',
-            'shipped_at' => now(),
-            'tracking_number' => $order->tracking_number ?: 'TEST-'.strtoupper(bin2hex(random_bytes(6))),
-            'tracking_carrier' => $carrier ?? $order->tracking_carrier ?? 'Colissimo',
-        ]);
+        $payload = [
+            'eventType' => 'TRACKING_CHANGED',
+            'shippingOrderId' => $order->boxtal_shipping_order_id ?? 'TEST-'.$order->id,
+            'orderNumber' => $order->number,
+            'test' => true,
+        ];
 
-        // Envoyer l'email
-        $emailResult = 'non envoyé';
+        $jsonPayload = json_encode($payload);
+        $signature = $secret ? hash_hmac('sha256', $jsonPayload, $secret) : '';
+
         try {
-            $order->load('items');
-            \Illuminate\Support\Facades\Mail::to($order->billing_email)
-                ->send(new \App\Mail\OrderShipped($order));
-            $emailResult = "envoyé à {$order->billing_email}";
-        } catch (\Throwable $e) {
-            $emailResult = "erreur : {$e->getMessage()}";
-        }
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'x-bxt-signature' => $signature,
+            ])->withBody($jsonPayload, 'application/json')
+                ->post(url('/api/boxtal/webhook'));
 
-        return redirect()->route('admin.boxtal-subscriptions.index')
-            ->with('test_result', [
-                'status' => 200,
-                'body' => "Commande #{$order->number} → statut shipped, tracking: {$order->tracking_number}, carrier: {$order->tracking_carrier}, email: {$emailResult}",
-            ]);
+            return redirect()->route('admin.boxtal-subscriptions.index')
+                ->with('test_result', [
+                    'status' => $response->status(),
+                    'body' => "Webhook appelé pour #{$order->number} → HTTP {$response->status()} — "
+                        .($response->json('message') ?? $response->body()),
+                ]);
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.boxtal-subscriptions.index')
+                ->with('error', 'Test échoué : '.$e->getMessage());
+        }
     }
 
     public function destroy(string $id)
