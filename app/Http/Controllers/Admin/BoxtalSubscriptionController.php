@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -78,6 +79,12 @@ class BoxtalSubscriptionController extends Controller
                 ]);
 
                 if ($response->successful()) {
+                    // Sauvegarder le secret en base pour vérification des webhooks
+                    Setting::updateOrCreate(
+                        ['key' => 'boxtal_v3_webhook_secret'],
+                        ['value' => $webhookSecret]
+                    );
+
                     $results[] = [
                         'eventType' => $eventType,
                         'success' => true,

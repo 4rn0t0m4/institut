@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\OrderShipped;
 use App\Models\Order;
+use App\Models\Setting;
 use App\Services\BoxtalShippingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,7 +27,8 @@ class BoxtalWebhookController extends Controller
     public function handle(Request $request): JsonResponse
     {
         // Vérifier la signature HMAC SHA256
-        $secret = config('shipping.boxtal.v3_webhook_secret');
+        $secret = config('shipping.boxtal.v3_webhook_secret')
+            ?: Setting::where('key', 'boxtal_v3_webhook_secret')->value('value');
 
         if ($secret && ! $this->verifySignature($request, $secret)) {
             Log::warning('BoxtalWebhook: signature invalide');
