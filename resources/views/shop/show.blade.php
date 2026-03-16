@@ -355,7 +355,7 @@ $breadcrumbJsonLd = json_encode([
                                            :class="persoFont === '{{ $fontKey }}' ? 'border-[#276e44] bg-[#e8fae8]' : 'border-gray-200 bg-white hover:border-gray-300'">
                                         <input type="radio" name="personalization[font]" value="{{ $fontKey }}"
                                                x-model="persoFont" class="sr-only">
-                                        <span class="text-sm" style="font-family: '{{ $fontData['label'] }}', serif;">{{ $fontData['label'] }}</span>
+                                        <span class="text-sm" style="font-family: '{{ $fontData['label'] }}', serif;{{ ($fontData['weight'] ?? null) ? ' font-weight: '.$fontData['weight'].';' : '' }}">{{ $fontData['label'] }}</span>
                                     </label>
                                 @endforeach
                             </div>
@@ -381,7 +381,7 @@ $breadcrumbJsonLd = json_encode([
                         <div x-show="persoText.length > 0" x-transition>
                             <p class="text-xs font-medium mb-2" style="color: #9ca3af;">Aperçu</p>
                             <div class="rounded-lg p-4 text-center" style="background-color: #ffffff; border: 1px dashed #b0f1b9;">
-                                <span class="text-2xl" :style="'font-family: \'' + persoFontLabel + '\', serif; color: ' + persoColorHex">
+                                <span class="text-2xl" :style="'font-family: \'' + persoFontLabel + '\', serif; font-weight: ' + persoFontWeight + '; color: ' + persoColorHex">
                                     <span x-text="persoText"></span>
                                 </span>
                             </div>
@@ -719,7 +719,7 @@ $breadcrumbJsonLd = json_encode([
 
 <script>
 function productForm(basePrice, salePrice, persoPrice) {
-    const fonts = @json(collect(config('personalization.fonts'))->map(fn($f, $k) => ['key' => $k, 'label' => $f['label']])->values());
+    const fonts = @json(collect(config('personalization.fonts'))->map(fn($f, $k) => ['key' => $k, 'label' => $f['label'], 'weight' => $f['weight'] ?? 400])->values());
     const colors = @json(collect(config('personalization.colors'))->map(fn($c, $k) => ['key' => $k, 'hex' => $c['hex']])->values());
 
     return {
@@ -731,6 +731,10 @@ function productForm(basePrice, salePrice, persoPrice) {
         get persoFontLabel() {
             const f = fonts.find(f => f.key === this.persoFont);
             return f ? f.label : '';
+        },
+        get persoFontWeight() {
+            const f = fonts.find(f => f.key === this.persoFont);
+            return f ? f.weight : 400;
         },
         get persoColorHex() {
             const c = colors.find(c => c.key === this.persoColor);

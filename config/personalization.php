@@ -12,7 +12,7 @@ return [
     'fonts' => [
         'pacifico' => ['label' => 'Pacifico', 'google' => 'Pacifico'],
         'angelisa' => ['label' => 'Angelisa', 'google' => null, 'local' => true],
-        'cinzel' => ['label' => 'Cinzel',   'google' => 'Cinzel'],
+        'playfair' => ['label' => 'Playfair Display', 'google' => 'Playfair+Display:wght@700', 'weight' => 700],
     ],
 
     /*
