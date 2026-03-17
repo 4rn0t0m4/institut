@@ -131,9 +131,42 @@ class BoxtalWebhookController extends Controller
 
     private function handleShippingDocument(array $payload): JsonResponse
     {
+        $shippingOrderId = $payload['shippingOrderId'] ?? null;
+
         Log::info('BoxtalWebhook: document d\'expédition reçu', [
-            'shipping_order_id' => $payload['shippingOrderId'] ?? null,
+            'shipping_order_id' => $shippingOrderId,
+            'payload' => $payload['payload'] ?? $payload,
         ]);
+
+        if (! $shippingOrderId) {
+            return response()->json(['message' => 'Missing shippingOrderId'], 200);
+        }
+
+        $order = Order::where('boxtal_shipping_order_id', $shippingOrderId)->first();
+
+        if (! $order) {
+            Log::warning("BoxtalWebhook: commande introuvable pour document shipping_order_id={$shippingOrderId}");
+
+            return response()->json(['message' => 'Order not found'], 200);
+        }
+
+        // Extraire l'URL du document (étiquette)
+        $documents = $payload['payload']['documents'] ?? $payload['documents'] ?? [];
+        $labelUrl = null;
+
+        foreach ($documents as $doc) {
+            if (isset($doc['url'])) {
+                $labelUrl = $doc['url'];
+                break;
+            }
+        }
+
+        if ($labelUrl) {
+            $order->update(['boxtal_label_url' => $labelUrl]);
+            Log::info("BoxtalWebhook: étiquette enregistrée pour commande #{$order->number}", [
+                'label_url' => $labelUrl,
+            ]);
+        }
 
         return response()->json(['message' => 'OK'], 200);
     }

@@ -18,7 +18,7 @@ class Order extends Model
         'shipping_first_name', 'shipping_last_name', 'shipping_address_1', 'shipping_address_2',
         'shipping_city', 'shipping_postcode', 'shipping_country',
         'shipping_method', 'shipping_key', 'relay_point_code', 'relay_network',
-        'tracking_number', 'tracking_carrier', 'boxtal_shipping_order_id',
+        'tracking_number', 'tracking_carrier', 'boxtal_shipping_order_id', 'boxtal_label_url',
         'shipped_at', 'review_requested_at', 'customer_note',
         'gift_wrap', 'gift_type', 'gift_message',
     ];
