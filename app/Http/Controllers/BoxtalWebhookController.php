@@ -37,13 +37,12 @@ class BoxtalWebhookController extends Controller
         }
 
         $payload = $request->all();
+        $eventType = $payload['type'] ?? $payload['eventType'] ?? null;
 
         Log::info('BoxtalWebhook: événement reçu', [
-            'type' => $payload['eventType'] ?? 'unknown',
+            'type' => $eventType ?? 'unknown',
             'shipping_order_id' => $payload['shippingOrderId'] ?? null,
         ]);
-
-        $eventType = $payload['eventType'] ?? null;
 
         return match ($eventType) {
             'TRACKING_CHANGED', 'tracking_changed' => $this->handleTrackingUpdate($payload),
@@ -55,6 +54,7 @@ class BoxtalWebhookController extends Controller
     private function handleTrackingUpdate(array $payload): JsonResponse
     {
         $shippingOrderId = $payload['shippingOrderId'] ?? null;
+        $shipmentExternalId = $payload['shipmentExternalId'] ?? null;
 
         if (! $shippingOrderId) {
             Log::warning('BoxtalWebhook: tracking_update sans shippingOrderId');
@@ -62,15 +62,12 @@ class BoxtalWebhookController extends Controller
             return response()->json(['message' => 'Missing shippingOrderId'], 200);
         }
 
-        // Trouver la commande par son boxtal_shipping_order_id ou par numéro (fallback test)
+        // Trouver la commande par son boxtal_shipping_order_id
         $order = Order::where('boxtal_shipping_order_id', $shippingOrderId)->first();
 
-        if (! $order) {
-            // Fallback : chercher par numéro de commande (pour les tests admin)
-            $orderNumber = $payload['orderNumber'] ?? null;
-            if ($orderNumber) {
-                $order = Order::where('number', $orderNumber)->first();
-            }
+        // Fallback : chercher par numéro de commande (shipmentExternalId = CMD-xxx)
+        if (! $order && $shipmentExternalId) {
+            $order = Order::where('number', $shipmentExternalId)->first();
         }
 
         if (! $order) {
@@ -79,16 +76,15 @@ class BoxtalWebhookController extends Controller
             return response()->json(['message' => 'Order not found'], 200);
         }
 
-        // Récupérer le tracking détaillé via l'API v3 (si on a un vrai shipping order id)
-        $tracking = ['tracking_number' => null, 'tracking_url' => null, 'events' => []];
-        if ($order->boxtal_shipping_order_id) {
-            $tracking = $this->shipping->fetchTrackingV3($order->boxtal_shipping_order_id);
-        }
+        // Extraire le tracking directement depuis le payload du webhook
+        $trackingNumber = null;
+        $trackingUrl = null;
+        $trackings = $payload['payload']['trackings'] ?? [];
 
-        // En mode test, utiliser un tracking fictif si pas de vrai tracking
-        $trackingNumber = $tracking['tracking_number'] ?: $order->tracking_number;
-        if (! $trackingNumber && ($payload['test'] ?? false)) {
-            $trackingNumber = 'TEST-'.strtoupper(bin2hex(random_bytes(6)));
+        if (! empty($trackings)) {
+            $firstTracking = $trackings[0];
+            $trackingNumber = $firstTracking['trackingNumber'] ?? null;
+            $trackingUrl = $firstTracking['packageTrackingUrl'] ?? null;
         }
 
         if (! $trackingNumber) {
@@ -99,22 +95,22 @@ class BoxtalWebhookController extends Controller
 
         $carrier = BoxtalShippingService::carrierName($order);
         $wasAlreadyShipped = $order->status === 'shipped';
-        $trackingChanged = $trackingNumber !== $order->tracking_number;
 
         $order->update([
             'status' => 'shipped',
             'shipped_at' => $order->shipped_at ?? now(),
             'tracking_number' => $trackingNumber,
-            'tracking_carrier' => $carrier ?? $order->tracking_carrier ?? 'Colissimo',
+            'tracking_carrier' => $carrier ?? $order->tracking_carrier,
         ]);
 
         Log::info("BoxtalWebhook: commande #{$order->number} tracking mis à jour", [
-            'tracking_number' => $tracking['tracking_number'],
+            'tracking_number' => $trackingNumber,
+            'tracking_url' => $trackingUrl,
             'carrier' => $carrier,
         ]);
 
         // Envoyer l'email uniquement la première fois (passage à "shipped")
-        if (! $wasAlreadyShipped || ($trackingChanged && ! $order->shipped_at)) {
+        if (! $wasAlreadyShipped) {
             try {
                 $order->load('items');
                 Mail::to($order->billing_email)->send(new OrderShipped($order));
