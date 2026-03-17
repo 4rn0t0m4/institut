@@ -114,6 +114,7 @@ class BoxtalWebhookController extends Controller
             try {
                 $order->load('items');
                 Mail::to($order->billing_email)->send(new OrderShipped($order));
+                Mail::to('arnotoma@gmail.com')->send(new OrderShipped($order));
                 Log::info("BoxtalWebhook: email d'expédition envoyé pour commande #{$order->number}");
             } catch (\Throwable $e) {
                 Log::error("BoxtalWebhook: échec envoi email #{$order->number}", [
