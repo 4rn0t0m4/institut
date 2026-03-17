@@ -25,6 +25,7 @@ Route::resource('brands', BrandController::class)->except(['show'])->names('admi
 Route::resource('orders', OrderController::class)->only(['index', 'show', 'edit', 'update', 'destroy'])->names('admin.orders');
 Route::post('orders/{order}/resend-emails', [OrderController::class, 'resendEmails'])->name('admin.orders.resend-emails');
 Route::post('orders/{order}/create-shipment', [OrderController::class, 'createShipment'])->name('admin.orders.create-shipment');
+Route::get('orders/{order}/label', [OrderController::class, 'label'])->name('admin.orders.label');
 Route::delete('orders/{order}/reset-shipment', [OrderController::class, 'resetShipment'])->name('admin.orders.reset-shipment');
 Route::resource('customers', CustomerController::class)->only(['index', 'show'])->names('admin.customers');
 Route::resource('pages', PageController::class)->names('admin.pages');

@@ -56,13 +56,21 @@ class BoxtalShippingService
             ])->post($this->baseUrl().'/shipping/v3.1/shipping-order', $payload);
 
             if ($response->successful()) {
-                $shippingOrderId = $response->json('content.id');
+                $data = $response->json('content') ?? $response->json();
+                $shippingOrderId = $data['id'] ?? null;
 
                 Log::info("BoxtalShipping: expédition créée pour commande #{$order->number}", [
                     'shipping_order_id' => $shippingOrderId,
+                    'response' => $data,
                 ]);
 
-                return ['success' => true, 'shipping_order_id' => $shippingOrderId, 'error' => null];
+                // Chercher l'URL de l'étiquette dans la réponse
+                $labelUrl = $data['documents'][0]['url']
+                    ?? $data['labelUrl']
+                    ?? $data['label']['url']
+                    ?? null;
+
+                return ['success' => true, 'shipping_order_id' => $shippingOrderId, 'label_url' => $labelUrl, 'error' => null];
             }
 
             $errorBody = $response->json();
@@ -179,6 +187,40 @@ class BoxtalShippingService
 
         // Par défaut : Mondial Relay
         return $offers['MONR_NETWORK'] ?? 'MONR-CpourToi';
+    }
+
+    /**
+     * Récupère l'URL de l'étiquette d'expédition.
+     */
+    public function fetchLabelUrl(string $shippingOrderId): ?string
+    {
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Basic '.$this->auth(),
+                'Accept' => 'application/json',
+            ])->get($this->baseUrl().'/shipping/v3.1/shipping-order/'.$shippingOrderId.'/document');
+
+            if ($response->successful()) {
+                $data = $response->json('content') ?? $response->json();
+
+                Log::debug("BoxtalShipping: documents pour {$shippingOrderId}", $data);
+
+                // Chercher le premier document PDF (étiquette)
+                if (is_array($data)) {
+                    foreach ($data as $doc) {
+                        if (isset($doc['url'])) {
+                            return $doc['url'];
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error("BoxtalShipping: exception récupération étiquette {$shippingOrderId}", [
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return null;
     }
 
     /**

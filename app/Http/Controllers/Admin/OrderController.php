@@ -129,6 +129,21 @@ class OrderController extends Controller
         return redirect()->route('admin.orders.show', $order)->with('error', 'Erreur Boxtal : '.$result['error']);
     }
 
+    public function label(Order $order, BoxtalShippingService $boxtal)
+    {
+        if (! $order->boxtal_shipping_order_id) {
+            return redirect()->route('admin.orders.show', $order)->with('error', 'Aucune expédition Boxtal pour cette commande.');
+        }
+
+        $labelUrl = $boxtal->fetchLabelUrl($order->boxtal_shipping_order_id);
+
+        if ($labelUrl) {
+            return redirect()->away($labelUrl);
+        }
+
+        return redirect()->route('admin.orders.show', $order)->with('error', 'Étiquette non disponible. Vérifiez sur le dashboard Boxtal.');
+    }
+
     public function resetShipment(Order $order)
     {
         $order->update(['boxtal_shipping_order_id' => null]);
