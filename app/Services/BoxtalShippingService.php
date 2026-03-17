@@ -37,7 +37,16 @@ class BoxtalShippingService
             return ['success' => false, 'shipping_order_id' => null, 'error' => 'BOXTAL_V3_ACCESS_KEY non configuré.'];
         }
 
+        // Colissimo géré manuellement, pas via Boxtal
+        if ($order->shipping_key === 'colissimo') {
+            Log::info("BoxtalShipping: commande #{$order->number} Colissimo, push ignoré (gestion manuelle).");
+
+            return ['success' => false, 'shipping_order_id' => null, 'error' => null];
+        }
+
         $payload = $this->buildPayload($order, $overrides);
+
+        Log::debug("BoxtalShipping: payload commande #{$order->number}", $payload);
 
         try {
             $response = Http::withHeaders([
