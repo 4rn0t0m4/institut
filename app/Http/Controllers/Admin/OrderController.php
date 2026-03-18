@@ -34,11 +34,11 @@ class OrderController extends Controller
 
         $orders = $query->paginate(20)->withQueryString();
 
-        $paid = Order::whereIn('status', ['processing', 'completed']);
+        $paid = Order::whereIn('status', ['processing', 'shipped', 'completed']);
         $metrics = [
             'total_orders' => $paid->count(),
             'revenue' => $paid->sum('total'),
-            'items_sold' => OrderItem::whereHas('order', fn ($q) => $q->whereIn('status', ['processing', 'completed']))->sum('quantity'),
+            'items_sold' => OrderItem::whereHas('order', fn ($q) => $q->whereIn('status', ['processing', 'shipped', 'completed']))->sum('quantity'),
             'average_order' => $paid->count() > 0 ? $paid->avg('total') : 0,
             'pending' => Order::where('status', 'pending')->count(),
             'processing' => Order::where('status', 'processing')->count(),

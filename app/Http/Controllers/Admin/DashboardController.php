@@ -15,8 +15,8 @@ class DashboardController extends Controller
     public function index()
     {
         $metrics = [
-            'orders_count' => Order::whereIn('status', ['processing', 'completed'])->count(),
-            'revenue' => Order::whereIn('status', ['processing', 'completed'])->sum('total'),
+            'orders_count' => Order::whereIn('status', ['processing', 'shipped', 'completed'])->count(),
+            'revenue' => Order::whereIn('status', ['processing', 'shipped', 'completed'])->sum('total'),
             'products_count' => Product::count(),
             'pages_count' => Page::count(),
         ];
