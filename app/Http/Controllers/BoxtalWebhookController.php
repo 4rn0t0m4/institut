@@ -81,10 +81,12 @@ class BoxtalWebhookController extends Controller
         $trackingUrl = null;
         $trackings = $payload['payload']['trackings'] ?? [];
 
+        $isFinal = false;
         if (! empty($trackings)) {
             $firstTracking = $trackings[0];
             $trackingNumber = $firstTracking['trackingNumber'] ?? null;
             $trackingUrl = $firstTracking['packageTrackingUrl'] ?? null;
+            $isFinal = $firstTracking['isFinal'] ?? false;
         }
 
         if (! $trackingNumber) {
@@ -96,8 +98,10 @@ class BoxtalWebhookController extends Controller
         $carrier = BoxtalShippingService::carrierName($order);
         $wasAlreadyShipped = $order->status === 'shipped';
 
+        $newStatus = $isFinal ? 'completed' : 'shipped';
+
         $order->update([
-            'status' => 'shipped',
+            'status' => $newStatus,
             'shipped_at' => $order->shipped_at ?? now(),
             'tracking_number' => $trackingNumber,
             'tracking_carrier' => $carrier ?? $order->tracking_carrier,
