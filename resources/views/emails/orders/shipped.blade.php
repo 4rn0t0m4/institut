@@ -80,11 +80,21 @@
         </table>
 
         <div class="address-box">
-            <h3>Adresse de livraison</h3>
-            {{ $order->shipping_first_name }} {{ $order->shipping_last_name }}<br>
-            {{ $order->shipping_address_1 }}
-            @if($order->shipping_address_2)<br>{{ $order->shipping_address_2 }}@endif
-            <br>{{ $order->shipping_postcode }} {{ $order->shipping_city }}
+            @if($order->shipping_key === 'boxtal' && $order->relay_point_code)
+                <h3>Point relais de retrait</h3>
+                @if($order->customer_notes && str_starts_with($order->customer_notes, 'Point relais'))
+                    {!! nl2br(e(explode("\n\n", $order->customer_notes, 2)[0])) !!}
+                @else
+                    {{ $order->shipping_address_1 }}
+                    <br>{{ $order->shipping_postcode }} {{ $order->shipping_city }}
+                @endif
+            @else
+                <h3>Adresse de livraison</h3>
+                {{ $order->shipping_first_name }} {{ $order->shipping_last_name }}<br>
+                {{ $order->shipping_address_1 }}
+                @if($order->shipping_address_2)<br>{{ $order->shipping_address_2 }}@endif
+                <br>{{ $order->shipping_postcode }} {{ $order->shipping_city }}
+            @endif
         </div>
 
         <p style="font-size: 13px; color: #6b7280;">
