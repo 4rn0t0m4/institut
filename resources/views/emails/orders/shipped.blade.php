@@ -49,9 +49,9 @@
             </div>
 
             @php
-                $trackingUrl = match(strtolower($order->tracking_carrier ?? '')) {
+                $trackingUrl = $order->tracking_url ?: match(strtolower($order->tracking_carrier ?? '')) {
                     'colissimo' => 'https://www.laposte.fr/outils/suivre-vos-envois?code=' . $order->tracking_number,
-                    'chronopost' => 'https://www.chronopost.fr/tracking-no-powerful/tracking/searchByRef?liession=on&searchType=ref&shipNumber=' . $order->tracking_number,
+                    'chronopost' => 'https://www.chronopost.fr/tracking-cxf/tracking-cxf-web/suivi?language=fr&parcelNumber=' . $order->tracking_number,
                     'mondial relay', 'mondialrelay' => 'https://www.mondialrelay.fr/suivi-de-colis/?NumeroExpedition=' . $order->tracking_number,
                     default => null,
                 };

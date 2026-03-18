@@ -101,6 +101,7 @@ class BoxtalWebhookController extends Controller
             'shipped_at' => $order->shipped_at ?? now(),
             'tracking_number' => $trackingNumber,
             'tracking_carrier' => $carrier ?? $order->tracking_carrier,
+            'tracking_url' => $trackingUrl,
         ]);
 
         Log::info("BoxtalWebhook: commande #{$order->number} tracking mis à jour", [
