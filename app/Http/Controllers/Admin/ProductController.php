@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Media;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductTag;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
@@ -52,8 +53,9 @@ class ProductController extends Controller
     {
         $categories = ProductCategory::orderBy('name')->get();
         $brands = Brand::orderBy('name')->get();
+        $tags = ProductTag::orderBy('name')->get();
 
-        return view('admin.products.create', compact('categories', 'brands'));
+        return view('admin.products.create', compact('categories', 'brands', 'tags'));
     }
 
     public function store(Request $request)
@@ -91,6 +93,8 @@ class ProductController extends Controller
 
         $product = Product::create($validated);
 
+        $product->tags()->sync($request->input('tags', []));
+
         if ($request->hasFile('featured_image') && $request->file('featured_image')->isValid()) {
             $media = $this->storeMedia($request->file('featured_image'));
             $product->featured_image_id = $media->id;
@@ -112,10 +116,12 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
+        $product->load('tags');
         $categories = ProductCategory::orderBy('name')->get();
         $brands = Brand::orderBy('name')->get();
+        $tags = ProductTag::orderBy('name')->get();
 
-        return view('admin.products.edit', compact('product', 'categories', 'brands'));
+        return view('admin.products.edit', compact('product', 'categories', 'brands', 'tags'));
     }
 
     public function update(Request $request, Product $product)
@@ -152,6 +158,8 @@ class ProductController extends Controller
         $validated['personalizable'] = $request->boolean('personalizable');
 
         $product->update($validated);
+
+        $product->tags()->sync($request->input('tags', []));
 
         // Handle featured image removal
         if ($request->input('remove_featured_image') == '1') {

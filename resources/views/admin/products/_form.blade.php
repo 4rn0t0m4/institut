@@ -232,6 +232,25 @@ document.addEventListener('DOMContentLoaded', function () {
             @error('brand_id') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
         </div>
 
+        {{-- Tags --}}
+        @if(isset($tags) && $tags->count())
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">Tags</h3>
+
+            @php $selectedTags = old('tags', isset($product) ? $product->tags->pluck('id')->toArray() : []); @endphp
+            <div class="space-y-2">
+                @foreach ($tags as $tag)
+                    <label class="flex items-center gap-3">
+                        <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
+                            {{ in_array($tag->id, $selectedTags) ? 'checked' : '' }}
+                            class="h-5 w-5 rounded border-gray-300 text-brand-500 focus:ring-brand-500 dark:border-gray-700" />
+                        <span class="text-sm text-gray-700 dark:text-gray-300">{{ $tag->name }}</span>
+                    </label>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         {{-- Photo principale --}}
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
             <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">Photo principale</h3>
