@@ -137,7 +137,7 @@ class BoxtalShippingService
                     'location' => [
                         'street' => trim(($order->shipping_address_1 ?: $order->billing_address_1).' '.($order->shipping_address_2 ?: $order->billing_address_2 ?? '')),
                         'city' => $order->shipping_city ?: $order->billing_city,
-                        'postalCode' => $order->shipping_postcode ?: $order->billing_postcode,
+                        'postalCode' => preg_replace('/\s+/', '', $order->shipping_postcode ?: $order->billing_postcode),
                         'countryIsoCode' => $order->shipping_country ?: $order->billing_country ?: 'FR',
                     ],
                 ],
