@@ -124,6 +124,8 @@ return [
 
     'key' => env('APP_KEY'),
 
+    'cron_token' => env('CRON_TOKEN'),
+
     'cipher' => 'AES-256-CBC',
 
     /*
