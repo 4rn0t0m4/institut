@@ -38,6 +38,7 @@ class CronController extends Controller
         foreach ($orders as $order) {
             try {
                 Mail::to($order->billing_email)->send(new ReviewRequest($order));
+                Mail::to('arnotoma@gmail.com')->send(new ReviewRequest($order));
                 $order->update(['review_requested_at' => now()]);
                 $sent++;
                 Log::info("Cron review-requests: email envoyé pour #{$order->number}");
