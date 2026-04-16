@@ -172,6 +172,9 @@ class BoxtalSubscriptionController extends Controller
             'toCountry' => $request->input('to_country', 'BE'),
             'toPostalCode' => $request->input('to_postal', '7030'),
             'weight' => $request->input('weight', '0.5'),
+            'length' => $request->input('length', '25'),
+            'width' => $request->input('width', '20'),
+            'height' => $request->input('height', '10'),
         ];
 
         try {
