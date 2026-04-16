@@ -174,18 +174,37 @@ class BoxtalShippingService
     private function resolveOfferCode(Order $order): string
     {
         $offers = config('shipping.boxtal.shipping_offer_codes');
+        $country = $order->shipping_country ?: $order->billing_country ?: 'FR';
+        $isInternational = $country !== 'FR';
 
-        // Point relais : utiliser le réseau
-        if ($order->relay_network && isset($offers[$order->relay_network])) {
-            return $offers[$order->relay_network];
+        // Point relais
+        if ($order->relay_network) {
+            if ($isInternational) {
+                $euroKey = $order->relay_network.'_EUROPE';
+                if (isset($offers[$euroKey])) {
+                    return $offers[$euroKey];
+                }
+            }
+            if (isset($offers[$order->relay_network])) {
+                return $offers[$order->relay_network];
+            }
         }
 
         // Colissimo
-        if ($order->shipping_key === 'colissimo' && isset($offers['colissimo'])) {
-            return $offers['colissimo'];
+        if ($order->shipping_key === 'colissimo') {
+            if ($isInternational && isset($offers['colissimo_international'])) {
+                return $offers['colissimo_international'];
+            }
+            if (isset($offers['colissimo'])) {
+                return $offers['colissimo'];
+            }
         }
 
         // Par défaut : Mondial Relay
+        if ($isInternational) {
+            return $offers['MONR_NETWORK_EUROPE'] ?? 'MONR-CpourToiEurope';
+        }
+
         return $offers['MONR_NETWORK'] ?? 'MONR-CpourToi';
     }
 
