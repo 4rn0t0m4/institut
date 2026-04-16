@@ -161,6 +161,35 @@ class BoxtalSubscriptionController extends Controller
         }
     }
 
+    /**
+     * Liste les offres d'expédition disponibles pour une destination.
+     */
+    public function offers(Request $request)
+    {
+        $params = [
+            'fromCountry' => $request->input('from_country', 'FR'),
+            'fromPostalCode' => $request->input('from_postal', '14270'),
+            'toCountry' => $request->input('to_country', 'BE'),
+            'toPostalCode' => $request->input('to_postal', '7030'),
+            'weight' => $request->input('weight', '0.5'),
+        ];
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Basic '.$this->auth(),
+                'Accept' => 'application/json',
+            ])->get($this->baseUrl().'/shipping/v3.1/shipping-offer', $params);
+
+            return response()->json([
+                'status' => $response->status(),
+                'params' => $params,
+                'offers' => $response->json(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function destroy(string $id)
     {
         try {
