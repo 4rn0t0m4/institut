@@ -92,7 +92,7 @@ Route::prefix('boxtal-connect/v1')->group($boxtalRoutes);
 Route::prefix('wp-json/boxtal-connect/v1')->group($boxtalRoutes);
 
 // Cron tasks via HTTP (OVH mutualisé ne peut pas envoyer d'emails depuis CLI)
-Route::get('/cron/review-requests', [\App\Http\Controllers\CronController::class, 'reviewRequests']);
+Route::get('/web-tasks/review-requests', [\App\Http\Controllers\CronController::class, 'reviewRequests']);
 
 // Webhook Boxtal v3 (exclure CSRF)
 Route::post('/api/boxtal/webhook', [\App\Http\Controllers\BoxtalWebhookController::class, 'handle']);
