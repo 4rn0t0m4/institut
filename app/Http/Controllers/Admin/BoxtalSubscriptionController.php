@@ -175,15 +175,37 @@ class BoxtalSubscriptionController extends Controller
         ];
 
         try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Basic '.$this->auth(),
-                'Accept' => 'application/json',
-            ])->get($this->baseUrl().'/shipping/v3.1/shipping-offer', $params);
+            $endpoints = [
+                '/shipping/v3.1/shipping-offer',
+                '/shipping/v3.1/shipping-offers',
+                '/shipping/v3.1/offer',
+                '/v3.1/shipping-offer',
+            ];
+
+            $results = [];
+            foreach ($endpoints as $ep) {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Basic '.$this->auth(),
+                    'Accept' => 'application/json',
+                ])->get($this->baseUrl().$ep, $params);
+
+                $results[$ep] = [
+                    'status' => $response->status(),
+                    'body' => $response->json(),
+                ];
+
+                if ($response->successful()) {
+                    return response()->json([
+                        'endpoint' => $ep,
+                        'params' => $params,
+                        'offers' => $response->json(),
+                    ]);
+                }
+            }
 
             return response()->json([
-                'status' => $response->status(),
                 'params' => $params,
-                'offers' => $response->json(),
+                'tried' => $results,
             ]);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
