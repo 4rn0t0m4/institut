@@ -68,9 +68,12 @@ Route::post('/amincissement/bilan-minceur-personnalise', [BilanMinceurController
 Route::get('/contact', [ContactController::class, 'show'])->name('contact.show');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send')->middleware('throttle:5,1');
 
+// Cron tasks via HTTP (OVH mutualisé ne peut pas envoyer d'emails depuis CLI)
+Route::get('/web-tasks/review-requests', [\App\Http\Controllers\CronController::class, 'reviewRequests']);
+
 // Pages statiques (en dernier pour ne pas capturer les autres routes)
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
-    ->where('slug', '^(?!boutique|panier|commande|connexion|inscription|deconnexion|mon-compte|stripe|admin|api|mot-de-passe-oublie|reinitialiser-mot-de-passe|sitemap\.xml)[a-z0-9-]+(/[a-z0-9-]+)*$')
+    ->where('slug', '^(?!boutique|panier|commande|connexion|inscription|deconnexion|mon-compte|stripe|admin|api|web-tasks|mot-de-passe-oublie|reinitialiser-mot-de-passe|sitemap\.xml)[a-z0-9-]+(/[a-z0-9-]+)*$')
     ->middleware('cacheResponse');
 
 // Boxtal API
@@ -90,9 +93,6 @@ $boxtalRoutes = function () {
 };
 Route::prefix('boxtal-connect/v1')->group($boxtalRoutes);
 Route::prefix('wp-json/boxtal-connect/v1')->group($boxtalRoutes);
-
-// Cron tasks via HTTP (OVH mutualisé ne peut pas envoyer d'emails depuis CLI)
-Route::get('/web-tasks/review-requests', [\App\Http\Controllers\CronController::class, 'reviewRequests']);
 
 // Webhook Boxtal v3 (exclure CSRF)
 Route::post('/api/boxtal/webhook', [\App\Http\Controllers\BoxtalWebhookController::class, 'handle']);
