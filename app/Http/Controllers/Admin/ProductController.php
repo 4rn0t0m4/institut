@@ -209,7 +209,7 @@ class ProductController extends Controller
     private function storeMedia(UploadedFile $file): Media
     {
         $filename = Str::uuid().'.webp';
-        $finalPath = storage_path('app/public/media/'.$filename);
+        $finalPath = public_path('storage/media/'.$filename);
 
         // Redimensionne (max 1200px) et convertit en WebP
         Image::make($file->getRealPath())
@@ -219,12 +219,6 @@ class ProductController extends Controller
             })
             ->encode('webp', 78)
             ->save($finalPath);
-
-        // Copier dans public/storage (OVH mutualisé ne supporte pas les symlinks)
-        $publicDir = public_path('storage/media');
-        if (is_dir($publicDir)) {
-            copy($finalPath, $publicDir.'/'.$filename);
-        }
 
         [$width, $height] = getimagesize($finalPath) ?: [null, null];
 

@@ -26,13 +26,7 @@ class EditorUploadController extends Controller
         $extensions = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp', 'image/svg+xml' => 'svg'];
         $ext = $extensions[$mime] ?? $file->getClientOriginalExtension() ?: 'jpg';
         $filename = Str::uuid().'.'.$ext;
-        $file->storeAs('public/editor-uploads', $filename);
-
-        // Copier dans public/storage (OVH mutualisé ne supporte pas les symlinks)
-        $publicDir = public_path('storage/editor-uploads');
-        if (is_dir($publicDir)) {
-            copy(storage_path('app/public/editor-uploads/'.$filename), $publicDir.'/'.$filename);
-        }
+        $file->storeAs('editor-uploads', $filename, 'public');
 
         return response()->json([
             'location' => '/storage/editor-uploads/'.$filename,
