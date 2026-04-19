@@ -70,6 +70,7 @@ Route::post('/contact', [ContactController::class, 'send'])->name('contact.send'
 
 // Cron tasks via HTTP (OVH mutualisé ne peut pas envoyer d'emails depuis CLI)
 Route::get('/web-tasks/review-requests', [\App\Http\Controllers\CronController::class, 'reviewRequests']);
+Route::get('/web-tasks/abandoned-carts', [\App\Http\Controllers\CronController::class, 'abandonedCarts']);
 
 // Pages statiques (en dernier pour ne pas capturer les autres routes)
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')

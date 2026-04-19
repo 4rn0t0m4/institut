@@ -19,12 +19,12 @@ class Order extends Model
         'shipping_city', 'shipping_postcode', 'shipping_country',
         'shipping_method', 'shipping_key', 'relay_point_code', 'relay_network',
         'tracking_number', 'tracking_carrier', 'tracking_url', 'boxtal_shipping_order_id', 'boxtal_label_url',
-        'shipped_at', 'review_requested_at', 'customer_note',
+        'shipped_at', 'review_requested_at', 'abandoned_cart_reminded_at', 'customer_note',
         'gift_wrap', 'gift_type', 'gift_message',
     ];
 
     protected $casts = [
-        'paid_at' => 'datetime', 'shipped_at' => 'datetime', 'review_requested_at' => 'datetime', 'gift_wrap' => 'boolean',
+        'paid_at' => 'datetime', 'shipped_at' => 'datetime', 'review_requested_at' => 'datetime', 'abandoned_cart_reminded_at' => 'datetime', 'gift_wrap' => 'boolean',
         'subtotal' => 'decimal:2', 'discount_total' => 'decimal:2',
         'shipping_total' => 'decimal:2', 'tax_total' => 'decimal:2', 'total' => 'decimal:2',
     ];
