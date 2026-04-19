@@ -87,7 +87,7 @@ class CronController extends Controller
                     'name' => "Relance commande #{$order->number}",
                     'coupon_code' => $code,
                     'is_active' => true,
-                    'type' => 'coupon',
+                    'type' => 'all_products',
                     'discount_type' => 'percentage',
                     'discount_amount' => 10,
                     'starts_at' => now(),
