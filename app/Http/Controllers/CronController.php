@@ -112,4 +112,22 @@ class CronController extends Controller
 
         return response()->json(['sent' => $sent, 'debug' => $debug]);
     }
+
+    public function testMail(Request $request): JsonResponse
+    {
+        if ($request->query('token') !== config('app.cron_token')) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        try {
+            Mail::raw('Test envoi email depuis Institut Corps à Coeur - '.now(), function ($message) {
+                $message->to('arnotoma@gmail.com')
+                    ->subject('Test Brevo - Institut Corps à Coeur');
+            });
+
+            return response()->json(['status' => 'ok', 'message' => 'Email envoyé']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
 }
