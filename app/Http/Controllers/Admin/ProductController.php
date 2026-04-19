@@ -220,6 +220,12 @@ class ProductController extends Controller
             ->encode('webp', 78)
             ->save($finalPath);
 
+        // Copier dans public/storage (OVH mutualisé ne supporte pas les symlinks)
+        $publicDir = public_path('storage/media');
+        if (is_dir($publicDir)) {
+            copy($finalPath, $publicDir.'/'.$filename);
+        }
+
         [$width, $height] = getimagesize($finalPath) ?: [null, null];
 
         return Media::create([

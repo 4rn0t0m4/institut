@@ -28,6 +28,12 @@ class EditorUploadController extends Controller
         $filename = Str::uuid().'.'.$ext;
         $file->storeAs('public/editor-uploads', $filename);
 
+        // Copier dans public/storage (OVH mutualisé ne supporte pas les symlinks)
+        $publicDir = public_path('storage/editor-uploads');
+        if (is_dir($publicDir)) {
+            copy(storage_path('app/public/editor-uploads/'.$filename), $publicDir.'/'.$filename);
+        }
+
         return response()->json([
             'location' => '/storage/editor-uploads/'.$filename,
         ]);

@@ -40,7 +40,11 @@
       "WebSearch",
       "WebFetch(domain:github.com)",
       "Bash(gh api repos/boxtal/boxtal-connect-woocommerce/git/trees/master?recursive=1 --jq '.tree[].path')",
-      "Bash(gh api \"repos/boxtal/boxtal-connect-woocommerce/git/trees/master?recursive=1\" --jq '.tree[].path')"
+      "Bash(gh api \"repos/boxtal/boxtal-connect-woocommerce/git/trees/master?recursive=1\" --jq '.tree[].path')",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git rm:*)",
+      "Bash(git ls-files:*)"
     ]
   }
 }
