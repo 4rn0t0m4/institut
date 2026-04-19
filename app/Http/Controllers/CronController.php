@@ -61,6 +61,14 @@ class CronController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
+        $debug = [
+            'now' => now()->toDateTimeString(),
+            'threshold' => now()->subDays(2)->toDateTimeString(),
+            'cron_token_set' => !empty(config('app.cron_token')),
+            'pending_count' => Order::where('status', 'pending')->whereNull('paid_at')->count(),
+            'eligible_count' => Order::where('status', 'pending')->whereNull('paid_at')->whereNull('abandoned_cart_reminded_at')->where('created_at', '<=', now()->subDays(2))->count(),
+        ];
+
         $orders = Order::where('status', 'pending')
             ->whereNull('paid_at')
             ->whereNull('abandoned_cart_reminded_at')
@@ -102,6 +110,6 @@ class CronController extends Controller
             }
         }
 
-        return response()->json(['sent' => $sent]);
+        return response()->json(['sent' => $sent, 'debug' => $debug]);
     }
 }
