@@ -132,7 +132,7 @@ class BoxtalShippingService
                         'firstName' => $order->shipping_first_name ?: $order->billing_first_name,
                         'lastName' => $order->shipping_last_name ?: $order->billing_last_name,
                         'email' => $order->billing_email,
-                        'phone' => $order->billing_phone ?? '',
+                        'phone' => $this->formatPhone($order->billing_phone ?? '', $order->shipping_country ?: $order->billing_country ?: 'FR') ?: $from['phone'],
                     ],
                     'location' => [
                         'street' => trim(($order->shipping_address_1 ?: $order->billing_address_1).' '.($order->shipping_address_2 ?: $order->billing_address_2 ?? '')),
@@ -304,6 +304,32 @@ class BoxtalShippingService
             $order->shipping_key === 'colissimo' => 'Colissimo',
             default => null,
         };
+    }
+
+    private function formatPhone(string $phone, string $country = 'FR'): string
+    {
+        $phone = preg_replace('/[\s.\-()]/', '', $phone);
+
+        if ($phone === '') {
+            return '';
+        }
+
+        if (str_starts_with($phone, '+')) {
+            return $phone;
+        }
+
+        if (str_starts_with($phone, '00')) {
+            return '+'.substr($phone, 2);
+        }
+
+        $prefixes = ['FR' => '+33', 'BE' => '+32', 'ES' => '+34', 'IT' => '+39', 'DE' => '+49', 'GB' => '+44', 'LU' => '+352', 'CH' => '+41'];
+        $prefix = $prefixes[strtoupper($country)] ?? '+33';
+
+        if (str_starts_with($phone, '0')) {
+            $phone = substr($phone, 1);
+        }
+
+        return $prefix.$phone;
     }
 
     private function formatApiError(?array $body, int $status): string
