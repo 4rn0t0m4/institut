@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\DiagnosticResult;
+use App\Mail\DiagnosticResultAdmin;
 use App\Models\Quiz;
 use App\Models\QuizAnswer;
 use App\Models\QuizCompletion;
 use App\Models\QuizQuestion;
 use App\Models\QuizResult;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class DiagnostiqueController extends Controller
 {
@@ -88,6 +91,43 @@ class DiagnostiqueController extends Controller
 
         // Enregistre la complétion en DB
         $completion = $this->saveCompletion($quiz, $result, $answers, $request);
+
+        return redirect()->route('quiz.email', ['completion' => $completion->id]);
+    }
+
+    /** Formulaire de collecte d'email avant le résultat */
+    public function emailForm(string $completion)
+    {
+        $quiz = $this->quiz();
+        $completion = QuizCompletion::where('quiz_id', $quiz->id)->findOrFail($completion);
+
+        // Si l'email a déjà été renseigné, aller directement au résultat
+        if ($completion->email) {
+            return redirect()->route('quiz.result', ['completion' => $completion->id]);
+        }
+
+        return view('quiz.email', compact('quiz', 'completion'));
+    }
+
+    /** Enregistre l'email, envoie les mails et redirige vers le résultat */
+    public function emailSubmit(Request $request, string $completion)
+    {
+        $quiz = $this->quiz();
+        $completion = QuizCompletion::where('quiz_id', $quiz->id)->findOrFail($completion);
+
+        $request->validate([
+            'email' => 'required|email:rfc,dns',
+        ]);
+
+        $completion->update(['email' => $request->input('email')]);
+        $completion->load('result');
+
+        // Envoyer le résultat au visiteur
+        Mail::to($request->input('email'))->send(new DiagnosticResult($completion));
+
+        // Notifier l'admin
+        $adminEmail = $quiz->admin_email ?: config('mail.from.address');
+        Mail::to($adminEmail)->send(new DiagnosticResultAdmin($completion));
 
         return redirect()->route('quiz.result', ['completion' => $completion->id]);
     }

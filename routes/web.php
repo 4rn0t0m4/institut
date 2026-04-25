@@ -54,6 +54,8 @@ Route::get('/commande/succes', [CheckoutController::class, 'success'])->name('ch
 Route::get('/diagnostic-de-peau', [DiagnostiqueController::class, 'show'])->name('quiz.show');
 Route::get('/diagnostic-de-peau/question/{question}', [DiagnostiqueController::class, 'question'])->name('quiz.question');
 Route::post('/diagnostic-de-peau/question/{question}', [DiagnostiqueController::class, 'answer'])->name('quiz.answer');
+Route::get('/diagnostic-de-peau/email/{completion}', [DiagnostiqueController::class, 'emailForm'])->name('quiz.email');
+Route::post('/diagnostic-de-peau/email/{completion}', [DiagnostiqueController::class, 'emailSubmit'])->name('quiz.email.submit');
 Route::get('/diagnostic-de-peau/resultat/{completion}', [DiagnostiqueController::class, 'result'])->name('quiz.result');
 
 // Redirections 301 anciennes URLs quiz
