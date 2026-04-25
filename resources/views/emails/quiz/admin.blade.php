@@ -69,7 +69,7 @@
         @endif
 
         <div style="text-align: center; margin: 24px 0;">
-            <a href="{{ url('/diagnostic-de-peau/resultat/' . $completion->id) }}" class="btn">Voir le resultat complet</a>
+            <a href="{{ url('/diagnostic-de-peau/resultat/' . $completion->id) }}" style="display: inline-block; background: #276e44; color: #ffffff; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">Voir le resultat complet</a>
         </div>
     </div>
 
