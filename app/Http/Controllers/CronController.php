@@ -80,6 +80,19 @@ class CronController extends Controller
 
         foreach ($orders as $order) {
             try {
+                // Ne pas relancer si le client a passé une commande payée depuis
+                $hasLaterPaidOrder = Order::where('billing_email', $order->billing_email)
+                    ->where('id', '!=', $order->id)
+                    ->whereNotNull('paid_at')
+                    ->where('created_at', '>=', $order->created_at)
+                    ->exists();
+
+                if ($hasLaterPaidOrder) {
+                    $order->update(['abandoned_cart_reminded_at' => now()]);
+                    Log::info("Cron abandoned-carts: #{$order->number} ignoré, le client a commandé depuis");
+                    continue;
+                }
+
                 // Créer un code promo unique valable 7 jours
                 $code = 'RETOUR-'.strtoupper(Str::random(6));
 
