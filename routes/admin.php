@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\EditorUploadController;
+use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductCategoryController;
@@ -45,6 +46,9 @@ Route::put('settings', [SettingController::class, 'update'])->name('admin.settin
 
 Route::get('announcement', [AnnouncementController::class, 'index'])->name('admin.announcement.index');
 Route::put('announcement', [AnnouncementController::class, 'update'])->name('admin.announcement.update');
+
+Route::get('exports', [ExportController::class, 'index'])->name('admin.exports.index');
+Route::get('exports/csv', [ExportController::class, 'csv'])->name('admin.exports.csv');
 
 Route::post('editor-upload', [EditorUploadController::class, 'upload'])->name('admin.editor.upload');
 
