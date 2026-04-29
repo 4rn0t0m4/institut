@@ -18,7 +18,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::with('category')
-            ->withSum(['orderItems as total_sold' => fn ($q) => $q->whereHas('order', fn ($o) => $o->whereIn('status', ['processing', 'completed']))], 'quantity');
+            ->withSum(['orderItems as total_sold' => fn ($q) => $q->whereHas('order', fn ($o) => $o->whereIn('status', ['processing', 'shipped', 'completed']))], 'quantity');
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%'.$request->search.'%');

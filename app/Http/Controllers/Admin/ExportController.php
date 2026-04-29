@@ -6,6 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportController extends Controller
@@ -29,7 +35,7 @@ class ExportController extends Controller
         return view('admin.exports.index', compact('products', 'month', 'totals'));
     }
 
-    public function csv(Request $request): StreamedResponse
+    public function excel(Request $request): StreamedResponse
     {
         $month = $request->input('month', now()->format('Y-m'));
         $start = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
@@ -38,26 +44,69 @@ class ExportController extends Controller
         $products = $this->getProductSales($start, $end);
         $monthLabel = $start->translatedFormat('F Y');
 
-        return response()->streamDownload(function () use ($products) {
-            $handle = fopen('php://output', 'w');
-            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8 pour Excel
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Ventes');
 
-            fputcsv($handle, ['Produit', 'SKU', 'Quantité', 'Prix unit. TTC', 'Total TTC', 'Total HT'], ';');
+        // En-têtes
+        $headers = ['Produit', 'SKU', 'Quantité', 'Prix unit. TTC', 'Total TTC', 'Total HT'];
+        $sheet->fromArray($headers, null, 'A1');
 
-            foreach ($products as $product) {
-                fputcsv($handle, [
-                    $product->product_name,
-                    $product->sku ?? '',
-                    $product->total_quantity,
-                    number_format($product->unit_price, 2, ',', ''),
-                    number_format($product->total_ttc, 2, ',', ''),
-                    number_format($product->total_ht, 2, ',', ''),
-                ], ';');
-            }
+        // Style en-têtes
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '276E44']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+            'borders' => ['bottom' => ['borderStyle' => Border::BORDER_THIN]],
+        ];
+        $sheet->getStyle('A1:F1')->applyFromArray($headerStyle);
 
-            fclose($handle);
-        }, "ventes-{$month}.csv", [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+        // Données
+        $row = 2;
+        foreach ($products as $product) {
+            $sheet->setCellValue("A{$row}", $product->product_name);
+            $sheet->setCellValue("B{$row}", $product->sku ?? '');
+            $sheet->setCellValue("C{$row}", (int) $product->total_quantity);
+            $sheet->setCellValue("D{$row}", (float) $product->unit_price);
+            $sheet->setCellValue("E{$row}", (float) $product->total_ttc);
+            $sheet->setCellValue("F{$row}", (float) $product->total_ht);
+            $row++;
+        }
+
+        // Ligne totaux
+        if ($products->isNotEmpty()) {
+            $sheet->setCellValue("A{$row}", 'TOTAL');
+            $sheet->getStyle("A{$row}")->getFont()->setBold(true);
+            $sheet->setCellValue("C{$row}", "=SUM(C2:C".($row - 1).')');
+            $sheet->setCellValue("E{$row}", "=SUM(E2:E".($row - 1).')');
+            $sheet->setCellValue("F{$row}", "=SUM(F2:F".($row - 1).')');
+
+            $totalStyle = [
+                'font' => ['bold' => true],
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F0FDF4']],
+                'borders' => ['top' => ['borderStyle' => Border::BORDER_THIN]],
+            ];
+            $sheet->getStyle("A{$row}:F{$row}")->applyFromArray($totalStyle);
+        }
+
+        // Format monétaire sur les colonnes prix
+        $lastDataRow = $row;
+        $sheet->getStyle("D2:F{$lastDataRow}")->getNumberFormat()->setFormatCode('#,##0.00 €');
+        $sheet->getStyle("C2:C{$lastDataRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        // Auto-largeur colonnes
+        foreach (range('A', 'F') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $filename = "ventes-{$month}.xlsx";
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+            $spreadsheet->disconnectWorksheets();
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
     }
 

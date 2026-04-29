@@ -48,7 +48,7 @@ Route::get('announcement', [AnnouncementController::class, 'index'])->name('admi
 Route::put('announcement', [AnnouncementController::class, 'update'])->name('admin.announcement.update');
 
 Route::get('exports', [ExportController::class, 'index'])->name('admin.exports.index');
-Route::get('exports/csv', [ExportController::class, 'csv'])->name('admin.exports.csv');
+Route::get('exports/excel', [ExportController::class, 'excel'])->name('admin.exports.excel');
 
 Route::post('editor-upload', [EditorUploadController::class, 'upload'])->name('admin.editor.upload');
 
