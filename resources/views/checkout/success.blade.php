@@ -1,4 +1,15 @@
 <x-layouts.app title="Commande confirmée" :noindex="true">
+
+{{-- Google Ads — Event snippet for Achat conversion --}}
+<script>
+    gtag('event', 'conversion', {
+        'send_to': 'AW-17605875471/O7DhCMiV36UcEI-ukctB',
+        'value': {{ $order->total }},
+        'currency': 'EUR',
+        'transaction_id': '{{ $order->number }}'
+    });
+</script>
+
 <div class="max-w-2xl mx-auto px-4 py-16 text-center">
 
     <div class="mb-6">
