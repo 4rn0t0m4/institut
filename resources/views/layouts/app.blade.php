@@ -68,6 +68,7 @@
         @if ($adsId)
         gtag('config', '{{ $adsId }}', {'send_page_view': false});
         @endif
+        gtag('config', 'AW-17605875471');
     </script>
     @endif
 
