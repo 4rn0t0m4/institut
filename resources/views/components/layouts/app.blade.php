@@ -19,19 +19,22 @@
     @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Google Analytics + Google Ads (gtag.js) --}}
+    {{-- Google Ads — Suivi conversions --}}
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17605875471"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'AW-17605875471');
+    </script>
+
+    {{-- Google Analytics + Google Ads ancien (gtag.js) --}}
     @php
         $gaId = \App\Models\Setting::get('google_analytics_id');
         $adsId = \App\Models\Setting::get('google_ads_id');
     @endphp
     @if ($gaId || $adsId)
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId ?: $adsId }}"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-
-        gtag('js', new Date());
-        gtag('set', 'linker', {'domains': ['institutcorpsacoeur.fr']});
         @if ($gaId)
         gtag('config', '{{ $gaId }}');
         @endif
