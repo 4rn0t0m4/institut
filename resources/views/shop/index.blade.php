@@ -36,6 +36,11 @@
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
+        {{-- Promo Fête des mères --}}
+        <div class="mb-8">
+            @include('partials.promo-banner')
+        </div>
+
         {{-- Titre + recherche --}}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <h1 class="text-2xl font-semibold text-gray-900">
