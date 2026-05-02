@@ -39,70 +39,66 @@
                 @foreach($items as $key => $item)
                     @include('cart.partials.item', ['item' => $item])
                 @endforeach
-            </div>
 
-            {{-- Cadeau offert --}}
-            @php
-                $gift = config('promotions.gift');
-                $giftActive = $gift['enabled']
-                    && now()->between($gift['starts_at'], $gift['ends_at'])
-                    && $subtotal >= $gift['min_cart_value'];
-                $giftChoice = session('promo_gift');
-                // Retirer le cadeau si le panier passe sous le seuil
-                if (!$giftActive && $giftChoice) {
-                    session()->forget('promo_gift');
-                    $giftChoice = null;
-                }
-            @endphp
+                {{-- Cadeau offert --}}
+                @php
+                    $gift = config('promotions.gift');
+                    $giftPromoActive = $gift['enabled'] && now()->between($gift['starts_at'], $gift['ends_at']);
+                    $giftEligible = $giftPromoActive && $subtotal >= $gift['min_cart_value'];
+                    $giftChoice = session('promo_gift');
+                    if (!$giftEligible && $giftChoice) {
+                        session()->forget('promo_gift');
+                        $giftChoice = null;
+                    }
+                @endphp
 
-            @if($giftActive)
-                <div class="lg:col-span-2 rounded-xl border-2 border-green-200 bg-green-50 p-5">
-                    <div class="flex items-start gap-3 mb-3">
-                        <span class="text-2xl">🎁</span>
-                        <div>
-                            <p class="font-semibold text-green-800">{{ $gift['label'] }}</p>
-                            <p class="text-sm text-green-700 mt-0.5">{{ $gift['description'] }}</p>
-                        </div>
-                    </div>
-
-                    @if($giftChoice)
-                        <div class="flex items-center justify-between bg-white rounded-lg p-3 border border-green-200">
-                            <div class="flex items-center gap-3">
-                                <span class="text-lg">✅</span>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ $gift['options'][$giftChoice] }}</p>
-                                    <p class="text-xs text-green-600 font-semibold">Offerte</p>
+                @if($giftEligible)
+                    <div class="rounded-xl border border-green-200 bg-green-50/50 p-4">
+                        @if($giftChoice)
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                                        <svg class="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">{{ $gift['options'][$giftChoice] }}</p>
+                                        <p class="text-xs text-green-600">Cadeau offert - Fete des meres</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm font-semibold text-green-700">0,00 €</span>
+                                    <form action="{{ route('cart.gift.remove') }}" method="POST" data-turbo="false">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-xs text-gray-400 hover:text-red-500 transition">Changer</button>
+                                    </form>
                                 </div>
                             </div>
-                            <form action="{{ route('cart.gift.remove') }}" method="POST" data-turbo="false">
+                        @else
+                            <p class="text-sm font-semibold text-green-800 mb-2">Choisissez votre cadeau offert !</p>
+                            <p class="text-xs text-green-700 mb-3">Fete des meres : une trousse de maquillage personnalisable offerte.</p>
+                            <form action="{{ route('cart.gift') }}" method="POST" data-turbo="false" class="flex gap-2">
                                 @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-xs text-gray-400 hover:text-red-500 transition">Changer</button>
+                                @foreach($gift['options'] as $optKey => $label)
+                                    <button type="submit" name="gift_option" value="{{ $optKey }}"
+                                            class="flex-1 text-sm font-medium py-2 px-3 rounded-lg border border-green-300 bg-white text-green-800 hover:bg-green-100 hover:border-green-500 transition text-center">
+                                        {{ $label }}
+                                    </button>
+                                @endforeach
                             </form>
-                        </div>
-                    @else
-                        <form action="{{ route('cart.gift') }}" method="POST" data-turbo="false" class="flex flex-wrap gap-2 mt-2">
-                            @csrf
-                            @foreach($gift['options'] as $key => $label)
-                                <button type="submit" name="gift_option" value="{{ $key }}"
-                                        class="flex-1 min-w-[140px] text-sm font-medium py-2.5 px-4 rounded-lg border-2 border-green-300 bg-white text-green-800 hover:bg-green-100 hover:border-green-400 transition text-center">
-                                    {{ $label }}
-                                </button>
-                            @endforeach
-                        </form>
-                    @endif
-                </div>
-            @elseif($gift['enabled'] && now()->between($gift['starts_at'], $gift['ends_at']) && $subtotal > 0)
-                @php $remaining = $gift['min_cart_value'] - $subtotal; @endphp
-                <div class="lg:col-span-2 rounded-xl border border-amber-200 bg-amber-50 p-4">
-                    <div class="flex items-center gap-3">
-                        <span class="text-xl">🎁</span>
-                        <p class="text-sm text-amber-800">
-                            <strong>Fête des mères :</strong> plus que <strong>{{ number_format($remaining, 2, ',', ' ') }} €</strong> pour recevoir votre trousse personnalisée offerte !
+                        @endif
+                    </div>
+                @elseif($giftPromoActive && $subtotal > 0)
+                    @php $remaining = $gift['min_cart_value'] - $subtotal; @endphp
+                    <div class="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3">
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Fete des meres :</span> plus que <strong class="text-green-700">{{ number_format($remaining, 2, ',', ' ') }} €</strong> pour recevoir une trousse offerte !
                         </p>
                     </div>
-                </div>
-            @endif
+                @endif
+            </div>
 
             {{-- Récap commande --}}
             <div class="lg:col-span-1">
