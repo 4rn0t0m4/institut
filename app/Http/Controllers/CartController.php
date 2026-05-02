@@ -106,4 +106,27 @@ class CartController extends Controller
 
         return redirect()->route('cart.index');
     }
+
+    /** Sélectionner le cadeau offert */
+    public function selectGift(Request $request)
+    {
+        $gift = config('promotions.gift');
+        $options = array_keys($gift['options'] ?? []);
+
+        $request->validate([
+            'gift_option' => 'required|in:'.implode(',', $options),
+        ]);
+
+        session(['promo_gift' => $request->input('gift_option')]);
+
+        return redirect()->route('cart.index');
+    }
+
+    /** Retirer le cadeau offert */
+    public function removeGift()
+    {
+        session()->forget('promo_gift');
+
+        return redirect()->route('cart.index');
+    }
 }

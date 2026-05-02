@@ -127,9 +127,9 @@ class OrderService
     /**
      * Crée la commande et ses lignes dans une transaction.
      */
-    public function createOrder(array $orderData, array $cartItems): Order
+    public function createOrder(array $orderData, array $cartItems, ?array $promoGift = null): Order
     {
-        return DB::transaction(function () use ($orderData, $cartItems) {
+        return DB::transaction(function () use ($orderData, $cartItems, $promoGift) {
             $order = Order::create($orderData);
 
             foreach ($cartItems as $item) {
@@ -168,6 +168,20 @@ class OrderService
                         'addon_type' => 'personalization',
                     ]);
                 }
+            }
+
+            // Cadeau offert (promo)
+            if ($promoGift) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => null,
+                    'product_name' => $promoGift['name'].' (offerte)',
+                    'quantity' => 1,
+                    'unit_price' => 0,
+                    'addons_price' => 0,
+                    'total' => 0,
+                    'tax' => 0,
+                ]);
             }
 
             return $order;

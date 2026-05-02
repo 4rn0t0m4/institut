@@ -542,6 +542,21 @@
                             <span>1,00 €</span>
                         </div>
 
+                        @php
+                            $giftConfig = config('promotions.gift');
+                            $giftChoice = session('promo_gift');
+                            $giftEligible = $giftChoice && $giftConfig['enabled']
+                                && now()->between($giftConfig['starts_at'], $giftConfig['ends_at'])
+                                && $subtotal >= $giftConfig['min_cart_value']
+                                && isset($giftConfig['options'][$giftChoice]);
+                        @endphp
+                        @if($giftEligible)
+                            <div class="flex justify-between text-green-700">
+                                <span>🎁 {{ $giftConfig['options'][$giftChoice] }}</span>
+                                <span class="font-semibold">Offerte</span>
+                            </div>
+                        @endif
+
                         <div class="flex justify-between font-semibold text-gray-900 pt-2 border-t border-gray-200 text-base">
                             <span>Total</span>
                             <span x-text="formatPrice(total)"></span>

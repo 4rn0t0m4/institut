@@ -142,6 +142,20 @@ class CheckoutController extends Controller
         // les commandes orphelines si Stripe échoue
         $paymentIntent = $this->createPaymentIntent($total, $request->billing_email);
 
+        // Cadeau offert (promo Fête des mères)
+        $promoGift = null;
+        $giftConfig = config('promotions.gift');
+        $giftChoice = session('promo_gift');
+        if ($giftChoice && $giftConfig['enabled']
+            && now()->between($giftConfig['starts_at'], $giftConfig['ends_at'])
+            && $subtotal >= $giftConfig['min_cart_value']
+            && isset($giftConfig['options'][$giftChoice])) {
+            $promoGift = [
+                'name' => $giftConfig['options'][$giftChoice],
+                'option' => $giftChoice,
+            ];
+        }
+
         $order = $this->orderService->createOrder([
             'user_id' => auth()->id(),
             'status' => 'pending',
@@ -177,7 +191,7 @@ class CheckoutController extends Controller
             'gift_message' => $giftWrap ? $request->gift_message : null,
             'currency' => 'EUR',
             'payment_method' => 'stripe',
-        ], $items);
+        ], $items, $promoGift);
 
         // Mettre à jour le PI avec l'ID de commande en metadata
         Stripe::setApiKey(config('cashier.secret'));
