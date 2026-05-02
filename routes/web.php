@@ -42,10 +42,10 @@ Route::get('/boutique/{parent}/{child?}', [ShopController::class, 'categoryOrPro
 Route::get('/panier', [CartController::class, 'index'])->name('cart.index');
 Route::get('/panier/mini', [CartController::class, 'miniCart'])->name('cart.mini');
 Route::post('/panier/ajouter', [CartController::class, 'add'])->name('cart.add');
-Route::patch('/panier/{key}', [CartController::class, 'update'])->name('cart.update');
-Route::delete('/panier/{key}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/panier/cadeau', [CartController::class, 'selectGift'])->name('cart.gift');
 Route::delete('/panier/cadeau', [CartController::class, 'removeGift'])->name('cart.gift.remove');
+Route::patch('/panier/{key}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/panier/{key}', [CartController::class, 'remove'])->name('cart.remove');
 
 // Commande / Checkout
 Route::get('/commande', [CheckoutController::class, 'index'])->name('checkout.index');
