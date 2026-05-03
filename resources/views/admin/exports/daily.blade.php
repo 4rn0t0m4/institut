@@ -63,7 +63,6 @@
                 <thead class="bg-gray-50 dark:bg-gray-800/50">
                     <tr>
                         <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Date</th>
-                        <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Jour</th>
                         <th class="px-5 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Commandes</th>
                         <th class="px-5 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">CA TTC</th>
                         <th class="px-5 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">CA HT</th>
@@ -74,14 +73,13 @@
                         @php $date = \Carbon\Carbon::parse($day->date); @endphp
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
                             <td class="px-5 py-4 text-sm font-medium text-gray-900 dark:text-white">{{ $date->format('d/m/Y') }}</td>
-                            <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $date->translatedFormat('l') }}</td>
                             <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-300 text-right">{{ $day->orders_count }}</td>
                             <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-300 text-right">{{ number_format($day->total_ttc, 2, ',', ' ') }} €</td>
                             <td class="px-5 py-4 text-sm text-gray-700 dark:text-gray-300 text-right">{{ number_format($day->total_ht, 2, ',', ' ') }} €</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                            <td colspan="4" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                                 Aucune vente pour ce mois.
                             </td>
                         </tr>

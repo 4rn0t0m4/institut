@@ -140,7 +140,7 @@ class ExportController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('CA journalier');
 
-        $headers = ['Date', 'Jour', 'Commandes', 'CA TTC', 'CA HT'];
+        $headers = ['Date', 'Commandes', 'CA TTC', 'CA HT'];
         $sheet->fromArray($headers, null, 'A1');
 
         $headerStyle = [
@@ -149,27 +149,26 @@ class ExportController extends Controller
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
             'borders' => ['bottom' => ['borderStyle' => Border::BORDER_THIN]],
         ];
-        $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:D1')->applyFromArray($headerStyle);
 
         $row = 2;
         foreach ($days as $day) {
             $date = Carbon::parse($day->date);
             $sheet->setCellValue("A{$row}", $date->format('d/m/Y'));
-            $sheet->setCellValue("B{$row}", $date->translatedFormat('l'));
-            $sheet->setCellValue("C{$row}", (int) $day->orders_count);
-            $sheet->setCellValue("D{$row}", (float) $day->total_ttc);
-            $sheet->setCellValue("E{$row}", (float) $day->total_ht);
+            $sheet->setCellValue("B{$row}", (int) $day->orders_count);
+            $sheet->setCellValue("C{$row}", (float) $day->total_ttc);
+            $sheet->setCellValue("D{$row}", (float) $day->total_ht);
             $row++;
         }
 
         if ($days->isNotEmpty()) {
             $sheet->setCellValue("A{$row}", 'TOTAL');
             $sheet->getStyle("A{$row}")->getFont()->setBold(true);
+            $sheet->setCellValue("B{$row}", "=SUM(B2:B".($row - 1).')');
             $sheet->setCellValue("C{$row}", "=SUM(C2:C".($row - 1).')');
             $sheet->setCellValue("D{$row}", "=SUM(D2:D".($row - 1).')');
-            $sheet->setCellValue("E{$row}", "=SUM(E2:E".($row - 1).')');
 
-            $sheet->getStyle("A{$row}:E{$row}")->applyFromArray([
+            $sheet->getStyle("A{$row}:D{$row}")->applyFromArray([
                 'font' => ['bold' => true],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F0FDF4']],
                 'borders' => ['top' => ['borderStyle' => Border::BORDER_THIN]],
@@ -177,10 +176,10 @@ class ExportController extends Controller
         }
 
         $lastDataRow = $row;
-        $sheet->getStyle("D2:E{$lastDataRow}")->getNumberFormat()->setFormatCode('#,##0.00 €');
-        $sheet->getStyle("C2:C{$lastDataRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("C2:D{$lastDataRow}")->getNumberFormat()->setFormatCode('#,##0.00 €');
+        $sheet->getStyle("B2:B{$lastDataRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        foreach (range('A', 'E') as $col) {
+        foreach (range('A', 'D') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
