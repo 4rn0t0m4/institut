@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -108,6 +109,104 @@ class ExportController extends Controller
         }, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
+    }
+
+    public function daily(Request $request)
+    {
+        $month = $request->input('month', now()->format('Y-m'));
+        $start = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+        $end = $start->copy()->endOfMonth();
+
+        $days = $this->getDailySales($start, $end);
+
+        $totals = [
+            'orders' => $days->sum('orders_count'),
+            'total_ttc' => $days->sum('total_ttc'),
+            'total_ht' => $days->sum('total_ht'),
+        ];
+
+        return view('admin.exports.daily', compact('days', 'month', 'totals'));
+    }
+
+    public function dailyExcel(Request $request): StreamedResponse
+    {
+        $month = $request->input('month', now()->format('Y-m'));
+        $start = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+        $end = $start->copy()->endOfMonth();
+
+        $days = $this->getDailySales($start, $end);
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('CA journalier');
+
+        $headers = ['Date', 'Jour', 'Commandes', 'CA TTC', 'CA HT'];
+        $sheet->fromArray($headers, null, 'A1');
+
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '276E44']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+            'borders' => ['bottom' => ['borderStyle' => Border::BORDER_THIN]],
+        ];
+        $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
+
+        $row = 2;
+        foreach ($days as $day) {
+            $date = Carbon::parse($day->date);
+            $sheet->setCellValue("A{$row}", $date->format('d/m/Y'));
+            $sheet->setCellValue("B{$row}", $date->translatedFormat('l'));
+            $sheet->setCellValue("C{$row}", (int) $day->orders_count);
+            $sheet->setCellValue("D{$row}", (float) $day->total_ttc);
+            $sheet->setCellValue("E{$row}", (float) $day->total_ht);
+            $row++;
+        }
+
+        if ($days->isNotEmpty()) {
+            $sheet->setCellValue("A{$row}", 'TOTAL');
+            $sheet->getStyle("A{$row}")->getFont()->setBold(true);
+            $sheet->setCellValue("C{$row}", "=SUM(C2:C".($row - 1).')');
+            $sheet->setCellValue("D{$row}", "=SUM(D2:D".($row - 1).')');
+            $sheet->setCellValue("E{$row}", "=SUM(E2:E".($row - 1).')');
+
+            $sheet->getStyle("A{$row}:E{$row}")->applyFromArray([
+                'font' => ['bold' => true],
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F0FDF4']],
+                'borders' => ['top' => ['borderStyle' => Border::BORDER_THIN]],
+            ]);
+        }
+
+        $lastDataRow = $row;
+        $sheet->getStyle("D2:E{$lastDataRow}")->getNumberFormat()->setFormatCode('#,##0.00 €');
+        $sheet->getStyle("C2:C{$lastDataRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        foreach (range('A', 'E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+            $spreadsheet->disconnectWorksheets();
+        }, "ca-journalier-{$month}.xlsx", [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    private function getDailySales(Carbon $start, Carbon $end)
+    {
+        return Order::query()
+            ->whereIn('status', ['processing', 'shipped', 'completed'])
+            ->whereBetween('paid_at', [$start, $end])
+            ->selectRaw('
+                DATE(paid_at) as date,
+                COUNT(*) as orders_count,
+                SUM(total) as total_ttc,
+                ROUND(SUM(total) / ?, 2) as total_ht
+            ', [1 + self::TVA_RATE])
+            ->groupByRaw('DATE(paid_at)')
+            ->orderBy('date')
+            ->get();
     }
 
     private function getProductSales(Carbon $start, Carbon $end)

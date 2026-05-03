@@ -49,6 +49,8 @@ Route::put('announcement', [AnnouncementController::class, 'update'])->name('adm
 
 Route::get('exports', [ExportController::class, 'index'])->name('admin.exports.index');
 Route::get('exports/excel', [ExportController::class, 'excel'])->name('admin.exports.excel');
+Route::get('exports/daily', [ExportController::class, 'daily'])->name('admin.exports.daily');
+Route::get('exports/daily/excel', [ExportController::class, 'dailyExcel'])->name('admin.exports.daily.excel');
 
 Route::post('editor-upload', [EditorUploadController::class, 'upload'])->name('admin.editor.upload');
 
