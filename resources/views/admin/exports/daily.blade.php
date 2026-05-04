@@ -88,7 +88,7 @@
                 @if($days->isNotEmpty())
                     <tfoot class="bg-gray-50 dark:bg-gray-800/50">
                         <tr class="font-semibold">
-                            <td class="px-5 py-4 text-sm text-gray-900 dark:text-white" colspan="2">Total</td>
+                            <td class="px-5 py-4 text-sm text-gray-900 dark:text-white">Total</td>
                             <td class="px-5 py-4 text-sm text-gray-900 dark:text-white text-right">{{ $totals['orders'] }}</td>
                             <td class="px-5 py-4 text-sm text-gray-900 dark:text-white text-right">{{ number_format($totals['total_ttc'], 2, ',', ' ') }} €</td>
                             <td class="px-5 py-4 text-sm text-gray-900 dark:text-white text-right">{{ number_format($totals['total_ht'], 2, ',', ' ') }} €</td>
