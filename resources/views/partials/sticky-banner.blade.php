@@ -8,7 +8,7 @@
          x-show="show"
          class="relative text-white text-sm py-2.5 px-4" style="background: linear-gradient(135deg, #be185d, #9f1239);">
         <div class="max-w-7xl mx-auto flex items-center justify-center gap-4 flex-wrap">
-            <span>🎁 <strong>Fete des meres :</strong> une trousse personnalisable offerte des {{ number_format($promoGift['min_cart_value'], 0) }} € d'achat !</span>
+            <span>🎁 <strong>Fête des mères :</strong> une trousse personnalisable offerte dès {{ number_format($promoGift['min_cart_value'], 0) }} € d'achat !</span>
             <a href="{{ route('shop.index') }}"
                class="shrink-0 rounded-full px-4 py-1 text-xs font-semibold transition hover:brightness-125"
                style="background-color: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4);">

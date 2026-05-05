@@ -8,7 +8,7 @@
     <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
         <div class="text-4xl shrink-0">🎁</div>
         <div class="text-center sm:text-left flex-1">
-            <p class="text-base sm:text-lg font-bold text-pink-900">Offre Fete des meres</p>
+            <p class="text-base sm:text-lg font-bold text-pink-900">Offre Fête des mères</p>
             <p class="text-sm text-pink-800 mt-1">
                 Une trousse de maquillage personnalisable <strong>offerte</strong> des {{ number_format($promoGift['min_cart_value'], 0) }} € d'achat !
                 <span class="text-pink-500 text-xs font-medium ml-1">Jusqu'au 31 mai</span>

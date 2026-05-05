@@ -64,7 +64,7 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-medium text-gray-900">{{ $gift['options'][$giftChoice] }}</p>
-                                        <p class="text-xs text-green-600">Cadeau offert - Fete des meres</p>
+                                        <p class="text-xs text-green-600">Cadeau offert - Fête des mères</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-3">
@@ -78,7 +78,7 @@
                             </div>
                         @else
                             <p class="text-sm font-semibold text-green-800 mb-2">Choisissez votre cadeau offert !</p>
-                            <p class="text-xs text-green-700 mb-3">Fete des meres : une trousse de maquillage personnalisable offerte.</p>
+                            <p class="text-xs text-green-700 mb-3">Fête des mères : une trousse de maquillage personnalisable offerte.</p>
                             <form action="{{ route('cart.gift') }}" method="POST" data-turbo="false" class="flex gap-2">
                                 @csrf
                                 @foreach($gift['options'] as $optKey => $label)
@@ -94,7 +94,7 @@
                     @php $remaining = $gift['min_cart_value'] - $subtotal; @endphp
                     <div class="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3">
                         <p class="text-sm text-gray-600">
-                            <span class="font-medium">Fete des meres :</span> plus que <strong class="text-green-700">{{ number_format($remaining, 2, ',', ' ') }} €</strong> pour recevoir une trousse offerte !
+                            <span class="font-medium">Fête des mères :</span> plus que <strong class="text-green-700">{{ number_format($remaining, 2, ',', ' ') }} €</strong> pour recevoir une trousse offerte !
                         </p>
                     </div>
                 @endif
