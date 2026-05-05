@@ -93,6 +93,18 @@ class CronController extends Controller
                     continue;
                 }
 
+                // Ne pas relancer si ce client a déjà reçu une relance (1 seule par personne)
+                $alreadyReminded = Order::where('billing_email', $order->billing_email)
+                    ->where('id', '!=', $order->id)
+                    ->whereNotNull('abandoned_cart_reminded_at')
+                    ->exists();
+
+                if ($alreadyReminded) {
+                    $order->update(['abandoned_cart_reminded_at' => now()]);
+                    Log::info("Cron abandoned-carts: #{$order->number} ignoré, client déjà relancé");
+                    continue;
+                }
+
                 // Créer un code promo unique valable 7 jours
                 $code = 'RETOUR-'.strtoupper(Str::random(6));
 
