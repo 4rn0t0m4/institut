@@ -2,7 +2,7 @@
 
 @php
     $styles = [
-        'pending' => 'bg-warning-50 text-warning-700 dark:bg-warning-500/10 dark:text-warning-400',
+        'pending' => 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
         'processing' => 'bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400',
         'shipped' => 'bg-warning-50 text-warning-700 dark:bg-warning-500/10 dark:text-warning-400',
         'completed' => 'bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400',
