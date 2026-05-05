@@ -80,26 +80,31 @@ class CronController extends Controller
 
         foreach ($orders as $order) {
             try {
+                // Ne pas relancer si un code promo existe déjà pour cette commande
+                if (DiscountRule::where('name', "Relance commande #{$order->number}")->exists()) {
+                    $order->update(['abandoned_cart_reminded_at' => now()]);
+                    Log::info("Cron abandoned-carts: #{$order->number} ignoré, code déjà créé");
+                    continue;
+                }
+
                 // Ne pas relancer si le client a passé une commande payée depuis
-                $hasLaterPaidOrder = Order::where('billing_email', $order->billing_email)
+                if (Order::where('billing_email', $order->billing_email)
                     ->where('id', '!=', $order->id)
                     ->whereNotNull('paid_at')
                     ->where('created_at', '>=', $order->created_at)
-                    ->exists();
-
-                if ($hasLaterPaidOrder) {
+                    ->exists()) {
                     $order->update(['abandoned_cart_reminded_at' => now()]);
                     Log::info("Cron abandoned-carts: #{$order->number} ignoré, le client a commandé depuis");
                     continue;
                 }
 
                 // Ne pas relancer si ce client a déjà reçu une relance (1 seule par personne)
-                $alreadyReminded = Order::where('billing_email', $order->billing_email)
-                    ->where('id', '!=', $order->id)
-                    ->whereNotNull('abandoned_cart_reminded_at')
-                    ->exists();
-
-                if ($alreadyReminded) {
+                if (DiscountRule::where('name', 'like', 'Relance commande #CMD-%')
+                    ->whereIn('name', function ($query) use ($order) {
+                        $query->select(\DB::raw("CONCAT('Relance commande #', number)"))
+                            ->from('orders')
+                            ->where('billing_email', $order->billing_email);
+                    })->exists()) {
                     $order->update(['abandoned_cart_reminded_at' => now()]);
                     Log::info("Cron abandoned-carts: #{$order->number} ignoré, client déjà relancé");
                     continue;
