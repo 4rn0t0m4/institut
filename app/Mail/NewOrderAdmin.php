@@ -21,7 +21,6 @@ class NewOrderAdmin extends Mailable
         $clientName = trim(($this->order->billing_first_name ?? '').' '.($this->order->billing_last_name ?? '')) ?: 'Client';
 
         return new Envelope(
-            from: new Address($this->order->billing_email, $clientName),
             replyTo: [new Address($this->order->billing_email, $clientName)],
             subject: "Nouvelle commande #{$this->order->number} — {$this->order->total} €",
         );
