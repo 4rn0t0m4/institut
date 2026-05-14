@@ -76,6 +76,7 @@ Route::post('/contact', [ContactController::class, 'send'])->name('contact.send'
 Route::get('/web-tasks/review-requests', [\App\Http\Controllers\CronController::class, 'reviewRequests']);
 Route::get('/web-tasks/abandoned-carts', [\App\Http\Controllers\CronController::class, 'abandonedCarts']);
 Route::get('/web-tasks/test-mail', [\App\Http\Controllers\CronController::class, 'testMail']);
+Route::get('/web-tasks/resend-last-order', [\App\Http\Controllers\CronController::class, 'resendLastOrder']);
 
 // Pages statiques (en dernier pour ne pas capturer les autres routes)
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')

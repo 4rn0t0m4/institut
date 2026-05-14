@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AbandonedCartReminder;
+use App\Mail\NewOrderAdmin;
+use App\Mail\OrderConfirmation;
 use App\Mail\ReviewRequest;
 use App\Models\DiscountRule;
 use App\Models\Order;
@@ -159,5 +161,47 @@ class CronController extends Controller
         } catch (\Throwable $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
+    }
+
+    /** Renvoie les emails de la dernière commande payée */
+    public function resendLastOrder(Request $request): JsonResponse
+    {
+        if ($request->query('token') !== config('app.cron_token')) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $order = Order::whereNotNull('paid_at')
+            ->whereIn('status', ['processing', 'shipped', 'completed'])
+            ->with('items')
+            ->latest('paid_at')
+            ->first();
+
+        if (! $order) {
+            return response()->json(['status' => 'error', 'message' => 'Aucune commande payée trouvée']);
+        }
+
+        $results = [];
+
+        try {
+            Mail::to($order->billing_email)->send(new OrderConfirmation($order));
+            $results['client'] = "Envoyé à {$order->billing_email}";
+        } catch (\Throwable $e) {
+            $results['client'] = "Échec : {$e->getMessage()}";
+        }
+
+        try {
+            $adminEmail = config('mail.admin_address', config('mail.from.address'));
+            Mail::to($adminEmail)->send(new NewOrderAdmin($order));
+            $results['admin'] = "Envoyé à {$adminEmail}";
+        } catch (\Throwable $e) {
+            $results['admin'] = "Échec : {$e->getMessage()}";
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'order' => $order->number,
+            'paid_at' => $order->paid_at->toDateTimeString(),
+            'results' => $results,
+        ]);
     }
 }
