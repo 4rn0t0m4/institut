@@ -40,11 +40,32 @@ class CronController extends Controller
 
         $sent = 0;
 
+        $alreadySentEmails = [];
+
         foreach ($orders as $order) {
             try {
+                // Ne pas renvoyer si ce client a déjà reçu une demande d'avis
+                if (in_array($order->billing_email, $alreadySentEmails)) {
+                    $order->update(['review_requested_at' => now()]);
+                    Log::info("Cron review-requests: #{$order->number} ignoré, client déjà sollicité dans ce batch");
+                    continue;
+                }
+
+                // Vérifier si ce client a déjà reçu une demande d'avis (autre commande)
+                $alreadyRequested = Order::where('billing_email', $order->billing_email)
+                    ->where('id', '!=', $order->id)
+                    ->whereNotNull('review_requested_at')
+                    ->exists();
+
+                if ($alreadyRequested) {
+                    $order->update(['review_requested_at' => now()]);
+                    Log::info("Cron review-requests: #{$order->number} ignoré, client déjà sollicité");
+                    continue;
+                }
+
                 Mail::to($order->billing_email)->send(new ReviewRequest($order));
-                Mail::to('arnotoma@gmail.com')->send(new ReviewRequest($order));
                 $order->update(['review_requested_at' => now()]);
+                $alreadySentEmails[] = $order->billing_email;
                 $sent++;
                 Log::info("Cron review-requests: email envoyé pour #{$order->number}");
             } catch (\Throwable $e) {
