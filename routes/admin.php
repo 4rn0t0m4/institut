@@ -29,6 +29,7 @@ Route::post('orders/{order}/create-shipment', [OrderController::class, 'createSh
 Route::get('orders/{order}/label', [OrderController::class, 'label'])->name('admin.orders.label');
 Route::delete('orders/{order}/reset-shipment', [OrderController::class, 'resetShipment'])->name('admin.orders.reset-shipment');
 Route::post('orders/{order}/refund', [OrderController::class, 'refund'])->name('admin.orders.refund');
+Route::get('orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('admin.orders.invoice');
 Route::get('credit-notes/{creditNote}/download', [OrderController::class, 'downloadCreditNote'])->name('admin.credit-notes.download');
 Route::resource('customers', CustomerController::class)->only(['index', 'show'])->names('admin.customers');
 Route::resource('pages', PageController::class)->names('admin.pages');

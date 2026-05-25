@@ -208,6 +208,15 @@ class OrderController extends Controller
         return redirect()->route('admin.orders.show', $order)->with('success', "Avoir {$creditNote->number} créé — {$validated['amount']} € remboursés.");
     }
 
+    public function downloadInvoice(Order $order)
+    {
+        $order->load(['items.addons']);
+
+        $pdf = Pdf::loadView('pdf.invoice', compact('order'));
+
+        return $pdf->download("facture-{$order->number}.pdf");
+    }
+
     public function downloadCreditNote(CreditNote $creditNote)
     {
         $creditNote->load('order');
