@@ -14,6 +14,7 @@ use App\Services\BoxtalShippingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Stripe\Stripe;
 use Stripe\Refund;
 
@@ -205,6 +206,15 @@ class OrderController extends Controller
         }
 
         return redirect()->route('admin.orders.show', $order)->with('success', "Avoir {$creditNote->number} créé — {$validated['amount']} € remboursés.");
+    }
+
+    public function downloadCreditNote(CreditNote $creditNote)
+    {
+        $creditNote->load('order');
+
+        $pdf = Pdf::loadView('pdf.credit-note', compact('creditNote'));
+
+        return $pdf->download("avoir-{$creditNote->number}.pdf");
     }
 
     public function destroy(Order $order)
