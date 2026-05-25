@@ -306,7 +306,9 @@
             @if (in_array($order->status, ['processing', 'shipped', 'completed']) && $order->paid_at)
                 <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
                     <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Remboursement</h3>
-                    <form method="POST" action="{{ route('admin.orders.refund', $order) }}" x-data="{ stripeRefund: {{ $order->stripe_payment_intent_id ? 'true' : 'false' }} }">
+                    <form method="POST" action="{{ route('admin.orders.refund', $order) }}"
+                        x-data="{ stripeRefund: {{ $order->stripe_payment_intent_id ? 'true' : 'false' }}, showConfirm: false, confirmed: false }"
+                        @submit.prevent="if (confirmed) { $el.submit() } else { showConfirm = true }">
                         @csrf
                         <div class="space-y-3">
                             <div>
@@ -327,12 +329,39 @@
                                 </label>
                             @endif
                         </div>
-                        <button type="submit" class="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-error-500 px-4 py-2 text-sm font-medium text-white hover:bg-error-600 transition-colors" onclick="return confirm('Confirmer le remboursement et créer l\'avoir ?')">
+                        <button type="submit" class="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors" style="background-color: #dc2626;" onmouseover="this.style.backgroundColor='#b91c1c'" onmouseout="this.style.backgroundColor='#dc2626'">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
                             </svg>
                             Rembourser et créer l'avoir
                         </button>
+
+                        {{-- Modale de confirmation --}}
+                        <div x-show="showConfirm" x-cloak class="fixed inset-0 z-50 flex items-center justify-center" style="background-color: rgba(0,0,0,0.5);">
+                            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 max-w-md w-full mx-4" @click.outside="showConfirm = false">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style="background-color: #fef2f2;">
+                                        <svg class="w-5 h-5" style="color: #dc2626;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Confirmer le remboursement</h3>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Vous allez créer un avoir pour la commande <strong>{{ $order->number }}</strong>.</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Cette action est <strong>irréversible</strong>.</p>
+                                <template x-if="stripeRefund">
+                                    <p class="text-sm font-medium mt-2 mb-4" style="color: #dc2626;">Le client sera remboursé via Stripe.</p>
+                                </template>
+                                <div class="flex gap-3 mt-5">
+                                    <button type="button" @click="showConfirm = false" class="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                        Annuler
+                                    </button>
+                                    <button type="button" @click="confirmed = true; showConfirm = false; $nextTick(() => $el.closest('form').submit())" class="flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors" style="background-color: #dc2626;">
+                                        Confirmer le remboursement
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </form>
                 </div>
             @endif
