@@ -7,6 +7,7 @@
         'shipped' => 'bg-warning-50 text-warning-700 dark:bg-warning-500/10 dark:text-warning-400',
         'completed' => 'bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400',
         'cancelled' => 'bg-error-50 text-error-700 dark:bg-error-500/10 dark:text-error-400',
+        'refunded' => 'bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400',
         'published' => 'bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400',
         'draft' => 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
     ];
@@ -17,6 +18,7 @@
         'shipped' => 'Expédiée',
         'completed' => 'Terminée',
         'cancelled' => 'Annulée',
+        'refunded' => 'Remboursée',
         'published' => 'Publiée',
         'draft' => 'Brouillon',
     ];

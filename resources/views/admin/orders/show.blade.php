@@ -266,6 +266,67 @@
                 @endif
             @endif
 
+            {{-- Avoirs --}}
+            @if ($order->creditNotes->count())
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+                    <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Avoirs</h3>
+                    <div class="space-y-3">
+                        @foreach ($order->creditNotes as $note)
+                            <div class="rounded-lg bg-purple-50 dark:bg-purple-500/10 p-3 text-sm">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-medium text-purple-700 dark:text-purple-400">{{ $note->number }}</span>
+                                    <span class="font-bold text-purple-700 dark:text-purple-400">{{ number_format($note->amount, 2, ',', ' ') }} &euro;</span>
+                                </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $note->created_at->format('d/m/Y H:i') }}</p>
+                                @if ($note->reason)
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ $note->reason }}</p>
+                                @endif
+                                @if ($note->stripe_refunded)
+                                    <p class="text-xs text-success-600 dark:text-success-400 mt-1">Remboursé via Stripe ({{ $note->stripe_refund_id }})</p>
+                                @else
+                                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Remboursement hors Stripe</p>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            {{-- Remboursement --}}
+            @if (in_array($order->status, ['processing', 'shipped', 'completed']) && $order->paid_at)
+                <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+                    <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Remboursement</h3>
+                    <form method="POST" action="{{ route('admin.orders.refund', $order) }}" x-data="{ stripeRefund: {{ $order->stripe_payment_intent_id ? 'true' : 'false' }} }">
+                        @csrf
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Montant (€)</label>
+                                <input type="number" name="amount" step="0.01" min="0.01" max="{{ $order->total }}" value="{{ $order->total }}" required
+                                    class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-2 px-3">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Motif</label>
+                                <input type="text" name="reason" placeholder="Retour produit, erreur..."
+                                    class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-sm py-2 px-3">
+                            </div>
+                            @if ($order->stripe_payment_intent_id)
+                                <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                    <input type="checkbox" name="stripe_refund" value="1" checked x-model="stripeRefund"
+                                        class="rounded border-gray-300 text-brand-500 focus:ring-brand-500">
+                                    Rembourser via Stripe
+                                </label>
+                            @endif
+                        </div>
+                        <button type="submit" class="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-error-500 px-4 py-2 text-sm font-medium text-white hover:bg-error-600 transition-colors" onclick="return confirm('Confirmer le remboursement et créer l\'avoir ?')">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                            </svg>
+                            Rembourser et créer l'avoir
+                        </button>
+                    </form>
+                </div>
+            @endif
+
             {{-- Gift wrap --}}
             @if ($order->gift_wrap)
                 <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">

@@ -3,15 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\CreditNoteMail;
 use App\Mail\NewOrderAdmin;
 use App\Mail\OrderConfirmation;
 use App\Mail\OrderShipped;
+use App\Models\CreditNote;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\BoxtalShippingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Stripe\Stripe;
+use Stripe\Refund;
 
 class OrderController extends Controller
 {
@@ -49,7 +53,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['user', 'items.product', 'items.addons']);
+        $order->load(['user', 'items.product', 'items.addons', 'creditNotes']);
 
         return view('admin.orders.show', compact('order'));
     }
@@ -64,7 +68,7 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'status' => 'required|string|in:pending,processing,shipped,completed,cancelled',
+            'status' => 'required|string|in:pending,processing,shipped,completed,cancelled,refunded',
             'tracking_number' => 'nullable|string|max:255',
             'tracking_carrier' => 'nullable|string|max:255',
             'customer_note' => 'nullable|string|max:1000',
@@ -150,6 +154,57 @@ class OrderController extends Controller
         $order->update(['boxtal_shipping_order_id' => null]);
 
         return redirect()->route('admin.orders.show', $order)->with('success', 'Expédition Boxtal dissociée. Vous pouvez en créer une nouvelle.');
+    }
+
+    public function refund(Request $request, Order $order)
+    {
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:0.01|max:'.$order->total,
+            'reason' => 'nullable|string|max:500',
+            'stripe_refund' => 'nullable|boolean',
+        ]);
+
+        $stripeRefunded = false;
+        $stripeRefundId = null;
+
+        if ($request->boolean('stripe_refund') && $order->stripe_payment_intent_id) {
+            try {
+                Stripe::setApiKey(config('cashier.secret'));
+                $refund = Refund::create([
+                    'payment_intent' => $order->stripe_payment_intent_id,
+                    'amount' => (int) round($validated['amount'] * 100),
+                ]);
+                $stripeRefunded = true;
+                $stripeRefundId = $refund->id;
+                Log::info("Remboursement Stripe effectué pour commande #{$order->number}", ['refund_id' => $refund->id]);
+            } catch (\Exception $e) {
+                Log::error("Échec remboursement Stripe pour commande #{$order->number}", ['error' => $e->getMessage()]);
+
+                return redirect()->route('admin.orders.show', $order)->with('error', "Erreur Stripe : {$e->getMessage()}");
+            }
+        }
+
+        $creditNote = CreditNote::create([
+            'order_id' => $order->id,
+            'amount' => $validated['amount'],
+            'reason' => $validated['reason'],
+            'stripe_refunded' => $stripeRefunded,
+            'stripe_refund_id' => $stripeRefundId,
+        ]);
+
+        $order->update([
+            'status' => 'refunded',
+            'refunded_at' => now(),
+        ]);
+
+        try {
+            Mail::to($order->billing_email)->send(new CreditNoteMail($creditNote));
+            Log::info("Email avoir envoyé pour commande #{$order->number}");
+        } catch (\Exception $e) {
+            Log::error("Échec envoi email avoir pour commande #{$order->number}", ['error' => $e->getMessage()]);
+        }
+
+        return redirect()->route('admin.orders.show', $order)->with('success', "Avoir {$creditNote->number} créé — {$validated['amount']} € remboursés.");
     }
 
     public function destroy(Order $order)

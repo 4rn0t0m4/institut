@@ -20,6 +20,7 @@
                             <option value="shipped" {{ old('status', $order->status) === 'shipped' ? 'selected' : '' }}>Expédiée</option>
                             <option value="completed" {{ old('status', $order->status) === 'completed' ? 'selected' : '' }}>Terminée</option>
                             <option value="cancelled" {{ old('status', $order->status) === 'cancelled' ? 'selected' : '' }}>Annulée</option>
+                            <option value="refunded" {{ old('status', $order->status) === 'refunded' ? 'selected' : '' }}>Remboursée</option>
                         </select>
                         @error('status') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
                     </div>
