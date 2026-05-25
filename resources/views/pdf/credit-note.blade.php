@@ -25,6 +25,9 @@
         .details-table th { text-align: left; font-size: 10px; text-transform: uppercase; color: #888; padding: 8px 0; border-bottom: 2px solid #e5e7eb; }
         .details-table td { padding: 10px 0; font-size: 11px; border-bottom: 1px solid #f3f4f6; }
         .details-table .text-right { text-align: right; }
+        .details-table tfoot tr { border-bottom: none; }
+        .details-table tfoot td { padding: 6px 0; border-bottom: 1px solid #e5e7eb; }
+        .details-table tfoot tr.total-row td { border-top: 2px solid #276e44; border-bottom: 2px solid #276e44; padding: 10px 0; font-size: 13px; }
         .reason-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; padding: 12px; margin: 16px 0; font-size: 11px; }
         .reason-label { font-weight: bold; color: #555; margin-bottom: 4px; }
         .stripe-notice { font-size: 10px; color: #059669; margin-top: 8px; }
@@ -73,13 +76,12 @@
         </div>
     </div>
 
-    <div class="amount-box">
-        <div class="amount-label">Montant de l'avoir</div>
-        <div class="amount-value">{{ number_format($creditNote->amount, 2, ',', ' ') }} &euro;</div>
-        @if($creditNote->stripe_refunded)
-            <div class="stripe-notice">Rembours&eacute; sur le moyen de paiement d'origine</div>
-        @endif
-    </div>
+    @php
+        $tvaRate = 20;
+        $ttc = $creditNote->amount;
+        $ht = round($ttc / (1 + $tvaRate / 100), 2);
+        $tva = round($ttc - $ht, 2);
+    @endphp
 
     @if($creditNote->reason)
         <div class="reason-box">
@@ -91,21 +93,35 @@
     <table class="details-table">
         <thead>
             <tr>
-                <th>D&eacute;tail</th>
+                <th>D&eacute;signation</th>
                 <th class="text-right">Montant</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>Total commande {{ $creditNote->order->number }}</td>
-                <td class="text-right">{{ number_format($creditNote->order->total, 2, ',', ' ') }} &euro;</td>
-            </tr>
-            <tr>
-                <td><strong>Avoir {{ $creditNote->number }}</strong></td>
-                <td class="text-right"><strong>-{{ number_format($creditNote->amount, 2, ',', ' ') }} &euro;</strong></td>
+                <td>Avoir sur commande {{ $creditNote->order->number }}</td>
+                <td class="text-right"></td>
             </tr>
         </tbody>
+        <tfoot>
+            <tr>
+                <td>Total HT</td>
+                <td class="text-right">{{ number_format($ht, 2, ',', ' ') }} &euro;</td>
+            </tr>
+            <tr>
+                <td>TVA {{ $tvaRate }} %</td>
+                <td class="text-right">{{ number_format($tva, 2, ',', ' ') }} &euro;</td>
+            </tr>
+            <tr class="total-row">
+                <td><strong>Total TTC</strong></td>
+                <td class="text-right"><strong>{{ number_format($ttc, 2, ',', ' ') }} &euro;</strong></td>
+            </tr>
+        </tfoot>
     </table>
+
+    @if($creditNote->stripe_refunded)
+        <p class="stripe-notice" style="text-align: center;">Rembours&eacute; sur le moyen de paiement d'origine</p>
+    @endif
 
     <div class="footer">
         Institut Corps &agrave; Coeur &mdash; M&eacute;zidon Canon &mdash; institutcorpsacoeur.fr
