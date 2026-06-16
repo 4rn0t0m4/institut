@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\EditorUploadController;
 use App\Http\Controllers\Admin\ExportController;
+use App\Http\Controllers\Admin\NewsletterController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductCategoryController;
@@ -54,6 +55,9 @@ Route::get('exports', [ExportController::class, 'index'])->name('admin.exports.i
 Route::get('exports/excel', [ExportController::class, 'excel'])->name('admin.exports.excel');
 Route::get('exports/daily', [ExportController::class, 'daily'])->name('admin.exports.daily');
 Route::get('exports/daily/excel', [ExportController::class, 'dailyExcel'])->name('admin.exports.daily.excel');
+
+Route::get('newsletter', [NewsletterController::class, 'index'])->name('admin.newsletter.index');
+Route::post('newsletter', [NewsletterController::class, 'send'])->name('admin.newsletter.send');
 
 Route::post('editor-upload', [EditorUploadController::class, 'upload'])->name('admin.editor.upload');
 
