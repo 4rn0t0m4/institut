@@ -329,25 +329,40 @@ document.addEventListener('DOMContentLoaded', function () {
         @endif
 
         {{-- Stock --}}
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6"
+             x-data="{ manageStock: {{ old('manage_stock', ($product->manage_stock ?? true)) ? 'true' : 'false' }} }">
             <h3 class="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">Stock</h3>
 
             <div class="space-y-5">
-                <div>
-                    <label for="stock_status" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Statut du stock</label>
-                    <select id="stock_status" name="stock_status"
-                        class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90">
-                        <option value="instock" {{ old('stock_status', $product->stock_status ?? 'instock') === 'instock' ? 'selected' : '' }}>En stock</option>
-                        <option value="outofstock" {{ old('stock_status', $product->stock_status ?? '') === 'outofstock' ? 'selected' : '' }}>Rupture de stock</option>
-                        <option value="onbackorder" {{ old('stock_status', $product->stock_status ?? '') === 'onbackorder' ? 'selected' : '' }}>En commande</option>
-                    </select>
-                    @error('stock_status') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                <div class="flex items-center gap-3">
+                    <label class="relative inline-flex cursor-pointer items-center">
+                        <input type="hidden" name="manage_stock" value="0">
+                        <input type="checkbox" name="manage_stock" value="1" x-model="manageStock"
+                            class="peer sr-only" />
+                        <div class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-brand-500 peer-checked:after:translate-x-full peer-checked:after:border-white dark:bg-gray-700"></div>
+                    </label>
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Gérer le stock</span>
                 </div>
-                <div>
-                    <label for="stock_quantity" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Quantite en stock</label>
-                    <input type="number" id="stock_quantity" name="stock_quantity" value="{{ old('stock_quantity', $product->stock_quantity ?? '') }}" min="0"
-                        class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90" />
-                    @error('stock_quantity') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                <p class="text-xs text-gray-500 dark:text-gray-400" x-show="!manageStock">Le stock n'est pas suivi. Le produit est toujours considéré comme disponible.</p>
+
+                <div x-show="manageStock" x-cloak class="space-y-5">
+                    <div>
+                        <label for="stock_quantity" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Quantité en stock</label>
+                        <input type="number" id="stock_quantity" name="stock_quantity" value="{{ old('stock_quantity', $product->stock_quantity ?? '') }}" min="0"
+                            class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90" />
+                        @error('stock_quantity') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label for="stock_status" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Statut du stock</label>
+                        <select id="stock_status" name="stock_status"
+                            class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90">
+                            <option value="instock" {{ old('stock_status', $product->stock_status ?? 'instock') === 'instock' ? 'selected' : '' }}>En stock</option>
+                            <option value="outofstock" {{ old('stock_status', $product->stock_status ?? '') === 'outofstock' ? 'selected' : '' }}>Rupture de stock</option>
+                            <option value="onbackorder" {{ old('stock_status', $product->stock_status ?? '') === 'onbackorder' ? 'selected' : '' }}>En commande</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Le statut se met à jour automatiquement quand la quantité change.</p>
+                        @error('stock_status') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
+                    </div>
                 </div>
             </div>
         </div>

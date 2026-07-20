@@ -73,6 +73,7 @@ class ProductController extends Controller
             'sale_price' => 'nullable|numeric|min:0',
             'sku' => 'nullable|string|max:100',
             'unit_measure' => 'nullable|string|max:50',
+            'manage_stock' => 'boolean',
             'stock_quantity' => 'nullable|integer|min:0',
             'stock_status' => 'required|in:instock,outofstock,onbackorder',
             'category_id' => 'nullable|exists:product_categories,id',
@@ -90,6 +91,7 @@ class ProductController extends Controller
         $validated['is_active'] = $request->boolean('is_active');
         $validated['is_featured'] = $request->boolean('is_featured');
         $validated['personalizable'] = $request->boolean('personalizable');
+        $validated['manage_stock'] = $request->boolean('manage_stock');
 
         $product = Product::create($validated);
 
@@ -139,6 +141,7 @@ class ProductController extends Controller
             'sale_price' => 'nullable|numeric|min:0',
             'sku' => 'nullable|string|max:100',
             'unit_measure' => 'nullable|string|max:50',
+            'manage_stock' => 'boolean',
             'stock_quantity' => 'nullable|integer|min:0',
             'stock_status' => 'required|in:instock,outofstock,onbackorder',
             'category_id' => 'nullable|exists:product_categories,id',
@@ -156,6 +159,7 @@ class ProductController extends Controller
         $validated['is_active'] = $request->boolean('is_active');
         $validated['is_featured'] = $request->boolean('is_featured');
         $validated['personalizable'] = $request->boolean('personalizable');
+        $validated['manage_stock'] = $request->boolean('manage_stock');
 
         $product->update($validated);
 

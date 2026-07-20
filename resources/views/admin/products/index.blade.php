@@ -119,14 +119,16 @@
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-sm text-center text-gray-700 dark:text-gray-300">
-                                @if ($product->stock_quantity !== null && $product->stock_quantity <= 0)
-                                    <span class="text-error-500 font-medium">0</span>
-                                @elseif ($product->stock_quantity !== null && $product->stock_quantity <= 5)
-                                    <span class="text-warning-500 font-medium">{{ $product->stock_quantity }}</span>
-                                @elseif ($product->stock_quantity !== null)
-                                    {{ $product->stock_quantity }}
+                                @if ($product->manage_stock)
+                                    @if ($product->stock_quantity <= 0)
+                                        <span class="text-error-500 font-medium">0</span>
+                                    @elseif ($product->stock_quantity <= 5)
+                                        <span class="text-warning-500 font-medium">{{ $product->stock_quantity }}</span>
+                                    @else
+                                        {{ $product->stock_quantity }}
+                                    @endif
                                 @else
-                                    <span class="text-gray-400">—</span>
+                                    <span class="text-gray-400" title="Gestion du stock désactivée">—</span>
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-sm text-center text-gray-700 dark:text-gray-300">
