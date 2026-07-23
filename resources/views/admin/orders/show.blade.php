@@ -68,32 +68,44 @@
             </div>
 
             {{-- Billing / Shipping --}}
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-                    <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Facturation</h3>
-                    <div class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                        <p class="font-medium text-gray-800 dark:text-white/90">{{ $order->billing_first_name }} {{ $order->billing_last_name }}</p>
-                        <p>{{ $order->billing_address_1 }}</p>
-                        @if ($order->billing_address_2) <p>{{ $order->billing_address_2 }}</p> @endif
-                        <p>{{ $order->billing_postcode }} {{ $order->billing_city }}</p>
-                        <p>{{ $order->billing_country }}</p>
-                        @if ($order->billing_phone) <p>Tel: {{ $order->billing_phone }}</p> @endif
-                        <p>{{ $order->billing_email }}</p>
-                    </div>
+            <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+                <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-800 md:px-6 flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Adresses</h3>
+                    <a href="{{ route('admin.orders.edit-addresses', $order) }}" class="text-sm text-brand-500 hover:underline flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Modifier
+                    </a>
                 </div>
 
-                @if ($order->shipping_first_name)
-                    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-                        <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white/90">Livraison</h3>
+                <div class="grid grid-cols-1 gap-6 p-5 sm:grid-cols-2 md:p-6">
+                    <div>
+                        <h4 class="text-base font-semibold text-gray-800 dark:text-white/90 mb-3">Facturation</h4>
                         <div class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                            <p class="font-medium text-gray-800 dark:text-white/90">{{ $order->shipping_first_name }} {{ $order->shipping_last_name }}</p>
-                            <p>{{ $order->shipping_address_1 }}</p>
-                            @if ($order->shipping_address_2) <p>{{ $order->shipping_address_2 }}</p> @endif
-                            <p>{{ $order->shipping_postcode }} {{ $order->shipping_city }}</p>
-                            <p>{{ $order->shipping_country }}</p>
+                            <p class="font-medium text-gray-800 dark:text-white/90">{{ $order->billing_first_name }} {{ $order->billing_last_name }}</p>
+                            <p>{{ $order->billing_address_1 }}</p>
+                            @if ($order->billing_address_2) <p>{{ $order->billing_address_2 }}</p> @endif
+                            <p>{{ $order->billing_postcode }} {{ $order->billing_city }}</p>
+                            <p>{{ $order->billing_country }}</p>
+                            @if ($order->billing_phone) <p>Tel: {{ $order->billing_phone }}</p> @endif
+                            <p>{{ $order->billing_email }}</p>
                         </div>
                     </div>
-                @endif
+
+                    @if ($order->shipping_first_name)
+                        <div>
+                            <h4 class="text-base font-semibold text-gray-800 dark:text-white/90 mb-3">Livraison</h4>
+                            <div class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                <p class="font-medium text-gray-800 dark:text-white/90">{{ $order->shipping_first_name }} {{ $order->shipping_last_name }}</p>
+                                <p>{{ $order->shipping_address_1 }}</p>
+                                @if ($order->shipping_address_2) <p>{{ $order->shipping_address_2 }}</p> @endif
+                                <p>{{ $order->shipping_postcode }} {{ $order->shipping_city }}</p>
+                                <p>{{ $order->shipping_country }}</p>
+                            </div>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
 

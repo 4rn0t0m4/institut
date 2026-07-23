@@ -27,6 +27,8 @@ Route::patch('products/{product}/toggle-featured', [ProductController::class, 't
 Route::resource('categories', ProductCategoryController::class)->names('admin.categories');
 Route::resource('brands', BrandController::class)->except(['show'])->names('admin.brands');
 Route::resource('orders', OrderController::class)->only(['index', 'show', 'edit', 'update', 'destroy'])->names('admin.orders');
+Route::get('orders/{order}/addresses/edit', [OrderController::class, 'editAddresses'])->name('admin.orders.edit-addresses');
+Route::put('orders/{order}/addresses', [OrderController::class, 'updateAddresses'])->name('admin.orders.update-addresses');
 Route::post('orders/{order}/resend-emails', [OrderController::class, 'resendEmails'])->name('admin.orders.resend-emails');
 Route::post('orders/{order}/create-shipment', [OrderController::class, 'createShipment'])->name('admin.orders.create-shipment');
 Route::get('orders/{order}/label', [OrderController::class, 'label'])->name('admin.orders.label');

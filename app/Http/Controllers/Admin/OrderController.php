@@ -226,6 +226,37 @@ class OrderController extends Controller
         return $pdf->download("avoir-{$creditNote->number}.pdf");
     }
 
+    public function editAddresses(Order $order)
+    {
+        return view('admin.orders.edit-addresses', compact('order'));
+    }
+
+    public function updateAddresses(Request $request, Order $order)
+    {
+        $validated = $request->validate([
+            'billing_first_name' => 'required|string|max:100',
+            'billing_last_name' => 'required|string|max:100',
+            'billing_email' => 'required|email|max:255',
+            'billing_phone' => 'nullable|string|max:20',
+            'billing_address_1' => 'required|string|max:255',
+            'billing_address_2' => 'nullable|string|max:255',
+            'billing_city' => 'required|string|max:100',
+            'billing_postcode' => 'required|string|max:20',
+            'billing_country' => 'required|string|max:2',
+            'shipping_first_name' => 'nullable|string|max:100',
+            'shipping_last_name' => 'nullable|string|max:100',
+            'shipping_address_1' => 'nullable|string|max:255',
+            'shipping_address_2' => 'nullable|string|max:255',
+            'shipping_city' => 'nullable|string|max:100',
+            'shipping_postcode' => 'nullable|string|max:20',
+            'shipping_country' => 'nullable|string|max:2',
+        ]);
+
+        $order->update($validated);
+
+        return redirect()->route('admin.orders.show', $order)->with('success', 'Adresses mises à jour avec succès.');
+    }
+
     public function destroy(Order $order)
     {
         if ($order->status !== 'pending') {
