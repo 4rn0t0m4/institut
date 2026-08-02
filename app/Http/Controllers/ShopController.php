@@ -42,8 +42,8 @@ class ShopController extends Controller
             ->orderBy('name')
             ->get();
         $currentBrand = null;
-        if ($request->filled('marque')) {
-            $currentBrand = Brand::where('slug', $request->marque)->first();
+        if ($request->filled('marque') || $request->filled('brand')) {
+            $currentBrand = Brand::where('slug', $request->input('marque', $request->input('brand')))->first();
             if ($currentBrand) {
                 $query->where('brand_id', $currentBrand->id);
             }
@@ -182,8 +182,8 @@ class ShopController extends Controller
             ->orderBy('name')
             ->get();
         $currentBrand = null;
-        if ($request->filled('marque')) {
-            $currentBrand = Brand::where('slug', $request->marque)->first();
+        if ($request->filled('marque') || $request->filled('brand')) {
+            $currentBrand = Brand::where('slug', $request->input('marque', $request->input('brand')))->first();
             if ($currentBrand) {
                 $query->where('brand_id', $currentBrand->id);
             }
