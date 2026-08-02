@@ -92,7 +92,7 @@
         </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             @foreach($brands as $brand)
-                <a href="{{ route('shop.index', ['brand' => $brand->slug]) }}"
+                <a href="{{ route('brands.show', $brand) }}"
                    class="group relative rounded-2xl overflow-hidden transition hover:shadow-lg"
                    style="min-height: 260px;">
                     @if($brand->image_path)

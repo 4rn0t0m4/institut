@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -20,7 +21,9 @@ class SitemapController extends Controller
 
         $categories = ProductCategory::with('parent')->orderBy('sort_order')->get();
 
-        $content = view('sitemap', compact('pages', 'products', 'categories'))->render();
+        $brands = Brand::whereNotNull('content')->get();
+
+        $content = view('sitemap', compact('pages', 'products', 'categories', 'brands'))->render();
 
         return response($content, 200)
             ->header('Content-Type', 'application/xml')

@@ -27,6 +27,9 @@ class BrandController extends Controller
             'name' => 'required|string|max:255',
             'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:brands,slug'],
             'description' => 'nullable|string|max:500',
+            'content' => 'nullable|string|max:50000',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:255',
             'color' => 'nullable|string|max:7',
             'image' => 'nullable|image|max:2048',
         ]);
@@ -57,6 +60,9 @@ class BrandController extends Controller
             'name' => 'required|string|max:255',
             'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:brands,slug,'.$brand->id],
             'description' => 'nullable|string|max:500',
+            'content' => 'nullable|string|max:50000',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:255',
             'color' => 'nullable|string|max:7',
             'image' => 'nullable|image|max:2048',
         ]);

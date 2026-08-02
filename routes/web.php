@@ -1,12 +1,17 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Api\QuizAiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BilanMinceurController;
+use App\Http\Controllers\BoxtalConnectController;
 use App\Http\Controllers\BoxtalController;
+use App\Http\Controllers\BoxtalWebhookController;
+use App\Http\Controllers\BrandPageController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CronController;
 use App\Http\Controllers\DiagnostiqueController;
 use App\Http\Controllers\GoogleMerchantFeedController;
 use App\Http\Controllers\HomeController;
@@ -73,14 +78,18 @@ Route::get('/contact', [ContactController::class, 'show'])->name('contact.show')
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send')->middleware('throttle:5,1');
 
 // Cron tasks via HTTP (OVH mutualisé ne peut pas envoyer d'emails depuis CLI)
-Route::get('/web-tasks/review-requests', [\App\Http\Controllers\CronController::class, 'reviewRequests']);
-Route::get('/web-tasks/abandoned-carts', [\App\Http\Controllers\CronController::class, 'abandonedCarts']);
-Route::get('/web-tasks/test-mail', [\App\Http\Controllers\CronController::class, 'testMail']);
-Route::get('/web-tasks/resend-last-order', [\App\Http\Controllers\CronController::class, 'resendLastOrder']);
+Route::get('/web-tasks/review-requests', [CronController::class, 'reviewRequests']);
+Route::get('/web-tasks/abandoned-carts', [CronController::class, 'abandonedCarts']);
+Route::get('/web-tasks/test-mail', [CronController::class, 'testMail']);
+Route::get('/web-tasks/resend-last-order', [CronController::class, 'resendLastOrder']);
+
+// Pages marques
+Route::get('/marques', [BrandPageController::class, 'index'])->name('brands.index')->middleware('cacheResponse');
+Route::get('/marques/{brand:slug}', [BrandPageController::class, 'show'])->name('brands.show')->middleware('cacheResponse');
 
 // Pages statiques (en dernier pour ne pas capturer les autres routes)
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
-    ->where('slug', '^(?!boutique|panier|commande|connexion|inscription|deconnexion|mon-compte|stripe|admin|api|web-tasks|mot-de-passe-oublie|reinitialiser-mot-de-passe|sitemap\.xml)[a-z0-9-]+(/[a-z0-9-]+)*$')
+    ->where('slug', '^(?!boutique|panier|commande|connexion|inscription|deconnexion|mon-compte|stripe|admin|api|web-tasks|mot-de-passe-oublie|reinitialiser-mot-de-passe|marques|sitemap\.xml)[a-z0-9-]+(/[a-z0-9-]+)*$')
     ->middleware('cacheResponse');
 
 // Boxtal API
@@ -88,21 +97,21 @@ Route::get('/api/boxtal/map-token', [BoxtalController::class, 'mapToken'])->name
 Route::post('/api/boxtal/parcel-points', [BoxtalController::class, 'searchParcelPoints'])->name('boxtal.parcel-points');
 
 // Quiz AI recommendation
-Route::get('/api/quiz/{completion}/ai-data', [\App\Http\Controllers\Api\QuizAiController::class, 'products'])->name('quiz.ai-data');
+Route::get('/api/quiz/{completion}/ai-data', [QuizAiController::class, 'products'])->name('quiz.ai-data');
 
 // Boxtal Connect (sync commandes — exclure CSRF)
 // Supporte les deux préfixes : direct et via /wp-json/ (compatibilité WooCommerce)
 $boxtalRoutes = function () {
-    Route::post('/shop/pair', [\App\Http\Controllers\BoxtalConnectController::class, 'pair']);
-    Route::post('/order', [\App\Http\Controllers\BoxtalConnectController::class, 'retrieveOrders']);
-    Route::post('/order/{orderId}/shipped', [\App\Http\Controllers\BoxtalConnectController::class, 'orderShipped']);
-    Route::post('/order/{orderId}/delivered', [\App\Http\Controllers\BoxtalConnectController::class, 'orderDelivered']);
+    Route::post('/shop/pair', [BoxtalConnectController::class, 'pair']);
+    Route::post('/order', [BoxtalConnectController::class, 'retrieveOrders']);
+    Route::post('/order/{orderId}/shipped', [BoxtalConnectController::class, 'orderShipped']);
+    Route::post('/order/{orderId}/delivered', [BoxtalConnectController::class, 'orderDelivered']);
 };
 Route::prefix('boxtal-connect/v1')->group($boxtalRoutes);
 Route::prefix('wp-json/boxtal-connect/v1')->group($boxtalRoutes);
 
 // Webhook Boxtal v3 (exclure CSRF)
-Route::post('/api/boxtal/webhook', [\App\Http\Controllers\BoxtalWebhookController::class, 'handle']);
+Route::post('/api/boxtal/webhook', [BoxtalWebhookController::class, 'handle']);
 
 // Webhook Stripe (exclure CSRF)
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);

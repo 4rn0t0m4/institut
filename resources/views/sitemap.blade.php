@@ -25,6 +25,23 @@
     </url>
     @endforeach
 
+    {{-- Marques --}}
+    @if(isset($brands))
+    <url>
+        <loc>{{ route('brands.index') }}</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    @foreach($brands as $brand)
+    <url>
+        <loc>{{ route('brands.show', $brand) }}</loc>
+        <lastmod>{{ $brand->updated_at->toW3cString() }}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    @endforeach
+    @endif
+
     {{-- Catégories --}}
     @foreach($categories as $category)
     <url>
