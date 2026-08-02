@@ -42,21 +42,96 @@
 
 {{-- Contenu rédactionnel --}}
 @if($brand->content)
-<section class="py-16 bg-white">
+<section class="py-16 bg-white" x-data="{ expanded: false }">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="prose prose-lg max-w-none
-                    prose-headings:font-semibold prose-headings:tracking-tight
-                    prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4
-                    prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-                    prose-p:leading-relaxed prose-p:mb-4
-                    prose-li:leading-relaxed
-                    prose-a:no-underline hover:prose-a:underline
-                    prose-img:rounded-xl prose-img:shadow-md"
-             style="--tw-prose-headings: {{ $brand->color ?? '#276e44' }}; --tw-prose-links: {{ $brand->color ?? '#276e44' }};">
-            {!! $brand->content !!}
+        <div class="relative">
+            {{-- Conteneur avec max-height contrôlé --}}
+            <div class="overflow-hidden transition-all duration-700 ease-in-out"
+                 :style="expanded ? 'max-height: none' : 'max-height: 600px'">
+                <div class="brand-content" style="--brand-color: {{ $brand->color ?? '#276e44' }};">
+                    {!! $brand->content !!}
+                </div>
+            </div>
+
+            {{-- Dégradé + bouton Voir plus --}}
+            <div x-show="!expanded" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 class="absolute bottom-0 left-0 right-0 pt-32 pb-2 flex justify-center"
+                 style="background: linear-gradient(to bottom, transparent, white 70%);">
+                <button @click="expanded = true"
+                        class="font-semibold px-8 py-3 rounded-xl text-sm text-white shadow-md hover:shadow-lg transition cursor-pointer"
+                        style="background-color: {{ $brand->color ?? '#276e44' }};">
+                    Lire la suite
+                </button>
+            </div>
         </div>
     </div>
 </section>
+
+<style>
+    .brand-content h2 {
+        font-family: 'Source Serif Pro', Georgia, serif;
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: var(--brand-color);
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid color-mix(in srgb, var(--brand-color) 20%, transparent);
+    }
+    .brand-content h2:first-child { margin-top: 0; }
+    .brand-content h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--brand-color);
+        margin-top: 1.8rem;
+        margin-bottom: 0.6rem;
+    }
+    .brand-content p {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #374151;
+        margin-bottom: 1rem;
+    }
+    .brand-content ul {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 1.2rem;
+    }
+    .brand-content ul li {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 0.6rem;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: #374151;
+    }
+    .brand-content ul li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.55rem;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--brand-color);
+        opacity: 0.5;
+    }
+    .brand-content strong {
+        color: #1f2937;
+        font-weight: 600;
+    }
+    .brand-content a {
+        color: var(--brand-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .brand-content a:hover { text-decoration: underline; }
+    .brand-content img {
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        margin: 1.5rem 0;
+    }
+</style>
 @endif
 
 {{-- Produits de la marque --}}
