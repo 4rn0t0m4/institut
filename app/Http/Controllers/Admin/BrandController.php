@@ -26,10 +26,19 @@ class BrandController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:brands,slug'],
+            'description' => 'nullable|string|max:500',
+            'color' => 'nullable|string|max:7',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);
+        }
+
+        unset($validated['image']);
+
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $validated['image_path'] = $request->file('image')->store('brands', 'public');
         }
 
         Brand::create($validated);
@@ -47,10 +56,19 @@ class BrandController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:brands,slug,'.$brand->id],
+            'description' => 'nullable|string|max:500',
+            'color' => 'nullable|string|max:7',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);
+        }
+
+        unset($validated['image']);
+
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $validated['image_path'] = $request->file('image')->store('brands', 'public');
         }
 
         $brand->update($validated);

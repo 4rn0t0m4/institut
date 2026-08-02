@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Quiz;
@@ -34,6 +35,11 @@ class HomeController extends Controller
 
         $quiz = Quiz::first();
 
-        return view('home', compact('featuredProducts', 'categories', 'quiz'));
+        $brands = Brand::withCount('products')
+            ->having('products_count', '>', 0)
+            ->orderBy('name')
+            ->get();
+
+        return view('home', compact('featuredProducts', 'categories', 'quiz', 'brands'));
     }
 }
