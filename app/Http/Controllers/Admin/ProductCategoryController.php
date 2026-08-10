@@ -34,6 +34,7 @@ class ProductCategoryController extends Controller
             'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:product_categories,slug'],
             'parent_id' => 'nullable|exists:product_categories,id',
             'sort_order' => 'nullable|integer',
+            'content' => 'nullable|string',
             'meta_title' => 'nullable|string|max:70',
             'meta_description' => 'nullable|string|max:160',
         ]);
@@ -64,6 +65,7 @@ class ProductCategoryController extends Controller
             'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:product_categories,slug,'.$category->id],
             'parent_id' => 'nullable|exists:product_categories,id',
             'sort_order' => 'nullable|integer',
+            'content' => 'nullable|string',
             'meta_title' => 'nullable|string|max:70',
             'meta_description' => 'nullable|string|max:160',
         ]);

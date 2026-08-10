@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class ProductCategory extends Model
 {
@@ -15,7 +16,7 @@ class ProductCategory extends Model
         static::deleted(fn () => cache()->forget('header_navigation'));
     }
 
-    protected $fillable = ['parent_id', 'name', 'slug', 'description', 'image', 'sort_order', 'meta_title', 'meta_description'];
+    protected $fillable = ['parent_id', 'name', 'slug', 'description', 'content', 'image', 'sort_order', 'meta_title', 'meta_description'];
 
     public function parent()
     {
@@ -40,7 +41,7 @@ class ProductCategory extends Model
     /**
      * IDs pour le filtrage : catégorie courante + ses enfants (pas le parent).
      */
-    public function familyIds(): \Illuminate\Support\Collection
+    public function familyIds(): Collection
     {
         return collect([$this->id])->merge($this->children->pluck('id'));
     }

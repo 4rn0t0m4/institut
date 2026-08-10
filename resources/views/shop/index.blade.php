@@ -34,6 +34,85 @@
     </section>
     @endif
 
+    {{-- Contenu rédactionnel catégorie --}}
+    @if($currentCategory && $currentCategory->content)
+    <section class="bg-white border-b border-gray-100" x-data="{ expanded: false }">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="relative">
+                <div class="overflow-hidden transition-all duration-700 ease-in-out"
+                     :style="expanded ? 'max-height: none' : 'max-height: 400px'">
+                    <div class="category-content">
+                        {!! $currentCategory->content !!}
+                    </div>
+                </div>
+                <div x-show="!expanded" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                     class="absolute bottom-0 left-0 right-0 pt-24 pb-2 flex justify-center"
+                     style="background: linear-gradient(to bottom, transparent, white 70%);">
+                    <button @click="expanded = true"
+                            class="font-semibold px-8 py-3 rounded-xl text-sm text-white shadow-md hover:shadow-lg transition cursor-pointer"
+                            style="background-color: #276e44;">
+                        Lire la suite
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .category-content h2 {
+            font-family: 'Source Serif Pro', Georgia, serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #276e44;
+            margin-top: 2rem;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 2px solid #276e4433;
+        }
+        .category-content h2:first-child { margin-top: 0; }
+        .category-content h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #276e44;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .category-content p {
+            font-size: 1.02rem;
+            line-height: 1.8;
+            color: #374151;
+            margin-bottom: 0.9rem;
+        }
+        .category-content ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1rem;
+        }
+        .category-content ul li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.02rem;
+            line-height: 1.7;
+            color: #374151;
+        }
+        .category-content ul li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.55rem;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #276e44;
+            opacity: 0.4;
+        }
+        .category-content strong { color: #1f2937; font-weight: 600; }
+        .category-content a { color: #276e44; text-decoration: none; font-weight: 500; }
+        .category-content a:hover { text-decoration: underline; }
+    </style>
+    @endif
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {{-- Promo Fête des mères --}}
