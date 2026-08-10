@@ -52,6 +52,23 @@
     </url>
     @endforeach
 
+    {{-- Blog --}}
+    @if(isset($posts) && $posts->isNotEmpty())
+    <url>
+        <loc>{{ route('blog.index') }}</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    @foreach($posts as $post)
+    <url>
+        <loc>{{ route('blog.show', $post) }}</loc>
+        <lastmod>{{ $post->updated_at->toW3cString() }}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    @endforeach
+    @endif
+
     {{-- Produits --}}
     @foreach($products as $product)
     <url>

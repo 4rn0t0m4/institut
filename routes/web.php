@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Api\QuizAiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BilanMinceurController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BoxtalConnectController;
 use App\Http\Controllers\BoxtalController;
 use App\Http\Controllers\BoxtalWebhookController;
@@ -83,13 +84,17 @@ Route::get('/web-tasks/abandoned-carts', [CronController::class, 'abandonedCarts
 Route::get('/web-tasks/test-mail', [CronController::class, 'testMail']);
 Route::get('/web-tasks/resend-last-order', [CronController::class, 'resendLastOrder']);
 
+// Blog
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index')->middleware('cacheResponse');
+Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show')->middleware('cacheResponse');
+
 // Pages marques
 Route::get('/marques', [BrandPageController::class, 'index'])->name('brands.index')->middleware('cacheResponse');
 Route::get('/marques/{brand:slug}', [BrandPageController::class, 'show'])->name('brands.show')->middleware('cacheResponse');
 
 // Pages statiques (en dernier pour ne pas capturer les autres routes)
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
-    ->where('slug', '^(?!boutique|panier|commande|connexion|inscription|deconnexion|mon-compte|stripe|admin|api|web-tasks|mot-de-passe-oublie|reinitialiser-mot-de-passe|marques|sitemap\.xml)[a-z0-9-]+(/[a-z0-9-]+)*$')
+    ->where('slug', '^(?!boutique|panier|commande|connexion|inscription|deconnexion|mon-compte|stripe|admin|api|web-tasks|mot-de-passe-oublie|reinitialiser-mot-de-passe|marques|blog|sitemap\.xml)[a-z0-9-]+(/[a-z0-9-]+)*$')
     ->middleware('cacheResponse');
 
 // Boxtal API

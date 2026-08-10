@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use App\Models\Page;
+use App\Models\Post;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use Illuminate\Http\Response;
@@ -23,7 +24,9 @@ class SitemapController extends Controller
 
         $brands = Brand::whereNotNull('content')->get();
 
-        $content = view('sitemap', compact('pages', 'products', 'categories', 'brands'))->render();
+        $posts = Post::published()->latest('published_at')->get();
+
+        $content = view('sitemap', compact('pages', 'products', 'categories', 'brands', 'posts'))->render();
 
         return response($content, 200)
             ->header('Content-Type', 'application/xml')

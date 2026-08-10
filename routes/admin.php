@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\AnnouncementController;
+use App\Http\Controllers\Admin\BlogController;
+use App\Http\Controllers\Admin\BoxtalSubscriptionController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -34,6 +36,7 @@ Route::get('orders/{order}/invoice', [OrderController::class, 'downloadInvoice']
 Route::get('credit-notes/{creditNote}/download', [OrderController::class, 'downloadCreditNote'])->name('admin.credit-notes.download');
 Route::resource('customers', CustomerController::class)->only(['index', 'show'])->names('admin.customers');
 Route::resource('pages', PageController::class)->names('admin.pages');
+Route::resource('blog', BlogController::class)->except(['show'])->names('admin.blog')->parameters(['blog' => 'post']);
 Route::resource('discounts', DiscountController::class)->except(['show'])->names('admin.discounts');
 Route::resource('tags', ProductTagController::class)->except(['show'])->names('admin.tags');
 
@@ -61,8 +64,8 @@ Route::post('newsletter', [NewsletterController::class, 'send'])->name('admin.ne
 
 Route::post('editor-upload', [EditorUploadController::class, 'upload'])->name('admin.editor.upload');
 
-Route::get('boxtal-subscriptions', [\App\Http\Controllers\Admin\BoxtalSubscriptionController::class, 'index'])->name('admin.boxtal-subscriptions.index');
-Route::post('boxtal-subscriptions', [\App\Http\Controllers\Admin\BoxtalSubscriptionController::class, 'store'])->name('admin.boxtal-subscriptions.store');
-Route::post('boxtal-subscriptions/test', [\App\Http\Controllers\Admin\BoxtalSubscriptionController::class, 'test'])->name('admin.boxtal-subscriptions.test');
-Route::delete('boxtal-subscriptions/{id}', [\App\Http\Controllers\Admin\BoxtalSubscriptionController::class, 'destroy'])->name('admin.boxtal-subscriptions.destroy');
-Route::get('boxtal-offers', [\App\Http\Controllers\Admin\BoxtalSubscriptionController::class, 'offers'])->name('admin.boxtal-offers');
+Route::get('boxtal-subscriptions', [BoxtalSubscriptionController::class, 'index'])->name('admin.boxtal-subscriptions.index');
+Route::post('boxtal-subscriptions', [BoxtalSubscriptionController::class, 'store'])->name('admin.boxtal-subscriptions.store');
+Route::post('boxtal-subscriptions/test', [BoxtalSubscriptionController::class, 'test'])->name('admin.boxtal-subscriptions.test');
+Route::delete('boxtal-subscriptions/{id}', [BoxtalSubscriptionController::class, 'destroy'])->name('admin.boxtal-subscriptions.destroy');
+Route::get('boxtal-offers', [BoxtalSubscriptionController::class, 'offers'])->name('admin.boxtal-offers');

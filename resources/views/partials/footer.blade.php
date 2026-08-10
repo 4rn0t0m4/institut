@@ -39,6 +39,7 @@
                     <li><a href="{{ url('boutique/produits-corps') }}" class="hover:opacity-70 transition-opacity">Produits Corps</a></li>
                     <li><a href="{{ url('boutique/coffrets-cadeaux') }}" class="hover:opacity-70 transition-opacity">Coffrets Cadeaux</a></li>
                     <li><a href="{{ route('quiz.show') }}" class="hover:opacity-70 transition-opacity">Diagnostic de peau</a></li>
+                    <li><a href="{{ route('blog.index') }}" class="hover:opacity-70 transition-opacity">Blog beauté</a></li>
                 </ul>
             </div>
 
