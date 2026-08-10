@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Brand;
+use App\Models\Post;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Quiz;
@@ -40,6 +41,11 @@ class HomeController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('home', compact('featuredProducts', 'categories', 'quiz', 'brands'));
+        $latestPosts = Post::published()
+            ->latest('published_at')
+            ->limit(3)
+            ->get();
+
+        return view('home', compact('featuredProducts', 'categories', 'quiz', 'brands', 'latestPosts'));
     }
 }

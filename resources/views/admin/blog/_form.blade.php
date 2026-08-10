@@ -81,12 +81,44 @@
                     @error('published_at') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
                 </div>
 
-                <div>
-                    <label for="featured_image" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Image mise en avant (URL)</label>
-                    <input type="text" id="featured_image" name="featured_image" value="{{ old('featured_image', $post->featured_image ?? '') }}" placeholder="/storage/..."
-                        class="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/3 dark:text-white/90 dark:placeholder:text-white/30" />
+                <div x-data="{ preview: '{{ old('featured_image', $post->featured_image ?? '') }}' }">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Image mise en avant</label>
+                    <div x-show="preview" class="mb-2">
+                        <img :src="preview" class="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700">
+                    </div>
+                    <input type="hidden" id="featured_image" name="featured_image" :value="preview">
+                    <button type="button" onclick="uploadFeaturedImage()" class="w-full h-11 rounded-lg border border-dashed border-gray-300 text-sm text-gray-500 hover:border-brand-400 hover:text-brand-500 transition dark:border-gray-700 dark:text-gray-400">
+                        <span x-show="!preview">Choisir une image…</span>
+                        <span x-show="preview">Changer l'image</span>
+                    </button>
                     @error('featured_image') <p class="mt-1 text-sm text-error-500">{{ $message }}</p> @enderror
                 </div>
+                <script>
+                function uploadFeaturedImage() {
+                    var input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.onchange = function(e) {
+                        var fd = new FormData();
+                        fd.append('file', e.target.files[0]);
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', '/admin/editor-upload');
+                        xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]').content);
+                        xhr.setRequestHeader('Accept', 'application/json');
+                        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                        xhr.onload = function() {
+                            if (xhr.status === 200) {
+                                var url = JSON.parse(xhr.responseText).location;
+                                document.getElementById('featured_image').value = url;
+                                document.getElementById('featured_image').dispatchEvent(new Event('input'));
+                                Alpine.evaluate(document.getElementById('featured_image').closest('[x-data]'), 'preview = "' + url + '"');
+                            }
+                        };
+                        xhr.send(fd);
+                    };
+                    input.click();
+                }
+                </script>
 
                 @if(isset($post) && $post->exists)
                     <a href="{{ route('blog.show', $post) }}" target="_blank"

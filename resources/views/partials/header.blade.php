@@ -106,6 +106,13 @@
                     Diagnostic de peau
                 </a>
 
+                {{-- BLOG --}}
+                <a href="{{ route('blog.index') }}"
+                   class="hover:opacity-70 transition-opacity pb-0.5 border-b-2 {{ request()->routeIs('blog.*') ? 'border-current' : 'border-transparent' }}"
+                   style="color: #276e44;">
+                    Blog
+                </a>
+
             </nav>
 
             {{-- Actions --}}
@@ -445,6 +452,12 @@
            class="block py-2.5 text-sm font-semibold border-b"
            style="color: #276e44; border-color: #c9fad9;">
             Diagnostic de peau
+        </a>
+
+        <a href="{{ route('blog.index') }}"
+           class="block py-2.5 text-sm font-semibold border-b"
+           style="color: #276e44; border-color: #c9fad9;">
+            Blog beauté
         </a>
 
         {{-- Compte + RDV --}}

@@ -202,6 +202,64 @@
 </section>
 @endif
 
+{{-- Derniers articles du blog --}}
+@if($latestPosts->isNotEmpty())
+<section class="py-16" style="background-color: #f8faf9;">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-2xl md:text-3xl font-semibold" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
+                    Conseils beauté
+                </h2>
+                <p class="text-sm mt-1" style="color: #60916a;">Les derniers articles de notre blog</p>
+            </div>
+            <a href="{{ route('blog.index') }}" class="text-sm font-medium hover:underline hidden sm:inline" style="color: #276e44;">
+                Tous les articles →
+            </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            @foreach($latestPosts as $post)
+                <article class="group">
+                    <a href="{{ route('blog.show', $post) }}" class="block">
+                        @if($post->featured_image)
+                            <div class="aspect-[16/10] rounded-2xl overflow-hidden mb-4">
+                                <img src="{{ $post->featured_image }}" alt="{{ $post->title }}"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                            </div>
+                        @else
+                            <div class="aspect-[16/10] rounded-2xl mb-4 flex items-center justify-center" style="background: linear-gradient(135deg, #e8fae8 0%, #d1fae5 100%);">
+                                <svg class="w-10 h-10" style="color: #276e4440;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                                </svg>
+                            </div>
+                        @endif
+                        <div class="space-y-2">
+                            @if($post->published_at)
+                                <time datetime="{{ $post->published_at->toDateString() }}" class="text-xs font-medium uppercase tracking-wider" style="color: #276e44;">
+                                    {{ $post->published_at->translatedFormat('d F Y') }}
+                                </time>
+                            @endif
+                            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-green-700 transition-colors leading-snug">
+                                {{ $post->title }}
+                            </h3>
+                            @if($post->excerpt)
+                                <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">{{ $post->excerpt }}</p>
+                            @endif
+                            <span class="inline-block text-sm font-medium" style="color: #276e44;">Lire l'article →</span>
+                        </div>
+                    </a>
+                </article>
+            @endforeach
+        </div>
+        <div class="text-center mt-8 sm:hidden">
+            <a href="{{ route('blog.index') }}" class="text-sm font-medium hover:underline" style="color: #276e44;">
+                Tous les articles →
+            </a>
+        </div>
+    </div>
+</section>
+@endif
+
 {{-- Réassurance SEO --}}
 <section class="py-12" style="background-color: #f0fdf4;">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
