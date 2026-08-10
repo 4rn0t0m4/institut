@@ -139,6 +139,29 @@
         }
     </style>
 
+    {{-- Produits recommandes --}}
+    @if($recommendedProducts->isNotEmpty())
+        <section class="py-16 border-t border-gray-100">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-2xl font-semibold mb-2" style="color: #276e44; font-family: 'Source Serif Pro', Georgia, serif;">
+                    Nos produits recommandés
+                </h2>
+                <p class="text-sm mb-8" style="color: #60916a;">Sélectionnés pour accompagner les conseils de cet article.</p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+                    @foreach($recommendedProducts as $product)
+                        <x-product-card :product="$product"/>
+                    @endforeach
+                </div>
+                <div class="text-center mt-8">
+                    <a href="{{ route('shop.index') }}" class="inline-block font-medium px-8 py-3 rounded-xl transition text-sm border hover:opacity-90"
+                       style="border-color: #276e44; color: #276e44;">
+                        Voir toute la boutique →
+                    </a>
+                </div>
+            </div>
+        </section>
+    @endif
+
     {{-- Articles associes --}}
     @if($relatedPosts->isNotEmpty())
         <section class="py-16 border-t border-gray-100" style="background-color: #f0fdf4;">
