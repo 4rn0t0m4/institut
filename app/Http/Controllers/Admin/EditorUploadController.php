@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image;
 
 class EditorUploadController extends Controller
 {
@@ -24,14 +26,31 @@ class EditorUploadController extends Controller
             return response()->json(['error' => "Type de fichier non autorisé ($mime)"], 422);
         }
 
-        $extensions = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp', 'image/svg+xml' => 'svg'];
-        $ext = $extensions[$mime] ?? $file->getClientOriginalExtension() ?: 'jpg';
-        $filename = Str::uuid().'.'.$ext;
-        $file->storeAs('editor-uploads', $filename, 'public');
+        $dir = Storage::disk('public')->path('editor-uploads');
+        File::ensureDirectoryExists($dir, 0755);
+
+        // Le SVG est vectoriel et le GIF peut être animé : les convertir les dégraderait.
+        $passthrough = ['image/svg+xml' => 'svg', 'image/gif' => 'gif'];
+
+        if (isset($passthrough[$mime])) {
+            $filename = Str::uuid().'.'.$passthrough[$mime];
+            $file->storeAs('editor-uploads', $filename, 'public');
+        } else {
+            // Redimensionne (max 1600px) et convertit en WebP, comme storeMedia() des produits.
+            // 1600px couvre le plus grand rendu du blog (hero 896px CSS) en écran retina.
+            $filename = Str::uuid().'.webp';
+
+            Image::make($file->getRealPath())
+                ->resize(1600, 1600, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })
+                ->encode('webp', 80)
+                ->save($dir.'/'.$filename);
+        }
 
         // L'hébergement applique un umask 077 : les dossiers créés par Flysystem
         // naissent en 0700 et Apache renvoie alors 403 sur les fichiers servis.
-        $dir = Storage::disk('public')->path('editor-uploads');
         if (is_dir($dir) && (fileperms($dir) & 0777) !== 0755) {
             @chmod($dir, 0755);
         }
